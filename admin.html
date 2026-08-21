@@ -52,7 +52,7 @@
       <button onclick="checkAdminPassword()" class="w-full brand-gradient text-black font-extrabold text-xs uppercase py-3 rounded-xl hover:brightness-110 active:scale-95 transition shadow-lg">
         Unlock Dashboard
       </button>
-      <p id="login-err" class="text-rose-400 text-[11px] text-center hidden">गलत पासवर्ड! दोबारा प्रयास करें।</p>
+      <p id="login-err" class="text-rose-400 text-[11px] text-center hidden">Incorrect PIN! Please try again.</p>
     </div>
   </div>
 
@@ -146,7 +146,6 @@
 
   <script>
     // --- 1. FIREBASE CONFIGURATION ---
-    // (Firebase Console > Project Settings से अपनी Keys यहाँ डालें)
     const firebaseConfig = {
       apiKey: "YOUR_API_KEY",
       authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -176,7 +175,7 @@
     // --- 3. FETCH & DISPLAY CARS ---
     async function loadCars() {
       const list = document.getElementById("cars-list");
-      list.innerHTML = `<p class="text-xs text-neutral-500 text-center py-4">लोड हो रहा है...</p>`;
+      list.innerHTML = `<p class="text-xs text-neutral-500 text-center py-4">Loading fleet inventory...</p>`;
       
       try {
         const snapshot = await db.collection("fleet").orderBy("createdAt", "desc").get();
@@ -184,7 +183,7 @@
         list.innerHTML = "";
 
         if (snapshot.empty) {
-          list.innerHTML = `<p class="text-xs text-neutral-500 text-center py-4">कोई कार नहीं मिली। ऊपर से जोड़ें!</p>`;
+          list.innerHTML = `<p class="text-xs text-neutral-500 text-center py-4">No vehicles found. Add your first vehicle above!</p>`;
           return;
         }
 
@@ -222,7 +221,7 @@
           list.appendChild(card);
         });
       } catch (err) {
-        list.innerHTML = `<p class="text-xs text-rose-400 text-center py-4">त्रुटि: Firebase Config की जांच करें।</p>`;
+        list.innerHTML = `<p class="text-xs text-rose-400 text-center py-4">Error: Check Firebase configuration.</p>`;
       }
       lucide.createIcons();
     }
@@ -231,7 +230,7 @@
     async function addNewCar(e) {
       e.preventDefault();
       const btn = document.getElementById("submit-btn");
-      btn.innerText = "जोड़ा जा रहा है...";
+      btn.innerText = "Adding vehicle...";
       btn.disabled = true;
 
       try {
@@ -250,7 +249,7 @@
         document.getElementById("add-car-form").reset();
         loadCars();
       } catch (err) {
-        alert("कार जोड़ने में समस्या हुई: " + err.message);
+        alert("Failed to add vehicle: " + err.message);
       } finally {
         btn.innerText = "+ Add Vehicle to Live Website";
         btn.disabled = false;
@@ -265,7 +264,7 @@
 
     // --- 6. UPDATE PRICE ---
     async function updatePricePrompt(id, currentPrice) {
-      const newPrice = prompt("नया डेली किराया दर्ज करें (₹):", currentPrice);
+      const newPrice = prompt("Enter updated daily rental rate (₹):", currentPrice);
       if (newPrice && !isNaN(newPrice)) {
         await db.collection("fleet").doc(id).update({ price: Number(newPrice) });
         loadCars();
@@ -274,7 +273,7 @@
 
     // --- 7. DELETE CAR ---
     async function deleteCar(id) {
-      if (confirm("क्या आप इस गाड़ी को इन्वेंट्री से हटाना चाहते हैं?")) {
+      if (confirm("Are you sure you want to remove this vehicle from inventory?")) {
         await db.collection("fleet").doc(id).delete();
         loadCars();
       }
