@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Admin Portal | NeeD by GCR</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Firebase App & Firestore SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #060709;
+      color: #f1f5f9;
+    }
+    .font-brand {
+      font-family: 'Orbitron', sans-serif;
+    }
+    .brand-gradient {
+      background: linear-gradient(135deg, #00e5ff 0%, #0077ff 100%);
+    }
+    .brand-glow {
+      box-shadow: 0 0 15px rgba(0, 229, 255, 0.25);
+    }
+    .cyan-border {
+      border: 1px solid rgba(0, 229, 255, 0.25);
+    }
+  </style>
+</head>
+<body class="p-4 sm:p-6 min-h-screen flex flex-col items-center">
+
+  <!-- ================= 1. ADMIN LOGIN LOCK ================= -->
+  <div id="login-modal" class="w-full max-w-sm bg-[#10141f] border border-neutral-800 rounded-2xl p-6 shadow-2xl mt-16 cyan-border brand-glow">
+    <div class="text-center mb-5">
+      <div class="w-12 h-12 mx-auto rounded-xl bg-cyan-950/60 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-brand font-black text-xl mb-2">
+        N
+      </div>
+      <h2 class="text-lg font-bold text-white font-brand">Admin Portal</h2>
+      <p class="text-xs text-neutral-400">NeeD by Gujral Car Rental</p>
+    </div>
+    
+    <div class="space-y-3">
+      <input type="password" id="admin-pass" placeholder="Enter Security PIN" class="w-full bg-[#171c2b] border border-neutral-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-400 text-center tracking-widest text-lg">
+      <button onclick="checkAdminPassword()" class="w-full brand-gradient text-black font-extrabold text-xs uppercase py-3 rounded-xl hover:brightness-110 active:scale-95 transition shadow-lg">
+        Unlock Dashboard
+      </button>
+      <p id="login-err" class="text-rose-400 text-[11px] text-center hidden">गलत पासवर्ड! दोबारा प्रयास करें।</p>
+    </div>
+  </div>
+
+  <!-- ================= 2. MAIN ADMIN DASHBOARD ================= -->
+  <div id="admin-dashboard" class="w-full max-w-2xl hidden space-y-6">
+
+    <!-- Top Header -->
+    <div class="flex items-center justify-between bg-[#10141f] p-4 rounded-2xl border border-neutral-800 shadow-lg">
+      <div>
+        <h1 class="text-base font-bold text-white font-brand">Fleet Management</h1>
+        <p class="text-[11px] text-neutral-400">Live Inventory & Rates Control</p>
+      </div>
+      <button onclick="location.reload()" class="text-xs text-neutral-400 hover:text-white border border-neutral-800 px-3 py-1.5 rounded-lg transition">
+        Logout
+      </button>
+    </div>
+
+    <!-- Add New Car Form -->
+    <div class="bg-[#10141f] p-5 rounded-2xl border border-neutral-800 shadow-lg">
+      <h2 class="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-4 flex items-center">
+        <i data-lucide="plus-circle" class="w-4 h-4 mr-1.5"></i> Add New Vehicle
+      </h2>
+
+      <form id="add-car-form" onsubmit="addNewCar(event)" class="space-y-3">
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="text-[10px] text-neutral-400 block mb-1">Car Name & Model</label>
+            <input type="text" id="car-name" placeholder="e.g. Toyota Fortuner 4x4" required class="w-full bg-[#171c2b] border border-neutral-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-400">
+          </div>
+          <div>
+            <label class="text-[10px] text-neutral-400 block mb-1">Daily Rent (₹)</label>
+            <input type="number" id="car-price" placeholder="e.g. 10000" required class="w-full bg-[#171c2b] border border-neutral-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-400">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="text-[10px] text-neutral-400 block mb-1">Available City</label>
+            <select id="car-city" class="w-full bg-[#171c2b] border border-neutral-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-400 cursor-pointer">
+              <option value="Bangalore">Bangalore</option>
+              <option value="Jamshedpur">Jamshedpur</option>
+              <option value="Both">Both Cities</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[10px] text-neutral-400 block mb-1">Category (Filter Tab)</label>
+            <select id="car-category" class="w-full bg-[#171c2b] border border-neutral-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-400 cursor-pointer">
+              <option value="Luxury SUVs">Luxury SUVs</option>
+              <option value="Sedans">Sedans</option>
+              <option value="Automatic">Automatic</option>
+              <option value="7 Seater">7 Seater</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="text-[10px] text-neutral-400 block mb-1">Key Specs</label>
+            <input type="text" id="car-specs" placeholder="e.g. Diesel • Automatic • 7 Seats" class="w-full bg-[#171c2b] border border-neutral-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-400">
+          </div>
+          <div>
+            <label class="text-[10px] text-neutral-400 block mb-1">Car Image URL</label>
+            <input type="url" id="car-image" placeholder="https://image-link.jpg" required class="w-full bg-[#171c2b] border border-neutral-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-400">
+          </div>
+        </div>
+
+        <button type="submit" id="submit-btn" class="w-full brand-gradient text-black font-extrabold text-xs uppercase py-3 rounded-xl hover:brightness-110 active:scale-[0.99] transition shadow-[0_0_15px_rgba(0,229,255,0.3)] mt-2">
+          + Add Vehicle to Live Website
+        </button>
+      </form>
+    </div>
+
+    <!-- Active Cars List -->
+    <div class="bg-[#10141f] p-5 rounded-2xl border border-neutral-800 shadow-lg">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-neutral-300">
+          Live Inventory (<span id="car-count">0</span>)
+        </h2>
+        <button onclick="loadCars()" class="text-cyan-400 text-xs flex items-center hover:underline">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5 mr-1"></i> Refresh
+        </button>
+      </div>
+
+      <div id="cars-list" class="space-y-3">
+        <!-- Dynamic Cards Loaded Here -->
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // --- 1. FIREBASE CONFIGURATION ---
+    // (Firebase Console > Project Settings से अपनी Keys यहाँ डालें)
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "SENDER_ID",
+      appId: "APP_ID"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // --- 2. ADMIN SECURITY PIN ---
+    const ADMIN_PIN = "1609"; 
+
+    function checkAdminPassword() {
+      const pass = document.getElementById("admin-pass").value;
+      if (pass === ADMIN_PIN) {
+        document.getElementById("login-modal").classList.add("hidden");
+        document.getElementById("admin-dashboard").classList.remove("hidden");
+        loadCars();
+      } else {
+        document.getElementById("login-err").classList.remove("hidden");
+      }
+    }
+
+    // --- 3. FETCH & DISPLAY CARS ---
+    async function loadCars() {
+      const list = document.getElementById("cars-list");
+      list.innerHTML = `<p class="text-xs text-neutral-500 text-center py-4">लोड हो रहा है...</p>`;
+      
+      try {
+        const snapshot = await db.collection("fleet").orderBy("createdAt", "desc").get();
+        document.getElementById("car-count").innerText = snapshot.size;
+        list.innerHTML = "";
+
+        if (snapshot.empty) {
+          list.innerHTML = `<p class="text-xs text-neutral-500 text-center py-4">कोई कार नहीं मिली। ऊपर से जोड़ें!</p>`;
+          return;
+        }
+
+        snapshot.forEach(doc => {
+          const car = doc.data();
+          const card = document.createElement("div");
+          card.className = "bg-[#171c2b] p-3 rounded-xl border border-neutral-800 flex items-center justify-between gap-3";
+          card.innerHTML = `
+            <img src="${car.image}" class="w-14 h-14 rounded-lg object-cover bg-neutral-900 shrink-0 border border-neutral-800">
+            <div class="flex-1 min-w-0">
+              <h4 class="text-xs font-bold text-white truncate">${car.name}</h4>
+              <div class="flex items-center gap-1.5 mt-0.5">
+                <span class="text-[9px] bg-cyan-950 text-cyan-300 border border-cyan-500/30 px-1.5 py-0.2 rounded font-semibold">${car.category || 'SUV'}</span>
+                <span class="text-[10px] text-neutral-400">${car.city}</span>
+              </div>
+              <div class="flex items-center gap-2 mt-1.5">
+                <span class="text-xs font-black text-cyan-300">₹${car.price}</span>
+                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded ${car.isAvailable ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/30' : 'bg-rose-950 text-rose-400 border border-rose-500/30'}">
+                  ${car.isAvailable ? 'Available' : 'Booked'}
+                </span>
+              </div>
+            </div>
+            <div class="flex flex-col gap-1.5 shrink-0">
+              <button onclick="toggleAvailability('${doc.id}', ${!car.isAvailable})" class="text-[10px] font-bold px-2.5 py-1 rounded-lg border ${car.isAvailable ? 'border-amber-500/40 text-amber-400 hover:bg-amber-950/40' : 'border-emerald-500/40 text-emerald-400 hover:bg-emerald-950/40'} transition">
+                ${car.isAvailable ? 'Mark Booked' : 'Mark Available'}
+              </button>
+              <button onclick="updatePricePrompt('${doc.id}', ${car.price})" class="text-[10px] font-medium text-cyan-400 hover:underline text-right">
+                Edit Price
+              </button>
+              <button onclick="deleteCar('${doc.id}')" class="text-[10px] font-medium text-rose-400 hover:underline text-right">
+                Delete
+              </button>
+            </div>
+          `;
+          list.appendChild(card);
+        });
+      } catch (err) {
+        list.innerHTML = `<p class="text-xs text-rose-400 text-center py-4">त्रुटि: Firebase Config की जांच करें।</p>`;
+      }
+      lucide.createIcons();
+    }
+
+    // --- 4. ADD NEW CAR ---
+    async function addNewCar(e) {
+      e.preventDefault();
+      const btn = document.getElementById("submit-btn");
+      btn.innerText = "जोड़ा जा रहा है...";
+      btn.disabled = true;
+
+      try {
+        const newCar = {
+          name: document.getElementById("car-name").value,
+          price: Number(document.getElementById("car-price").value),
+          city: document.getElementById("car-city").value,
+          category: document.getElementById("car-category").value,
+          specs: document.getElementById("car-specs").value,
+          image: document.getElementById("car-image").value,
+          isAvailable: true,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        await db.collection("fleet").add(newCar);
+        document.getElementById("add-car-form").reset();
+        loadCars();
+      } catch (err) {
+        alert("कार जोड़ने में समस्या हुई: " + err.message);
+      } finally {
+        btn.innerText = "+ Add Vehicle to Live Website";
+        btn.disabled = false;
+      }
+    }
+
+    // --- 5. TOGGLE STOCK STATUS ---
+    async function toggleAvailability(id, newStatus) {
+      await db.collection("fleet").doc(id).update({ isAvailable: newStatus });
+      loadCars();
+    }
+
+    // --- 6. UPDATE PRICE ---
+    async function updatePricePrompt(id, currentPrice) {
+      const newPrice = prompt("नया डेली किराया दर्ज करें (₹):", currentPrice);
+      if (newPrice && !isNaN(newPrice)) {
+        await db.collection("fleet").doc(id).update({ price: Number(newPrice) });
+        loadCars();
+      }
+    }
+
+    // --- 7. DELETE CAR ---
+    async function deleteCar(id) {
+      if (confirm("क्या आप इस गाड़ी को इन्वेंट्री से हटाना चाहते हैं?")) {
+        await db.collection("fleet").doc(id).delete();
+        loadCars();
+      }
+    }
+
+    lucide.createIcons();
+  </script>
+</body>
+</html>
