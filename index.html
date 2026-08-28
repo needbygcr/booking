@@ -11,6 +11,10 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
+  <!-- Firebase App & Firestore SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
   <style>
     * {
       -webkit-tap-highlight-color: transparent;
@@ -35,9 +39,10 @@
       border: 1px solid rgba(0, 229, 255, 0.25);
     }
     .active-pill {
-      background: rgba(0, 229, 255, 0.15);
-      border-color: #00e5ff;
-      color: #00e5ff;
+      background: rgba(0, 229, 255, 0.15) !important;
+      border-color: #00e5ff !important;
+      color: #00e5ff !important;
+      font-weight: 700 !important;
     }
     /* Hide scrollbars for pill horizontal scrolling */
     .no-scrollbar::-webkit-scrollbar {
@@ -57,26 +62,26 @@
     <!-- ================= 1. MOBILE APP TOP HEADER ================= -->
     <header class="sticky top-0 z-40 bg-[#090b10]/95 backdrop-blur-md px-4 py-3 border-b border-neutral-800/80 flex items-center justify-between">
       
-     
-     <!-- Brand & City Selector -->
-<div class="flex items-center space-x-3">
-  <div class="w-9 h-9 rounded-lg bg-[#11141c] border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-brand font-black text-sm brand-glow">
-    N
-  </div>
-  <div>
-    <div class="flex items-center space-x-1.5">
-      <span class="text-base font-black italic tracking-wider font-brand text-white">NeeD</span>
-      <span class="text-[8px] bg-cyan-950 text-cyan-400 border border-cyan-500/30 px-1.5 py-0.2 rounded font-bold uppercase">GCR</span>
-    </div>
-    <div class="flex items-center text-[10px] text-neutral-400">
-      <i data-lucide="map-pin" class="w-3 h-3 text-cyan-400 mr-1"></i>
-      <select class="bg-transparent font-medium text-neutral-200 focus:outline-none cursor-pointer">
-        <option value="bangalore" class="bg-[#090b10] text-white">Bangalore</option>
-        <option value="jamshedpur" class="bg-[#090b10] text-white">Jamshedpur</option>
-      </select>
-    </div>
-  </div>
-</div>
+      <!-- Brand & City Selector -->
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-lg bg-[#11141c] border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-brand font-black text-sm brand-glow">
+          N
+        </div>
+        <div>
+          <div class="flex items-center space-x-1.5">
+            <span class="text-base font-black italic tracking-wider font-brand text-white">NeeD</span>
+            <span class="text-[8px] bg-cyan-950 text-cyan-400 border border-cyan-500/30 px-1.5 py-0.2 rounded font-bold uppercase">GCR</span>
+          </div>
+          <div class="flex items-center text-[10px] text-neutral-400">
+            <i data-lucide="map-pin" class="w-3 h-3 text-cyan-400 mr-1"></i>
+            <select id="city-selector" onchange="filterFleet()" class="bg-transparent font-medium text-neutral-200 focus:outline-none cursor-pointer">
+              <option value="All" class="bg-[#090b10] text-white">All Cities</option>
+              <option value="Bangalore" class="bg-[#090b10] text-white">Bangalore</option>
+              <option value="Jamshedpur" class="bg-[#090b10] text-white">Jamshedpur</option>
+            </select>
+          </div>
+        </div>
+      </div>
 
       <!-- Quick Call Button -->
       <a href="tel:9731055500" class="w-9 h-9 rounded-full bg-[#121620] border border-cyan-500/30 flex items-center justify-center text-cyan-400 active:scale-95 transition">
@@ -85,7 +90,7 @@
 
     </header>
 
-    <!-- ================= 2. ZOOMCAR STYLE SEARCH & PICKUP CARD ================= -->
+    <!-- ================= 2. SEARCH & PICKUP CARD ================= -->
     <div class="p-4">
       <div class="bg-[#10141f] rounded-2xl p-3.5 cyan-border brand-glow relative overflow-hidden">
         
@@ -100,7 +105,7 @@
             </div>
             <div class="flex-1">
               <label class="text-[9px] uppercase font-bold text-neutral-400 block tracking-wider leading-none mb-0.5">Pickup Location</label>
-              <input type="text" value="Doorstep Delivery / Airport Drop" class="bg-transparent text-xs font-semibold text-white focus:outline-none w-full">
+              <input type="text" id="pickup-location" value="Doorstep Delivery / Airport Drop" class="bg-transparent text-xs font-semibold text-white focus:outline-none w-full">
             </div>
           </div>
 
@@ -109,20 +114,20 @@
             <!-- Start Date -->
             <div class="bg-[#171c2b] rounded-xl px-3 py-2 border border-neutral-800">
               <label class="text-[9px] uppercase font-bold text-neutral-400 block tracking-wider leading-none mb-1">Start Date</label>
-              <input type="datetime-local" class="bg-transparent text-[11px] font-medium text-white focus:outline-none w-full [color-scheme:dark]">
+              <input type="datetime-local" id="start-date" class="bg-transparent text-[11px] font-medium text-white focus:outline-none w-full [color-scheme:dark]">
             </div>
 
             <!-- End Date -->
             <div class="bg-[#171c2b] rounded-xl px-3 py-2 border border-neutral-800">
               <label class="text-[9px] uppercase font-bold text-neutral-400 block tracking-wider leading-none mb-1">End Date</label>
-              <input type="datetime-local" class="bg-transparent text-[11px] font-medium text-white focus:outline-none w-full [color-scheme:dark]">
+              <input type="datetime-local" id="end-date" class="bg-transparent text-[11px] font-medium text-white focus:outline-none w-full [color-scheme:dark]">
             </div>
           </div>
 
           <!-- Find Cars Button -->
-          <button class="w-full brand-gradient py-3 rounded-xl text-black font-extrabold text-xs uppercase tracking-wider flex items-center justify-center space-x-2 active:scale-[0.98] transition">
+          <button onclick="document.getElementById('fleet-feed').scrollIntoView({behavior: 'smooth'})" class="w-full brand-gradient py-3 rounded-xl text-black font-extrabold text-xs uppercase tracking-wider flex items-center justify-center space-x-2 active:scale-[0.98] transition">
             <i data-lucide="search" class="w-4 h-4"></i>
-            <span>Search Luxury Fleet</span>
+            <span>Browse Live Fleet</span>
           </button>
         </div>
 
@@ -131,111 +136,21 @@
 
     <!-- ================= 3. FILTER PILLS (HORIZONTAL SCROLL) ================= -->
     <div class="px-4 pb-2">
-      <div class="flex items-center space-x-2 overflow-x-auto no-scrollbar py-1 text-xs">
-        <button class="active-pill border px-3.5 py-1.5 rounded-full font-bold whitespace-nowrap shrink-0">All Cars</button>
-        <button class="bg-[#121622] text-neutral-400 border border-neutral-800 px-3.5 py-1.5 rounded-full font-medium whitespace-nowrap shrink-0">Luxury SUVs</button>
-        <button class="bg-[#121622] text-neutral-400 border border-neutral-800 px-3.5 py-1.5 rounded-full font-medium whitespace-nowrap shrink-0">Sedans</button>
-        <button class="bg-[#121622] text-neutral-400 border border-neutral-800 px-3.5 py-1.5 rounded-full font-medium whitespace-nowrap shrink-0">Automatic</button>
-        <button class="bg-[#121622] text-neutral-400 border border-neutral-800 px-3.5 py-1.5 rounded-full font-medium whitespace-nowrap shrink-0">7 Seater</button>
+      <div id="filter-pills" class="flex items-center space-x-2 overflow-x-auto no-scrollbar py-1 text-xs">
+        <button onclick="setCategoryFilter('All', this)" class="active-pill border border-neutral-800 bg-[#121622] text-neutral-400 px-3.5 py-1.5 rounded-full whitespace-nowrap shrink-0 transition">All Cars</button>
+        <button onclick="setCategoryFilter('Luxury SUVs', this)" class="border border-neutral-800 bg-[#121622] text-neutral-400 px-3.5 py-1.5 rounded-full font-medium whitespace-nowrap shrink-0 transition">Luxury SUVs</button>
+        <button onclick="setCategoryFilter('Sedans', this)" class="border border-neutral-800 bg-[#121622] text-neutral-400 px-3.5 py-1.5 rounded-full font-medium whitespace-nowrap shrink-0 transition">Sedans</button>
+        <button onclick="setCategoryFilter('Automatic', this)" class="border border-neutral-800 bg-[#121622] text-neutral-400 px-3.5 py-1.5 rounded-full font-medium whitespace-nowrap shrink-0 transition">Automatic</button>
+        <button onclick="setCategoryFilter('7 Seater', this)" class="border border-neutral-800 bg-[#121622] text-neutral-400 px-3.5 py-1.5 rounded-full font-medium whitespace-nowrap shrink-0 transition">7 Seater</button>
       </div>
     </div>
 
-    <!-- ================= 4. CAR FEED (ZOOMCAR STYLE VERTICAL FEED) ================= -->
-    <div class="px-4 space-y-3.5 mt-1">
-
-      <!-- Car 1: Toyota Fortuner -->
-      <div class="bg-[#10141f] rounded-2xl border border-neutral-800/90 overflow-hidden shadow-lg">
-        <!-- Top Info Header -->
-        <div class="p-3 pb-0 flex items-start justify-between">
-          <div>
-            <div class="flex items-center space-x-1.5 mb-0.5">
-              <span class="text-[10px] font-bold bg-emerald-950/80 text-emerald-400 border border-emerald-500/30 px-1.5 py-0.2 rounded">AVAILABLE</span>
-              <span class="text-[10px] text-amber-400 flex items-center font-semibold"><i data-lucide="star" class="w-3 h-3 fill-amber-400 mr-0.5"></i> 4.9 (120+)</span>
-            </div>
-            <h3 class="text-sm font-bold text-white">Toyota Fortuner 4x4</h3>
-            <p class="text-[10px] text-neutral-400">Diesel • Automatic • 7 Seats</p>
-          </div>
-          <!-- Zero Deposit Badge -->
-          <span class="text-[9px] font-bold bg-cyan-950 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded-full">
-            Zero Deposit
-          </span>
-        </div>
-
-        <!-- Car Image -->
-        <div class="px-3 py-2">
-          <div class="h-40 rounded-xl bg-[#090b10] flex items-center justify-center overflow-hidden border border-neutral-850">
-            <img src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=500&q=80" alt="Fortuner" class="w-full h-full object-cover">
-          </div>
-        </div>
-
-        <!-- Feature Tags -->
-        <div class="px-3 py-1 flex items-center space-x-3 text-[10px] text-neutral-400">
-          <span class="flex items-center"><i data-lucide="zap" class="w-3 h-3 text-cyan-400 mr-1"></i> Fastag Enabled</span>
-          <span class="flex items-center"><i data-lucide="shield-check" class="w-3 h-3 text-cyan-400 mr-1"></i> Sanitized</span>
-          <span class="flex items-center"><i data-lucide="navigation" class="w-3 h-3 text-cyan-400 mr-1"></i> Unlimited KM</span>
-        </div>
-
-        <!-- Bottom Price & Book Action -->
-        <div class="p-3 bg-[#131826] border-t border-neutral-800 flex items-center justify-between">
-          <div>
-            <div class="flex items-baseline space-x-1">
-              <span class="text-base font-black text-cyan-300 font-brand">₹10,000</span>
-              <span class="text-[10px] text-neutral-400">/ Day</span>
-            </div>
-            <span class="text-[9px] text-emerald-400 block font-medium">Free Doorstep Delivery</span>
-          </div>
-
-          <a href="https://wa.me/919731055500?text=Hello%20NeeD%20by%20GCR,%20I%20want%20to%20book%20Toyota%20Fortuner" class="brand-gradient text-black font-extrabold text-[11px] uppercase tracking-wider px-4 py-2.5 rounded-xl active:scale-95 transition flex items-center space-x-1.5 shadow-[0_0_10px_rgba(0,229,255,0.3)]">
-            <i data-lucide="message-circle" class="w-3.5 h-3.5 fill-black"></i>
-            <span>Book Now</span>
-          </a>
-        </div>
+    <!-- ================= 4. DYNAMIC LIVE CAR FEED ================= -->
+    <div id="fleet-feed" class="px-4 space-y-3.5 mt-1">
+      <div class="py-12 text-center text-xs text-neutral-500">
+        <div class="inline-block w-6 h-6 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mb-2"></div>
+        <p>Loading live fleet inventory...</p>
       </div>
-
-      <!-- Car 2: BMW 5 Series -->
-      <div class="bg-[#10141f] rounded-2xl border border-neutral-800/90 overflow-hidden shadow-lg">
-        <div class="p-3 pb-0 flex items-start justify-between">
-          <div>
-            <div class="flex items-center space-x-1.5 mb-0.5">
-              <span class="text-[10px] font-bold bg-emerald-950/80 text-emerald-400 border border-emerald-500/30 px-1.5 py-0.2 rounded">AVAILABLE</span>
-              <span class="text-[10px] text-amber-400 flex items-center font-semibold"><i data-lucide="star" class="w-3 h-3 fill-amber-400 mr-0.5"></i> 5.0 (85+)</span>
-            </div>
-            <h3 class="text-sm font-bold text-white">BMW 5 Series (Luxury Sedan)</h3>
-            <p class="text-[10px] text-neutral-400">Petrol • Automatic • 5 Seats</p>
-          </div>
-          <span class="text-[9px] font-bold bg-cyan-950 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded-full">
-            VIP Chauffeur/Self
-          </span>
-        </div>
-
-        <div class="px-3 py-2">
-          <div class="h-40 rounded-xl bg-[#090b10] flex items-center justify-center overflow-hidden border border-neutral-850">
-            <img src="https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=500&q=80" alt="BMW 5 Series" class="w-full h-full object-cover">
-          </div>
-        </div>
-
-        <div class="px-3 py-1 flex items-center space-x-3 text-[10px] text-neutral-400">
-          <span class="flex items-center"><i data-lucide="zap" class="w-3 h-3 text-cyan-400 mr-1"></i> Fastag</span>
-          <span class="flex items-center"><i data-lucide="shield-check" class="w-3 h-3 text-cyan-400 mr-1"></i> Full Insurance</span>
-          <span class="flex items-center"><i data-lucide="navigation" class="w-3 h-3 text-cyan-400 mr-1"></i> Unlimited KM</span>
-        </div>
-
-        <div class="p-3 bg-[#131826] border-t border-neutral-800 flex items-center justify-between">
-          <div>
-            <div class="flex items-baseline space-x-1">
-              <span class="text-base font-black text-cyan-300 font-brand">₹14,000</span>
-              <span class="text-[10px] text-neutral-400">/ Day</span>
-            </div>
-            <span class="text-[9px] text-emerald-400 block font-medium">Doorstep Handover</span>
-          </div>
-
-          <a href="https://wa.me/919731055500?text=Hello%20NeeD%20by%20GCR,%20I%20want%20to%20book%20BMW%205%20Series" class="brand-gradient text-black font-extrabold text-[11px] uppercase tracking-wider px-4 py-2.5 rounded-xl active:scale-95 transition flex items-center space-x-1.5 shadow-[0_0_10px_rgba(0,229,255,0.3)]">
-            <i data-lucide="message-circle" class="w-3.5 h-3.5 fill-black"></i>
-            <span>Book Now</span>
-          </a>
-        </div>
-      </div>
-
     </div>
 
     <!-- ================= 5. APP-LIKE BOTTOM NAVIGATION BAR ================= -->
@@ -249,20 +164,20 @@
         </a>
 
         <!-- Tab 2: Bookings -->
-        <a href="#" class="flex flex-col items-center hover:text-white transition">
+        <a href="tel:9731055500" class="flex flex-col items-center hover:text-white transition">
           <i data-lucide="calendar" class="w-5 h-5 mb-0.5"></i>
           <span class="text-[10px] font-medium">My Trips</span>
         </a>
 
-        <!-- Tab 3: WhatsApp Instant -->
-        <a href="https://wa.me/919731055500" class="flex flex-col items-center hover:text-emerald-400 transition">
+        <!-- Tab 3: WhatsApp Direct -->
+        <a href="https://wa.me/919731055500" target="_blank" class="flex flex-col items-center hover:text-emerald-400 transition">
           <i data-lucide="message-square" class="w-5 h-5 mb-0.5"></i>
           <span class="text-[10px] font-medium">Chat</span>
         </a>
 
-        <!-- Tab 4: Profile/Support -->
+        <!-- Tab 4: 24/7 Support -->
         <a href="tel:9731055500" class="flex flex-col items-center hover:text-white transition">
-          <i data-lucide="user" class="w-5 h-5 mb-0.5"></i>
+          <i data-lucide="headphones" class="w-5 h-5 mb-0.5"></i>
           <span class="text-[10px] font-medium">Support</span>
         </a>
 
@@ -272,6 +187,150 @@
   </div>
 
   <script>
+    // --- 1. FIREBASE CONFIGURATION ---
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "SENDER_ID",
+      appId: "APP_ID"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    let allFleetCars = [];
+    let selectedCategory = "All";
+
+    // --- 2. REAL-TIME FLEET LISTENER ---
+    db.collection("fleet").orderBy("createdAt", "desc").onSnapshot(snapshot => {
+      allFleetCars = [];
+      snapshot.forEach(doc => {
+        allFleetCars.push({ id: doc.id, ...doc.data() });
+      });
+      renderFleetCards();
+    }, error => {
+      console.error("Firestore sync error:", error);
+      document.getElementById("fleet-feed").innerHTML = `
+        <div class="p-4 bg-rose-950/40 border border-rose-500/30 rounded-xl text-center text-xs text-rose-300">
+          Failed to load inventory. Please check Firebase configuration.
+        </div>
+      `;
+    });
+
+    // --- 3. FILTERING LOGIC ---
+    function setCategoryFilter(category, buttonElement) {
+      selectedCategory = category;
+      const pills = document.querySelectorAll("#filter-pills button");
+      pills.forEach(btn => btn.classList.remove("active-pill"));
+      buttonElement.classList.add("active-pill");
+      renderFleetCards();
+    }
+
+    function filterFleet() {
+      renderFleetCards();
+    }
+
+    // --- 4. RENDER CAR CARDS ---
+    function renderFleetCards() {
+      const feed = document.getElementById("fleet-feed");
+      const selectedCity = document.getElementById("city-selector").value;
+
+      // Filter by category and city
+      const filtered = allFleetCars.filter(car => {
+        const matchesCategory = (selectedCategory === "All") || (car.category === selectedCategory);
+        const matchesCity = (selectedCity === "All") || (car.city === selectedCity) || (car.city === "Both");
+        return matchesCategory && matchesCity;
+      });
+
+      if (filtered.length === 0) {
+        feed.innerHTML = `
+          <div class="py-12 text-center text-xs text-neutral-500">
+            <p>No vehicles found for the selected filters.</p>
+          </div>
+        `;
+        return;
+      }
+
+      feed.innerHTML = "";
+
+      filtered.forEach(car => {
+        const isAvail = (car.isAvailable === true || car.isAvailable === undefined);
+        const encodedCarName = encodeURIComponent(car.name);
+        const whatsappUrl = `https://wa.me/919731055500?text=Hello%20NeeD%20by%20GCR,%20I%20want%20to%20book%20${encodedCarName}`;
+
+        const card = document.createElement("div");
+        card.className = "bg-[#10141f] rounded-2xl border border-neutral-800/90 overflow-hidden shadow-lg transition duration-200";
+
+        card.innerHTML = `
+          <!-- Top Info Header -->
+          <div class="p-3 pb-0 flex items-start justify-between">
+            <div>
+              <div class="flex items-center space-x-1.5 mb-0.5">
+                <span class="text-[10px] font-bold px-1.5 py-0.2 rounded ${
+                  isAvail 
+                    ? 'bg-emerald-950/80 text-emerald-400 border border-emerald-500/30' 
+                    : 'bg-neutral-800 text-neutral-400 border border-neutral-700'
+                }">
+                  ${isAvail ? 'AVAILABLE' : 'BOOKED / IN USE'}
+                </span>
+                <span class="text-[10px] text-neutral-400 font-medium">${car.city || 'Bangalore'}</span>
+              </div>
+              <h3 class="text-sm font-bold text-white">${car.name}</h3>
+              <p class="text-[10px] text-neutral-400">${car.specs || 'Automatic • Sanitized'}</p>
+            </div>
+            
+            <span class="text-[9px] font-bold bg-cyan-950 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded-full">
+              Zero Deposit
+            </span>
+          </div>
+
+          <!-- Car Image Container -->
+          <div class="px-3 py-2">
+            <div class="h-40 rounded-xl bg-[#090b10] flex items-center justify-center overflow-hidden border border-neutral-850 relative">
+              <img src="${car.image}" alt="${car.name}" class="w-full h-full object-cover transition duration-300 ${!isAvail ? 'grayscale opacity-40' : ''}">
+              ${!isAvail ? '<div class="absolute inset-0 bg-black/40 flex items-center justify-center font-bold text-xs uppercase tracking-widest text-neutral-300">Reserved</div>' : ''}
+            </div>
+          </div>
+
+          <!-- Feature Badges -->
+          <div class="px-3 py-1 flex items-center space-x-3 text-[10px] text-neutral-400">
+            <span class="flex items-center"><i data-lucide="zap" class="w-3 h-3 text-cyan-400 mr-1"></i> Fastag Enabled</span>
+            <span class="flex items-center"><i data-lucide="shield-check" class="w-3 h-3 text-cyan-400 mr-1"></i> Sanitized</span>
+            <span class="flex items-center"><i data-lucide="navigation" class="w-3 h-3 text-cyan-400 mr-1"></i> Unlimited KM</span>
+          </div>
+
+          <!-- Bottom Pricing & Action Button -->
+          <div class="p-3 bg-[#131826] border-t border-neutral-800 flex items-center justify-between">
+            <div>
+              <div class="flex items-baseline space-x-1">
+                <span class="text-base font-black text-cyan-300 font-brand">₹${Number(car.price).toLocaleString('en-IN')}</span>
+                <span class="text-[10px] text-neutral-400">/ Day</span>
+              </div>
+              <span class="text-[9px] text-emerald-400 block font-medium">Free Doorstep Delivery</span>
+            </div>
+
+            <!-- Dynamic Book Now / Grayed Out Action -->
+            ${
+              isAvail
+                ? `<a href="${whatsappUrl}" target="_blank" class="brand-gradient text-black font-extrabold text-[11px] uppercase tracking-wider px-4 py-2.5 rounded-xl active:scale-95 transition flex items-center space-x-1.5 shadow-[0_0_10px_rgba(0,229,255,0.3)]">
+                     <i data-lucide="message-circle" class="w-3.5 h-3.5 fill-black"></i>
+                     <span>Book Now</span>
+                   </a>`
+                : `<button disabled class="bg-neutral-800/80 text-neutral-500 font-bold text-[11px] uppercase tracking-wider px-4 py-2.5 rounded-xl cursor-not-allowed border border-neutral-700/60 flex items-center space-x-1">
+                     <span>Unavailable</span>
+                   </button>`
+            }
+          </div>
+        `;
+
+        feed.appendChild(card);
+      });
+
+      lucide.createIcons();
+    }
+
     lucide.createIcons();
   </script>
 </body>
