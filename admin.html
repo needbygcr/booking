@@ -11,7 +11,7 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
-  <!-- Firebase App & Firestore SDKs -->
+  <!-- Firebase App & Firestore SDKs (Compat Version) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
@@ -63,7 +63,7 @@
     <div class="flex items-center justify-between bg-[#10141f] p-4 rounded-2xl border border-neutral-800 shadow-lg">
       <div>
         <h1 class="text-base font-bold text-white font-brand">Fleet Management</h1>
-        <p class="text-[11px] text-neutral-400">Live Inventory & Rates Control</p>
+        <p class="text-[11px] text-neutral-400">Live Inventory, Ratings & Rates Control</p>
       </div>
       <button onclick="location.reload()" class="text-xs text-neutral-400 hover:text-white border border-neutral-800 px-3 py-1.5 rounded-lg transition">
         Logout
@@ -78,6 +78,7 @@
 
       <form id="add-car-form" onsubmit="addNewCar(event)" class="space-y-3">
         
+        <!-- Row 1: Name & Price -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="text-[10px] text-neutral-400 block mb-1">Car Name & Model</label>
@@ -89,6 +90,7 @@
           </div>
         </div>
 
+        <!-- Row 2: City & Category -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="text-[10px] text-neutral-400 block mb-1">Available City</label>
@@ -109,6 +111,23 @@
           </div>
         </div>
 
+        <!-- Row 3: Rating, Reviews Count & Badge -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="text-[10px] text-neutral-400 block mb-1">Rating (e.g. 4.9)</label>
+            <input type="text" id="car-rating" value="4.9" required class="w-full bg-[#171c2b] border border-neutral-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-400">
+          </div>
+          <div>
+            <label class="text-[10px] text-neutral-400 block mb-1">Reviews (e.g. 120+)</label>
+            <input type="text" id="car-reviews" value="120+" required class="w-full bg-[#171c2b] border border-neutral-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-400">
+          </div>
+          <div>
+            <label class="text-[10px] text-neutral-400 block mb-1">Badge Tag</label>
+            <input type="text" id="car-badge" value="Zero Deposit" required class="w-full bg-[#171c2b] border border-neutral-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-400">
+          </div>
+        </div>
+
+        <!-- Row 4: Specs & Image -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="text-[10px] text-neutral-400 block mb-1">Key Specs</label>
@@ -145,26 +164,19 @@
   </div>
 
   <script>
-    // --- 1. FIREBASE CONFIGURATION ---
-    // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+    // --- 1. FIREBASE INITIALIZATION ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyCuwgY2-XIq08K8BO7yGClEFjSvoUNJLtc",
+      authDomain: "need-car.firebaseapp.com",
+      projectId: "need-car",
+      storageBucket: "need-car.firebasestorage.app",
+      messagingSenderId: "550107299117",
+      appId: "1:550107299117:web:7e6ff6445d681364df27a4"
+    };
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyCuwgY2-XIq08K8BO7yGClEFjSvoUNJLtc",
-  authDomain: "need-car.firebaseapp.com",
-  projectId: "need-car",
-  storageBucket: "need-car.firebasestorage.app",
-  messagingSenderId: "550107299117",
-  appId: "1:550107299117:web:7e6ff6445d681364df27a4"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
     const db = firebase.firestore();
 
     // --- 2. ADMIN SECURITY PIN ---
@@ -199,38 +211,57 @@ const app = initializeApp(firebaseConfig);
         snapshot.forEach(doc => {
           const car = doc.data();
           const card = document.createElement("div");
-          card.className = "bg-[#171c2b] p-3 rounded-xl border border-neutral-800 flex items-center justify-between gap-3";
+          card.className = "bg-[#171c2b] p-3.5 rounded-xl border border-neutral-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3";
+          
           card.innerHTML = `
-            <img src="${car.image}" class="w-14 h-14 rounded-lg object-cover bg-neutral-900 shrink-0 border border-neutral-800">
-            <div class="flex-1 min-w-0">
-              <h4 class="text-xs font-bold text-white truncate">${car.name}</h4>
-              <div class="flex items-center gap-1.5 mt-0.5">
-                <span class="text-[9px] bg-cyan-950 text-cyan-300 border border-cyan-500/30 px-1.5 py-0.2 rounded font-semibold">${car.category || 'SUV'}</span>
-                <span class="text-[10px] text-neutral-400">${car.city}</span>
-              </div>
-              <div class="flex items-center gap-2 mt-1.5">
-                <span class="text-xs font-black text-cyan-300">₹${car.price}</span>
-                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded ${car.isAvailable ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/30' : 'bg-rose-950 text-rose-400 border border-rose-500/30'}">
-                  ${car.isAvailable ? 'Available' : 'Booked'}
-                </span>
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+              <img src="${car.image}" class="w-16 h-16 rounded-xl object-cover bg-neutral-900 shrink-0 border border-neutral-800">
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <h4 class="text-xs font-bold text-white">${car.name}</h4>
+                  <span class="text-[9px] font-bold text-amber-400 bg-amber-950/40 border border-amber-500/30 px-1.5 py-0.2 rounded">
+                    ★ ${car.rating || '4.9'} (${car.reviewsCount || '120+'})
+                  </span>
+                </div>
+                
+                <div class="flex items-center gap-1.5 mt-1">
+                  <span class="text-[9px] bg-cyan-950 text-cyan-300 border border-cyan-500/30 px-1.5 py-0.2 rounded font-semibold">${car.category || 'SUV'}</span>
+                  <span class="text-[10px] text-neutral-400">${car.city}</span>
+                  <span class="text-[9px] bg-neutral-800 text-neutral-300 px-1.5 py-0.2 rounded border border-neutral-700">${car.badge || 'Zero Deposit'}</span>
+                </div>
+
+                <div class="flex items-center gap-2 mt-1.5">
+                  <span class="text-xs font-black text-cyan-300 font-brand">₹${Number(car.price).toLocaleString('en-IN')} / Day</span>
+                  <span class="text-[9px] font-bold px-1.5 py-0.2 rounded ${car.isAvailable ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/30' : 'bg-neutral-800 text-neutral-400 border border-neutral-700'}">
+                    ${car.isAvailable ? 'Available' : 'Booked'}
+                  </span>
+                </div>
               </div>
             </div>
-            <div class="flex flex-col gap-1.5 shrink-0">
-              <button onclick="toggleAvailability('${doc.id}', ${!car.isAvailable})" class="text-[10px] font-bold px-2.5 py-1 rounded-lg border ${car.isAvailable ? 'border-amber-500/40 text-amber-400 hover:bg-amber-950/40' : 'border-emerald-500/40 text-emerald-400 hover:bg-emerald-950/40'} transition">
+
+            <!-- Actions Panel -->
+            <div class="flex flex-wrap sm:flex-col items-center sm:items-end gap-2 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-neutral-800">
+              <button onclick="toggleAvailability('${doc.id}', ${!car.isAvailable})" class="text-[10px] font-bold px-3 py-1.5 rounded-lg border ${car.isAvailable ? 'border-amber-500/40 text-amber-400 hover:bg-amber-950/40' : 'border-emerald-500/40 text-emerald-400 hover:bg-emerald-950/40'} transition">
                 ${car.isAvailable ? 'Mark Booked' : 'Mark Available'}
               </button>
-              <button onclick="updatePricePrompt('${doc.id}', ${car.price})" class="text-[10px] font-medium text-cyan-400 hover:underline text-right">
-                Edit Price
-              </button>
-              <button onclick="deleteCar('${doc.id}')" class="text-[10px] font-medium text-rose-400 hover:underline text-right">
-                Delete
-              </button>
+              
+              <div class="flex items-center gap-3 text-[10px]">
+                <button onclick="updateRatingPrompt('${doc.id}', '${car.rating || '4.9'}', '${car.reviewsCount || '120+'}')" class="text-amber-400 hover:underline">
+                  Edit Rating
+                </button>
+                <button onclick="updatePricePrompt('${doc.id}', ${car.price})" class="text-cyan-400 hover:underline">
+                  Edit Price
+                </button>
+                <button onclick="deleteCar('${doc.id}')" class="text-rose-400 hover:underline">
+                  Delete
+                </button>
+              </div>
             </div>
           `;
           list.appendChild(card);
         });
       } catch (err) {
-        list.innerHTML = `<p class="text-xs text-rose-400 text-center py-4">Error: Check Firebase configuration.</p>`;
+        list.innerHTML = `<p class="text-xs text-rose-400 text-center py-4">Error: Check Firebase rules & connection.</p>`;
       }
       lucide.createIcons();
     }
@@ -248,6 +279,9 @@ const app = initializeApp(firebaseConfig);
           price: Number(document.getElementById("car-price").value),
           city: document.getElementById("car-city").value,
           category: document.getElementById("car-category").value,
+          rating: document.getElementById("car-rating").value || "4.9",
+          reviewsCount: document.getElementById("car-reviews").value || "120+",
+          badge: document.getElementById("car-badge").value || "Zero Deposit",
           specs: document.getElementById("car-specs").value,
           image: document.getElementById("car-image").value,
           isAvailable: true,
@@ -256,6 +290,9 @@ const app = initializeApp(firebaseConfig);
 
         await db.collection("fleet").add(newCar);
         document.getElementById("add-car-form").reset();
+        document.getElementById("car-rating").value = "4.9";
+        document.getElementById("car-reviews").value = "120+";
+        document.getElementById("car-badge").value = "Zero Deposit";
         loadCars();
       } catch (err) {
         alert("Failed to add vehicle: " + err.message);
@@ -271,7 +308,21 @@ const app = initializeApp(firebaseConfig);
       loadCars();
     }
 
-    // --- 6. UPDATE PRICE ---
+    // --- 6. UPDATE RATING & REVIEWS COUNT ---
+    async function updateRatingPrompt(id, currentRating, currentReviews) {
+      const newRating = prompt("Enter updated rating (e.g. 4.9, 5.0):", currentRating);
+      if (newRating === null) return;
+      const newReviews = prompt("Enter updated review count (e.g. 120+, 85+):", currentReviews);
+      if (newReviews === null) return;
+
+      await db.collection("fleet").doc(id).update({ 
+        rating: newRating.trim(),
+        reviewsCount: newReviews.trim()
+      });
+      loadCars();
+    }
+
+    // --- 7. UPDATE PRICE ---
     async function updatePricePrompt(id, currentPrice) {
       const newPrice = prompt("Enter updated daily rental rate (₹):", currentPrice);
       if (newPrice && !isNaN(newPrice)) {
@@ -280,7 +331,7 @@ const app = initializeApp(firebaseConfig);
       }
     }
 
-    // --- 7. DELETE CAR ---
+    // --- 8. DELETE CAR ---
     async function deleteCar(id) {
       if (confirm("Are you sure you want to remove this vehicle from inventory?")) {
         await db.collection("fleet").doc(id).delete();
