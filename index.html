@@ -132,10 +132,10 @@
           <span class="text-[10px] font-medium">My Trips</span>
         </a>
 
-        <a href="https://wa.me/919731055500" target="_blank" class="flex flex-col items-center hover:text-emerald-400 transition">
+       <button type="button" onclick="toggleChatDrawer()" class="flex flex-col items-center hover:text-cyan-400 transition focus:outline-none">
           <i data-lucide="message-square" class="w-5 h-5 mb-0.5"></i>
           <span class="text-[10px] font-medium">Chat</span>
-        </a>
+        </button>
 
         <button type="button" onclick="toggleAccountDrawer()" class="flex flex-col items-center hover:text-cyan-400 transition focus:outline-none">
           <i data-lucide="user" class="w-5 h-5 mb-0.5"></i>
@@ -323,7 +323,42 @@
         </form>
       </div>
     </div>
+<!-- ================= 8. CONCIERGE CHAT DRAWER ================= -->
+    <div id="chat-drawer" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex justify-center items-center p-4 hidden">
+      <div class="w-full max-w-[420px] h-[540px] bg-[#0d111a] border border-neutral-800 rounded-3xl flex flex-col overflow-hidden shadow-2xl brand-glow">
+        
+        <!-- Header -->
+        <div class="px-4 py-3 bg-[#121724] border-b border-neutral-800 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="relative">
+              <div class="w-9 h-9 rounded-full bg-cyan-950 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-brand font-bold text-xs">
+                <span id="agent-avatar-initials">CS</span>
+              </div>
+              <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 absolute bottom-0 right-0 border-2 border-[#121724]"></div>
+            </div>
+            <div>
+              <h3 id="agent-display-name" class="text-xs font-bold text-white font-brand">Support Specialist</h3>
+              <p class="text-[9px] text-emerald-400 font-medium">NeeD Executive Desk • Active Now</p>
+            </div>
+          </div>
+          <button onclick="toggleChatDrawer()" class="w-8 h-8 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition">
+            ✕
+          </button>
+        </div>
 
+        <!-- Messages Container -->
+        <div id="chat-messages-container" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
+
+        <!-- Input Box -->
+        <form id="chat-input-form" onsubmit="sendChatMessage(event)" class="p-3 bg-[#121724] border-t border-neutral-800 flex items-center space-x-2">
+          <input type="text" id="chat-input" placeholder="Type your message..." required class="flex-1 bg-[#182032] border border-neutral-700 rounded-xl px-3 py-2.5 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-cyan-400">
+          <button type="submit" class="brand-gradient text-black font-extrabold px-4 py-2.5 rounded-xl text-xs uppercase tracking-wider active:scale-95 transition">
+            Send
+          </button>
+        </form>
+
+      </div>
+    </div>
   </div>
 
   <script>
@@ -369,7 +404,150 @@
         </div>
       `;
     });
+// --- 50 EXECUTIVE PERSONAS ---
+    const SUPPORT_PERSONAS = [
+      "Aarav Sharma", "Ananya Iyer", "Rohan Verma", "Pooja Hegde", "Kabir Mehta",
+      "Sneha Reddy", "Vikram Malhotra", "Priyanka Nair", "Aditya Joshi", "Riya Sen",
+      "Arjun Kapoor", "Tanvi Deshmukh", "Karan Singhania", "Ishita Roy", "Varun Chawla",
+      "Meera Pillai", "Siddharth Rao", "Divya Menon", "Manish Pandey", "Neha Kulkarni",
+      "Ayush Saxena", "Kavya Nambiar", "Rahul Bhatia", "Simran Kaur", "Devansh Mishra",
+      "Shreya Ghoshal", "Nikhil Agarwal", "Ritika Das", "Gaurav Sen", "Anjali Chauhan",
+      "Yash Vardhan", "Swati Mahajan", "Kunal Grover", "Payal Rajput", "Harshavardhan Jain",
+      "Deepika Bose", "Akash Gill", "Bhavna Trivedi", "Pranav Sethi", "Nandini Murthy",
+      "Tarun Khurana", "Pallavi Shinde", "Mayank Goswami", "Preeti Varma", "Alok Sengupta",
+      "Radhika Merchant", "Suresh Rathi", "Sunidhi Rao", "Sameer Ahluwalia", "Kritika Soni"
+    ];
 
+    const ADMIN_TEAM = [
+      { id: "admin_1", name: "Executive Team 1" },
+      { id: "admin_2", name: "Executive Team 2" },
+      { id: "admin_3", name: "Executive Team 3" }
+    ];
+
+    let unsubscribeChatListener = null;
+    let currentAssignedPersona = null;
+    let currentAssignedAdmin = null;
+
+    function getRandomItem(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function toggleChatDrawer() {
+      const drawer = document.getElementById("chat-drawer");
+      drawer.classList.toggle("hidden");
+
+      if (!drawer.classList.contains("hidden")) {
+        if (!currentActiveUser) {
+          alert("Please sign in or create an account to start chat support.");
+          toggleChatDrawer();
+          toggleAccountDrawer();
+          return;
+        }
+        initializeChatSession();
+      } else {
+        if (unsubscribeChatListener) unsubscribeChatListener();
+      }
+    }
+
+    async function initializeChatSession() {
+      const phone = currentActiveUser.phone;
+      const chatRef = db.collection("chats").doc(phone);
+      const doc = await chatRef.get();
+
+      if (doc.exists && doc.data().assignedPersona) {
+        currentAssignedPersona = doc.data().assignedPersona;
+        currentAssignedAdmin = doc.data().assignedAdminId || getRandomItem(ADMIN_TEAM).id;
+      } else {
+        currentAssignedPersona = getRandomItem(SUPPORT_PERSONAS);
+        currentAssignedAdmin = getRandomItem(ADMIN_TEAM).id;
+
+        await chatRef.set({
+          customerPhone: phone,
+          customerName: currentActiveUser.name || "VIP Guest",
+          assignedPersona: currentAssignedPersona,
+          assignedAdminId: currentAssignedAdmin,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          unreadByAdmin: false
+        }, { merge: true });
+      }
+
+      document.getElementById("agent-display-name").innerText = currentAssignedPersona;
+      const initials = currentAssignedPersona.split(" ").map(n => n[0]).join("");
+      document.getElementById("agent-avatar-initials").innerText = initials;
+
+      listenToChatMessages();
+    }
+
+    function listenToChatMessages() {
+      const phone = currentActiveUser.phone;
+      const container = document.getElementById("chat-messages-container");
+      const messagesRef = db.collection("chats").doc(phone).collection("messages").orderBy("timestamp", "asc");
+
+      unsubscribeChatListener = messagesRef.onSnapshot(snapshot => {
+        container.innerHTML = "";
+
+        if (snapshot.empty) {
+          container.innerHTML = `
+            <div class="text-center py-8 text-neutral-500 text-[11px] space-y-1">
+              <p class="font-bold text-neutral-400">Connected with ${currentAssignedPersona}</p>
+              <p>How can we assist you with your rental reservation today?</p>
+            </div>
+          `;
+          return;
+        }
+
+        snapshot.forEach(doc => {
+          const msg = doc.data();
+          const isMe = msg.sender === "customer";
+
+          const bubble = document.createElement("div");
+          bubble.className = `flex ${isMe ? "justify-end" : "justify-start"}`;
+          bubble.innerHTML = `
+            <div class="max-w-[80%] px-3.5 py-2.5 rounded-2xl text-xs ${
+              isMe 
+                ? "bg-cyan-500 text-black font-medium rounded-br-none" 
+                : "bg-[#161c2c] text-white border border-neutral-700 rounded-bl-none"
+            }">
+              ${!isMe ? `<p class="text-[9px] font-bold text-cyan-400 mb-0.5">${msg.senderName || currentAssignedPersona}</p>` : ''}
+              <p class="leading-relaxed">${msg.text}</p>
+            </div>
+          `;
+          container.appendChild(bubble);
+        });
+
+        container.scrollTop = container.scrollHeight;
+      });
+    }
+
+    async function sendChatMessage(e) {
+      e.preventDefault();
+      const input = document.getElementById("chat-input");
+      const text = input.value.trim();
+      if (!text || !currentActiveUser) return;
+
+      const phone = currentActiveUser.phone;
+      input.value = "";
+
+      try {
+        const chatDoc = db.collection("chats").doc(phone);
+        
+        await chatDoc.collection("messages").add({
+          sender: "customer",
+          senderName: currentActiveUser.name || "Client",
+          text: text,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        await chatDoc.set({
+          lastMessage: text,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          unreadByAdmin: true,
+          assignedAdminId: currentAssignedAdmin
+        }, { merge: true });
+      } catch (err) {
+        console.error("Error sending message:", err);
+      }
+    }
     // --- 3. FILTERING LOGIC ---
     function setCategoryFilter(category, buttonElement) {
       selectedCategory = category;
