@@ -175,33 +175,140 @@
           <span class="text-[10px] font-medium">Chat</span>
         </a>
 
-        <!-- Tab 4: 24/7 Support -->
-        <a href="tel:9731055500" class="flex flex-col items-center hover:text-white transition">
-          <i data-lucide="headphones" class="w-5 h-5 mb-0.5"></i>
-          <span class="text-[10px] font-medium">Support</span>
-        </a>
+        <!-- Tab 4: My Account (Swapped with Support) -->
+        <button type="button" onclick="toggleAccountDrawer()" class="flex flex-col items-center hover:text-cyan-400 transition focus:outline-none">
+          <i data-lucide="user" class="w-5 h-5 mb-0.5"></i>
+          <span class="text-[10px] font-medium" id="nav-account-label">My Account</span>
+        </button>
 
       </div>
     </nav>
+
+    <!-- ================= 6. MY ACCOUNT / AUTH DRAWER ================= -->
+    <div id="account-drawer" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex justify-center items-end sm:items-center hidden transition-all duration-300">
+      <div class="w-full max-w-[480px] bg-[#0c0f17] border-t sm:border border-neutral-800 rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl flex flex-col max-h-[90vh] overflow-y-auto">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between pb-3 border-b border-neutral-800">
+          <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 rounded-lg bg-cyan-950 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-brand font-black text-xs">
+              N
+            </div>
+            <h2 id="account-title" class="text-sm font-bold text-white font-brand">My Account</h2>
+          </div>
+          <button onclick="toggleAccountDrawer()" class="text-neutral-400 hover:text-white p-1 text-base">✕</button>
+        </div>
+
+        <!-- VIEW A: AUTHENTICATION (LOGIN / SIGN UP) -->
+        <div id="auth-view" class="pt-4 space-y-4">
+          <div class="flex bg-[#141926] p-1 rounded-xl border border-neutral-800">
+            <button id="tab-login-btn" onclick="switchAuthTab('login')" class="flex-1 py-2 text-xs font-bold rounded-lg brand-gradient text-black transition">
+              Sign In
+            </button>
+            <button id="tab-signup-btn" onclick="switchAuthTab('signup')" class="flex-1 py-2 text-xs font-bold rounded-lg text-neutral-400 transition">
+              Create Account
+            </button>
+          </div>
+
+          <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-3">
+            <div id="signup-fields" class="space-y-3 hidden">
+              <div>
+                <label class="text-[10px] text-neutral-400 block mb-1">Full Legal Name</label>
+                <input type="text" id="auth-name" placeholder="e.g. Rahul Sharma" class="w-full bg-[#141926] border border-neutral-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-400">
+              </div>
+              <div>
+                <label class="text-[10px] text-neutral-400 block mb-1">City</label>
+                <select id="auth-city" class="w-full bg-[#141926] border border-neutral-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-400">
+                  <option value="Bangalore">Bangalore</option>
+                  <option value="Jamshedpur">Jamshedpur</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label class="text-[10px] text-neutral-400 block mb-1">Mobile Number / Email</label>
+              <input type="text" id="auth-identifier" placeholder="e.g. 9876543210 or user@example.com" required class="w-full bg-[#141926] border border-neutral-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-400">
+            </div>
+
+            <div>
+              <label class="text-[10px] text-neutral-400 block mb-1">Password</label>
+              <input type="password" id="auth-password" placeholder="••••••••" required class="w-full bg-[#141926] border border-neutral-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-400">
+            </div>
+
+            <button type="submit" id="auth-submit-btn" class="w-full brand-gradient text-black font-extrabold text-xs uppercase py-3 rounded-xl hover:brightness-110 active:scale-[0.98] transition shadow-[0_0_15px_rgba(0,229,255,0.3)] mt-2">
+              Sign In
+            </button>
+          </form>
+
+          <p class="text-[10px] text-center text-neutral-500">
+            By continuing, you agree to NeeD's Terms of Luxury Rentals & Safety Guidelines.
+          </p>
+        </div>
+
+        <!-- VIEW B: LOGGED IN USER PROFILE -->
+        <div id="profile-view" class="pt-4 space-y-4 hidden">
+          <div class="bg-[#141926] p-4 rounded-2xl border border-neutral-800 flex items-center space-x-3.5">
+            <div id="user-avatar" class="w-12 h-12 rounded-full bg-cyan-950 border border-cyan-400/40 flex items-center justify-center text-cyan-400 font-brand font-bold text-base">
+              U
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center space-x-2">
+                <h3 id="user-name-display" class="text-sm font-bold text-white truncate">Customer Name</h3>
+                <span id="user-tier-badge" class="text-[9px] bg-cyan-950 text-cyan-300 border border-cyan-500/30 px-2 py-0.2 rounded-full font-bold">
+                  Gold Member
+                </span>
+              </div>
+              <p id="user-phone-display" class="text-[11px] text-neutral-400">+91 9876543210</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div class="bg-[#141926] p-3 rounded-xl border border-neutral-800 text-center">
+              <span class="text-[10px] text-neutral-400 uppercase font-bold block">Active Bookings</span>
+              <span id="user-active-trips" class="text-sm font-black text-cyan-400 font-brand">0</span>
+            </div>
+            <div class="bg-[#141926] p-3 rounded-xl border border-neutral-800 text-center">
+              <span class="text-[10px] text-neutral-400 uppercase font-bold block">KYC Status</span>
+              <span id="user-kyc-badge" class="text-[10px] font-bold text-emerald-400">Verified ✓</span>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <a href="tel:9731055500" class="w-full flex items-center justify-between p-3 bg-[#141926] border border-neutral-800 rounded-xl text-xs text-neutral-200 hover:text-white transition">
+              <span class="flex items-center"><i data-lucide="headphones" class="w-4 h-4 text-cyan-400 mr-2"></i> Dedicated Concierge Support</span>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-neutral-500"></i>
+            </a>
+            <button onclick="handleUserLogout()" class="w-full py-2.5 bg-rose-950/30 border border-rose-500/30 text-rose-400 rounded-xl text-xs font-bold hover:bg-rose-950/60 transition">
+              Log Out
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
 
   </div>
 
   <script>
     // --- 1. FIREBASE CONFIGURATION ---
     const firebaseConfig = {
-  apiKey: "AIzaSyCuwgY2-XIq08K8BO7yGClEFjSvoUNJLtc",
-  authDomain: "need-car.firebaseapp.com",
-  projectId: "need-car",
-  storageBucket: "need-car.firebasestorage.app",
-  messagingSenderId: "550107299117",
-  appId: "1:550107299117:web:7e6ff6445d681364df27a4"
+      apiKey: "AIzaSyCuwgY2-XIq08K8BO7yGClEFjSvoUNJLtc",
+      authDomain: "need-car.firebaseapp.com",
+      projectId: "need-car",
+      storageBucket: "need-car.firebasestorage.app",
+      messagingSenderId: "550107299117",
+      appId: "1:550107299117:web:7e6ff6445d681364df27a4"
     };
 
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
     const db = firebase.firestore();
 
     let allFleetCars = [];
     let selectedCategory = "All";
+    let isSignUpMode = false;
+    let currentActiveUser = JSON.parse(localStorage.getItem("need_logged_user") || "null");
 
     // --- 2. REAL-TIME FLEET LISTENER ---
     db.collection("fleet").orderBy("createdAt", "desc").onSnapshot(snapshot => {
@@ -237,7 +344,6 @@
       const feed = document.getElementById("fleet-feed");
       const selectedCity = document.getElementById("city-selector").value;
 
-      // Filter by category and city
       const filtered = allFleetCars.filter(car => {
         const matchesCategory = (selectedCategory === "All") || (car.category === selectedCategory);
         const matchesCity = (selectedCity === "All") || (car.city === selectedCity) || (car.city === "Both");
@@ -259,6 +365,7 @@
         const isAvail = (car.isAvailable === true || car.isAvailable === undefined);
         const encodedCarName = encodeURIComponent(car.name);
         const whatsappUrl = `https://wa.me/919731055500?text=Hello%20NeeD%20by%20GCR,%20I%20want%20to%20book%20${encodedCarName}`;
+        const defaultImg = "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=800&q=80";
 
         const card = document.createElement("div");
         card.className = "bg-[#10141f] rounded-2xl border border-neutral-800/90 overflow-hidden shadow-lg transition duration-200";
@@ -275,30 +382,34 @@
                 }">
                   ${isAvail ? 'AVAILABLE' : 'BOOKED / IN USE'}
                 </span>
-                <span class="text-[10px] text-neutral-400 font-medium">${car.city || 'Bangalore'}</span>
+                <span class="text-[10px] text-amber-400 flex items-center font-semibold">
+                  <i data-lucide="star" class="w-3 h-3 fill-amber-400 mr-0.5"></i> ${car.rating || '4.9'} (${car.reviewsCount || '120+'})
+                </span>
               </div>
               <h3 class="text-sm font-bold text-white">${car.name}</h3>
-              <p class="text-[10px] text-neutral-400">${car.specs || 'Automatic • Sanitized'}</p>
+              <p class="text-[10px] text-neutral-400">${car.specs || 'Diesel • Automatic • 7 Seats'}</p>
             </div>
             
             <span class="text-[9px] font-bold bg-cyan-950 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded-full">
-              Zero Deposit
+              ${car.badge || 'Zero Deposit'}
             </span>
           </div>
 
           <!-- Car Image Container -->
           <div class="px-3 py-2">
             <div class="h-40 rounded-xl bg-[#090b10] flex items-center justify-center overflow-hidden border border-neutral-850 relative">
-              <img src="${car.image}" alt="${car.name}" class="w-full h-full object-cover transition duration-300 ${!isAvail ? 'grayscale opacity-40' : ''}">
+              <img src="${car.image || defaultImg}" 
+                   onerror="this.onerror=null; this.src='${defaultImg}';" 
+                   alt="${car.name}" 
+                   class="w-full h-full object-cover transition duration-300 ${!isAvail ? 'grayscale opacity-40' : ''}">
               ${!isAvail ? '<div class="absolute inset-0 bg-black/40 flex items-center justify-center font-bold text-xs uppercase tracking-widest text-neutral-300">Reserved</div>' : ''}
             </div>
           </div>
 
-          <!-- Feature Badges -->
+          <!-- Feature Badges (Unlimited KM removed) -->
           <div class="px-3 py-1 flex items-center space-x-3 text-[10px] text-neutral-400">
             <span class="flex items-center"><i data-lucide="zap" class="w-3 h-3 text-cyan-400 mr-1"></i> Fastag Enabled</span>
             <span class="flex items-center"><i data-lucide="shield-check" class="w-3 h-3 text-cyan-400 mr-1"></i> Sanitized</span>
-            <span class="flex items-center"><i data-lucide="navigation" class="w-3 h-3 text-cyan-400 mr-1"></i> Unlimited KM</span>
           </div>
 
           <!-- Bottom Pricing & Action Button -->
@@ -308,10 +419,9 @@
                 <span class="text-base font-black text-cyan-300 font-brand">₹${Number(car.price).toLocaleString('en-IN')}</span>
                 <span class="text-[10px] text-neutral-400">/ Day</span>
               </div>
-              <span class="text-[9px] text-emerald-400 block font-medium">Free Doorstep Delivery</span>
+              <span class="text-[9px] text-emerald-400 block font-medium">${car.deliveryTag || 'Free Doorstep Delivery'}</span>
             </div>
 
-            <!-- Dynamic Book Now / Grayed Out Action -->
             ${
               isAvail
                 ? `<a href="${whatsappUrl}" target="_blank" class="brand-gradient text-black font-extrabold text-[11px] uppercase tracking-wider px-4 py-2.5 rounded-xl active:scale-95 transition flex items-center space-x-1.5 shadow-[0_0_10px_rgba(0,229,255,0.3)]">
@@ -330,6 +440,120 @@
 
       lucide.createIcons();
     }
+
+    // --- 5. MY ACCOUNT / AUTH CONTROLLER ---
+    function toggleAccountDrawer() {
+      const drawer = document.getElementById("account-drawer");
+      drawer.classList.toggle("hidden");
+      if (!drawer.classList.contains("hidden")) {
+        refreshAccountUI();
+      }
+    }
+
+    function switchAuthTab(mode) {
+      const loginBtn = document.getElementById("tab-login-btn");
+      const signupBtn = document.getElementById("tab-signup-btn");
+      const signupFields = document.getElementById("signup-fields");
+      const submitBtn = document.getElementById("auth-submit-btn");
+
+      if (mode === "signup") {
+        isSignUpMode = true;
+        signupFields.classList.remove("hidden");
+        signupBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg brand-gradient text-black transition";
+        loginBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg text-neutral-400 transition";
+        submitBtn.innerText = "Create Account & Continue";
+      } else {
+        isSignUpMode = false;
+        signupFields.classList.add("hidden");
+        loginBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg brand-gradient text-black transition";
+        signupBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg text-neutral-400 transition";
+        submitBtn.innerText = "Sign In";
+      }
+    }
+
+    function refreshAccountUI() {
+      const authView = document.getElementById("auth-view");
+      const profileView = document.getElementById("profile-view");
+      const navLabel = document.getElementById("nav-account-label");
+
+      if (currentActiveUser) {
+        authView.classList.add("hidden");
+        profileView.classList.remove("hidden");
+        document.getElementById("user-name-display").innerText = currentActiveUser.name || "Client";
+        document.getElementById("user-phone-display").innerText = currentActiveUser.identifier || "Verified Member";
+        document.getElementById("user-avatar").innerText = (currentActiveUser.name ? currentActiveUser.name.charAt(0) : "U").toUpperCase();
+        if (navLabel) navLabel.innerText = "Profile";
+      } else {
+        profileView.classList.add("hidden");
+        authView.classList.remove("hidden");
+        if (navLabel) navLabel.innerText = "My Account";
+      }
+      lucide.createIcons();
+    }
+
+    async function handleAuthSubmit(e) {
+      e.preventDefault();
+      const identifier = document.getElementById("auth-identifier").value.trim();
+      const password = document.getElementById("auth-password").value.trim();
+      const name = document.getElementById("auth-name")?.value.trim() || "Guest Client";
+      const city = document.getElementById("auth-city")?.value || "Bangalore";
+      const submitBtn = document.getElementById("auth-submit-btn");
+
+      submitBtn.innerText = "Authenticating...";
+      submitBtn.disabled = true;
+
+      try {
+        const userRef = db.collection("users").doc(identifier);
+
+        if (isSignUpMode) {
+          const existing = await userRef.get();
+          if (existing.exists) {
+            alert("An account with this phone/email already exists. Please Sign In.");
+            switchAuthTab('login');
+            return;
+          }
+
+          const newUser = {
+            name: name,
+            identifier: identifier,
+            password: password,
+            city: city,
+            membershipTier: "Gold Member",
+            isKycVerified: false,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          };
+
+          await userRef.set(newUser);
+          currentActiveUser = newUser;
+        } else {
+          const userDoc = await userRef.get();
+          if (!userDoc.exists || userDoc.data().password !== password) {
+            alert("Invalid login credentials. Please verify your details.");
+            return;
+          }
+          currentActiveUser = userDoc.data();
+        }
+
+        localStorage.setItem("need_logged_user", JSON.stringify(currentActiveUser));
+        refreshAccountUI();
+        document.getElementById("auth-form").reset();
+      } catch (err) {
+        alert("Authentication error: " + err.message);
+      } finally {
+        submitBtn.innerText = isSignUpMode ? "Create Account & Continue" : "Sign In";
+        submitBtn.disabled = false;
+      }
+    }
+
+    function handleUserLogout() {
+      localStorage.removeItem("need_logged_user");
+      currentActiveUser = null;
+      refreshAccountUI();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      refreshAccountUI();
+    });
 
     lucide.createIcons();
   </script>
