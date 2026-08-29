@@ -762,8 +762,8 @@
       lucide.createIcons();
     }
 
-    // --- 5. BOOKING GATEWAY ---
-    function handleBookingAttempt(encodedCarName) {
+   // --- 5. BOOKING GATEWAY (SAVES TO FIRESTORE + OPENS WHATSAPP) ---
+    async function handleBookingAttempt(encodedCarName) {
       if (!currentActiveUser) {
         alert("Please sign in or create an account to book vehicles.");
         toggleAccountDrawer();
@@ -777,8 +777,38 @@
       }
 
       const carName = decodeURIComponent(encodedCarName);
-      const whatsappUrl = `https://wa.me/919731055500?text=Hello%20NeeD%20by%20GCR,%20I%20am%20verified%20client%20${encodeURIComponent(currentActiveUser.name)}%20(+91${currentActiveUser.phone.replace('+91','')}).%20I%20want%20to%20book%20${encodedCarName}.`;
-      window.open(whatsappUrl, '_blank');
+      const location = selectedLocation || "Doorstep Delivery";
+      const startDate = document.getElementById("start-date")?.value || "Flexible / On Request";
+      const endDate = document.getElementById("end-date")?.value || "Flexible / On Request";
+      const phone = currentActiveUser.phone;
+
+      // Find car price from fleet list
+      const carObj = allFleetCars.find(c => c.name === carName);
+      const price = carObj?.price || 0;
+
+      try {
+        // Automatically creates document in 'bookings' collection
+        await db.collection("bookings").add({
+          customerPhone: phone,
+          customerName: currentActiveUser.name || "VIP Guest",
+          carName: carName,
+          location: location,
+          bookingType: (typeof bookingType !== 'undefined' ? bookingType : "rental"),
+          startDate: startDate,
+          endDate: endDate,
+          totalAmount: Number(price),
+          status: "Confirmed",
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Open WhatsApp confirmation
+        const text = `Hello NeeD by GCR, I am verified client ${encodeURIComponent(currentActiveUser.name)} (${phone}).\nI have booked ${carName}.\nLocation: ${location}\nStart: ${startDate}\nEnd: ${endDate}`;
+        window.open(`https://wa.me/919731055500?text=${encodeURIComponent(text)}`, '_blank');
+
+      } catch (err) {
+        console.error("Booking creation error:", err);
+        alert("Could not complete booking: " + err.message);
+      }
     }
 
     // --- 6. MY ACCOUNT UI CONTROLLER ---
