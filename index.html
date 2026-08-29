@@ -39,6 +39,471 @@
       color: #00e5ff !important;
       font-weight: 700 !important;
     }
+
+    /* Active Speech Bubble Indicator Arrow */
+    .tab-active-arrow::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 6px solid #141926;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="flex justify-center bg-black min-h-screen">
+
+  <div class="w-full max-w-[480px] bg-[#090b10] min-h-screen flex flex-col pb-20 shadow-2xl relative border-x border-neutral-900">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-40 bg-[#090b10]/95 backdrop-blur-md px-4 py-3 border-b border-neutral-800/80 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-xl bg-[#11141c] border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-brand font-black text-sm brand-glow">
+          N
+        </div>
+        <div class="flex items-center space-x-1.5">
+          <span class="text-base font-black italic tracking-wider font-brand text-white">NeeD</span>
+          <span class="text-[8px] bg-cyan-950 text-cyan-400 border border-cyan-500/30 px-1.5 py-0.2 rounded font-bold uppercase">GCR</span>
+        </div>
+      </div>
+
+      <a href="tel:9731055500" class="w-9 h-9 rounded-full bg-[#121620] border border-cyan-500/30 flex items-center justify-center text-cyan-400 active:scale-95 transition">
+        <i data-lucide="phone-call" class="w-4 h-4"></i>
+      </a>
+    </header>
+
+    <!-- ================= HERO SEARCH CARD (IMAGE MATCH) ================= -->
+    <div class="p-4">
+      <div class="bg-[#10141f] rounded-3xl p-4 cyan-border brand-glow relative overflow-hidden flex flex-col items-center">
+        
+        <!-- Top Dual-Tab Bar (Rental vs Subscriptions) -->
+        <div class="w-full bg-[#161c2a] p-1.5 rounded-2xl border border-neutral-800 flex items-center relative">
+          
+          <!-- Tab 1: Rental -->
+          <button id="tab-rental" onclick="switchBookingType('rental')" class="flex-1 py-3 px-2 rounded-xl bg-[#141926] border border-cyan-500/40 text-center shadow-lg relative tab-active-arrow transition duration-200">
+            <h4 class="text-xs sm:text-sm font-extrabold text-white font-brand">Rental</h4>
+            <p class="text-[10px] text-cyan-400 font-medium mt-0.5">For hours & days</p>
+          </button>
+          
+          <!-- Tab 2: Subscriptions -->
+          <button id="tab-subscription" onclick="switchBookingType('subscription')" class="flex-1 py-3 px-2 rounded-xl text-center text-neutral-400 transition duration-200 opacity-70 hover:opacity-100">
+            <h4 class="text-xs sm:text-sm font-extrabold text-neutral-300 font-brand">Subscriptions</h4>
+            <p class="text-[10px] text-neutral-500 font-medium mt-0.5">For more than 7 days</p>
+          </button>
+        </div>
+
+        <!-- Center Brand Typography -->
+        <div class="py-7 flex items-center justify-center space-x-1">
+          <span class="text-2xl font-black italic tracking-wider font-brand text-cyan-400">R</span>
+          <span class="text-2xl font-black italic tracking-wider font-brand text-white">entals</span>
+        </div>
+
+        <!-- Pill Location Search Trigger -->
+        <div onclick="openLocationPicker()" class="w-full flex items-center justify-between bg-[#141926] border border-cyan-500/30 hover:border-cyan-400 rounded-full px-4 py-3.5 shadow-lg cursor-pointer transition active:scale-[0.98]">
+          <div class="flex items-center space-x-3 min-w-0">
+            <div class="w-8 h-8 rounded-full bg-cyan-950/80 border border-cyan-400/40 flex items-center justify-center text-cyan-400 shrink-0">
+              <i data-lucide="map-pin" class="w-4 h-4"></i>
+            </div>
+            <span id="hero-location-text" class="text-xs font-semibold text-neutral-400 truncate">Select location to search</span>
+          </div>
+          <div class="text-cyan-400 pl-2 shrink-0">
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Category Filters -->
+    <div class="px-4 pb-2">
+      <div id="filter-pills" class="flex items-center space-x-2 overflow-x-auto no-scrollbar py-1 text-xs">
+        <button onclick="setCategoryFilter('All', this)" class="active-pill border border-neutral-800 bg-[#121622] text-neutral-400 px-3.5 py-1.5 rounded-full whitespace-nowrap shrink-0 transition">All Cars</button>
+        <button onclick="setCategoryFilter('Luxury SUVs', this)" class="border border-neutral-800 bg-[#121622] text-neutral-400 px-3.5 py-1.5 rounded-full font-medium whitespace-nowrap shrink-0 transition">Luxury SUVs</button>
+        <button onclick="setCategoryFilter('Sedans', this)" class="border border-neutral-800 bg-[#121622] text-neutral-400 px-3.5 py-1.5 rounded-full font-medium whitespace-nowrap shrink-0 transition">Sedans</button>
+        <button onclick="setCategoryFilter('Automatic', this)" class="border border-neutral-800 bg-[#121622] text-neutral-400 px-3.5 py-1.5 rounded-full font-medium whitespace-nowrap shrink-0 transition">Automatic</button>
+      </div>
+    </div>
+
+    <!-- Fleet Feed -->
+    <div id="fleet-feed" class="px-4 space-y-3.5 mt-1">
+      <div class="py-12 text-center text-xs text-neutral-500">
+        <div class="inline-block w-6 h-6 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mb-2"></div>
+        <p>Loading fleet inventory...</p>
+      </div>
+    </div>
+
+    <!-- ================= POPUP MODAL DIALOG (IMAGE MATCH) ================= -->
+    <div id="location-picker-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex justify-center items-center p-4 hidden transition-all duration-300">
+      <div class="w-full max-w-[420px] bg-[#0d111a] border border-neutral-800 rounded-3xl p-6 shadow-2xl flex flex-col h-[560px] relative brand-glow">
+        
+        <!-- Header -->
+        <div class="flex items-center space-x-3 pb-3">
+          <button onclick="closeLocationPicker()" class="w-8 h-8 rounded-full bg-[#141926] border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition active:scale-95">
+            <i data-lucide="chevron-left" class="w-5 h-5"></i>
+          </button>
+          <h3 class="text-sm sm:text-base font-bold text-white font-brand">Where do you want the car?</h3>
+        </div>
+
+        <!-- Search Input Bar -->
+        <div class="mt-2">
+          <div class="flex items-center bg-[#141926] border border-cyan-500/40 focus-within:border-cyan-400 rounded-full px-4 py-3 transition shadow-inner">
+            <i data-lucide="search" class="w-4 h-4 text-neutral-400 mr-2.5 shrink-0"></i>
+            <input type="text" id="modal-location-input" oninput="handleAddressAutocomplete(this.value)" placeholder="Search address, airport or hotel" class="w-full bg-transparent text-xs font-semibold text-white placeholder-neutral-500 focus:outline-none">
+            <button onclick="clearLocationInput()" class="text-neutral-500 hover:text-white text-xs px-1">✕</button>
+          </div>
+          <p class="text-[10px] text-cyan-400 font-medium mt-1.5 px-3">Please enter locality to get customised results</p>
+        </div>
+
+        <!-- Use Current Location Action -->
+        <button onclick="useCurrentLocation()" class="w-full mt-4 flex items-center space-x-3.5 p-2.5 rounded-2xl bg-[#121724] border border-neutral-800 hover:border-cyan-500/40 text-left transition active:scale-[0.99]">
+          <div class="w-10 h-10 rounded-full bg-cyan-950/80 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0">
+            <i data-lucide="crosshair" class="w-4 h-4"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h4 class="text-xs font-bold text-cyan-300">Use current location</h4>
+            <p class="text-[10px] text-neutral-400 truncate">Enable location for better experience</p>
+          </div>
+        </button>
+
+        <div class="h-px bg-neutral-800 my-3"></div>
+
+        <!-- Recent Searches Header & Result Container -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+          <div class="flex items-center space-x-2 text-neutral-400 text-xs px-1 pb-2">
+            <i data-lucide="history" class="w-3.5 h-3.5 text-neutral-500"></i>
+            <span id="results-header-text" class="font-medium">No recent searches</span>
+          </div>
+
+          <div id="location-results-list" class="flex-1 overflow-y-auto divide-y divide-neutral-850 no-scrollbar">
+            <!-- Centered Low-Opacity Magnifier -->
+            <div id="empty-state-icon" class="h-full flex items-center justify-center opacity-10 pointer-events-none">
+              <i data-lucide="search" class="w-24 h-24 text-cyan-400"></i>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <nav class="fixed bottom-0 left-0 right-0 z-30 flex justify-center bg-black/90 backdrop-blur-lg border-t border-neutral-850 py-2">
+      <div class="w-full max-w-[480px] flex items-center justify-around px-2 text-neutral-400">
+        <a href="#" class="flex flex-col items-center text-cyan-400">
+          <i data-lucide="compass" class="w-5 h-5 mb-0.5"></i>
+          <span class="text-[10px] font-bold">Explore</span>
+        </a>
+        <a href="tel:9731055500" class="flex flex-col items-center hover:text-white transition">
+          <i data-lucide="calendar" class="w-5 h-5 mb-0.5"></i>
+          <span class="text-[10px] font-medium">My Trips</span>
+        </a>
+        <a href="tel:9731055500" class="flex flex-col items-center hover:text-cyan-400 transition">
+          <i data-lucide="phone-call" class="w-5 h-5 mb-0.5"></i>
+          <span class="text-[10px] font-medium">Contact</span>
+        </a>
+      </div>
+    </nav>
+
+  </div>
+
+  <script>
+    // --- 1. FIREBASE INITIALIZATION ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyCuwgY2-XIq08K8BO7yGClEFjSvoUNJLtc",
+      authDomain: "need-car.firebaseapp.com",
+      projectId: "need-car",
+      storageBucket: "need-car.firebasestorage.app",
+      messagingSenderId: "550107299117",
+      appId: "1:550107299117:web:7e6ff6445d681364df27a4"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    let allFleetCars = [];
+    let selectedCategory = "All";
+    let bookingType = "rental";
+    let selectedLocation = "";
+    let debounceTimer = null;
+
+    // --- 2. SWITCH BOOKING TABS ---
+    function switchBookingType(type) {
+      bookingType = type;
+      const tabRental = document.getElementById("tab-rental");
+      const tabSub = document.getElementById("tab-subscription");
+
+      if (type === "rental") {
+        tabRental.className = "flex-1 py-3 px-2 rounded-xl bg-[#141926] border border-cyan-500/40 text-center shadow-lg relative tab-active-arrow transition duration-200";
+        tabRental.querySelector("h4").className = "text-xs sm:text-sm font-extrabold text-white font-brand";
+        tabRental.querySelector("p").className = "text-[10px] text-cyan-400 font-medium mt-0.5";
+
+        tabSub.className = "flex-1 py-3 px-2 rounded-xl text-center text-neutral-400 transition duration-200 opacity-70 hover:opacity-100";
+        tabSub.querySelector("h4").className = "text-xs sm:text-sm font-extrabold text-neutral-300 font-brand";
+        tabSub.querySelector("p").className = "text-[10px] text-neutral-500 font-medium mt-0.5";
+      } else {
+        tabSub.className = "flex-1 py-3 px-2 rounded-xl bg-[#141926] border border-cyan-500/40 text-center shadow-lg relative tab-active-arrow transition duration-200";
+        tabSub.querySelector("h4").className = "text-xs sm:text-sm font-extrabold text-white font-brand";
+        tabSub.querySelector("p").className = "text-[10px] text-cyan-400 font-medium mt-0.5";
+
+        tabRental.className = "flex-1 py-3 px-2 rounded-xl text-center text-neutral-400 transition duration-200 opacity-70 hover:opacity-100";
+        tabRental.querySelector("h4").className = "text-xs sm:text-sm font-extrabold text-neutral-300 font-brand";
+        tabRental.querySelector("p").className = "text-[10px] text-neutral-500 font-medium mt-0.5";
+      }
+    }
+
+    // --- 3. MODAL CONTROLS & AUTOCOMPLETE ---
+    function openLocationPicker() {
+      const modal = document.getElementById("location-picker-modal");
+      modal.classList.remove("hidden");
+      const input = document.getElementById("modal-location-input");
+      input.value = selectedLocation;
+      input.focus();
+      loadRecentSearches();
+      lucide.createIcons();
+    }
+
+    function closeLocationPicker() {
+      document.getElementById("location-picker-modal").classList.add("hidden");
+    }
+
+    function clearLocationInput() {
+      document.getElementById("modal-location-input").value = "";
+      loadRecentSearches();
+    }
+
+    function handleAddressAutocomplete(query) {
+      clearTimeout(debounceTimer);
+      const queryTrim = query.trim();
+      const listContainer = document.getElementById("location-results-list");
+      const headerText = document.getElementById("results-header-text");
+
+      if (!queryTrim || queryTrim.length < 2) {
+        loadRecentSearches();
+        return;
+      }
+
+      headerText.innerText = "Suggested Locations";
+      listContainer.innerHTML = `
+        <div class="py-8 text-center text-xs text-neutral-500 flex items-center justify-center space-x-2">
+          <div class="w-4 h-4 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+          <span>Searching localities...</span>
+        </div>
+      `;
+
+      debounceTimer = setTimeout(async () => {
+        try {
+          const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(queryTrim)}&limit=5`);
+          const data = await res.json();
+          renderSuggestions(data.features || []);
+        } catch (err) {
+          listContainer.innerHTML = `<div class="py-6 text-center text-xs text-neutral-500">Press enter to use "${queryTrim}"</div>`;
+        }
+      }, 300);
+    }
+
+    function renderSuggestions(features) {
+      const listContainer = document.getElementById("location-results-list");
+      listContainer.innerHTML = "";
+
+      if (!features.length) {
+        listContainer.innerHTML = `<div class="py-8 text-center text-xs text-neutral-500">No matching locations found.</div>`;
+        return;
+      }
+
+      features.forEach(item => {
+        const props = item.properties;
+        const mainText = props.name || props.street || "Location Pin";
+        const secondary = [props.city, props.state, props.country].filter(Boolean).join(", ");
+        const fullAddress = `${mainText}${secondary ? ', ' + secondary : ''}`;
+
+        const row = document.createElement("div");
+        row.className = "flex items-center space-x-3 py-3 px-2 hover:bg-[#141926] cursor-pointer rounded-xl transition";
+        row.innerHTML = `
+          <div class="w-8 h-8 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-cyan-400 shrink-0">
+            <i data-lucide="map-pin" class="w-4 h-4"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-bold text-white truncate">${mainText}</p>
+            <p class="text-[10px] text-neutral-400 truncate">${secondary}</p>
+          </div>
+        `;
+        row.onclick = () => selectLocation(fullAddress);
+        listContainer.appendChild(row);
+      });
+      lucide.createIcons();
+    }
+
+    function selectLocation(addressString) {
+      selectedLocation = addressString;
+      const heroText = document.getElementById("hero-location-text");
+      heroText.innerText = addressString;
+      heroText.className = "text-xs font-bold text-white truncate";
+
+      saveToRecents(addressString);
+      closeLocationPicker();
+    }
+
+    function saveToRecents(address) {
+      let recents = JSON.parse(localStorage.getItem("need_recents") || "[]");
+      recents = recents.filter(item => item !== address);
+      recents.unshift(address);
+      if (recents.length > 4) recents.pop();
+      localStorage.setItem("need_recents", JSON.stringify(recents));
+    }
+
+    function loadRecentSearches() {
+      const listContainer = document.getElementById("location-results-list");
+      const headerText = document.getElementById("results-header-text");
+      const recents = JSON.parse(localStorage.getItem("need_recents") || "[]");
+
+      if (!recents.length) {
+        headerText.innerText = "No recent searches";
+        listContainer.innerHTML = `
+          <div class="h-full flex items-center justify-center py-10 opacity-10 pointer-events-none">
+            <i data-lucide="search" class="w-24 h-24 text-cyan-400"></i>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      headerText.innerText = "Recent Searches";
+      listContainer.innerHTML = "";
+      recents.forEach(address => {
+        const row = document.createElement("div");
+        row.className = "flex items-center space-x-3 py-2.5 px-2 hover:bg-[#141926] cursor-pointer rounded-xl transition";
+        row.innerHTML = `
+          <div class="w-7 h-7 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 shrink-0">
+            <i data-lucide="history" class="w-3.5 h-3.5"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-semibold text-neutral-300 truncate">${address}</p>
+          </div>
+        `;
+        row.onclick = () => selectLocation(address);
+        listContainer.appendChild(row);
+      });
+      lucide.createIcons();
+    }
+
+    function useCurrentLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          () => selectLocation("Current GPS Location"),
+          () => alert("Please allow location permissions in device settings.")
+        );
+      } else {
+        alert("Geolocation not supported by browser.");
+      }
+    }
+
+    // --- 4. FLEET RENDERING ---
+    db.collection("fleet").onSnapshot(snapshot => {
+      allFleetCars = [];
+      snapshot.forEach(doc => allFleetCars.push({ id: doc.id, ...doc.data() }));
+      renderFleetCards();
+    });
+
+    function setCategoryFilter(category, btn) {
+      selectedCategory = category;
+      document.querySelectorAll("#filter-pills button").forEach(b => b.classList.remove("active-pill"));
+      btn.classList.add("active-pill");
+      renderFleetCards();
+    }
+
+    function renderFleetCards() {
+      const feed = document.getElementById("fleet-feed");
+      const filtered = allFleetCars.filter(c => selectedCategory === "All" || c.category === selectedCategory);
+
+      if (!filtered.length) {
+        feed.innerHTML = `<div class="py-12 text-center text-xs text-neutral-500"><p>No vehicles found.</p></div>`;
+        return;
+      }
+
+      feed.innerHTML = "";
+      filtered.forEach(car => {
+        const card = document.createElement("div");
+        card.className = "bg-[#10141f] rounded-2xl border border-neutral-800 p-3 shadow-lg space-y-2";
+        card.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div>
+              <h3 class="text-sm font-bold text-white">${car.name}</h3>
+              <p class="text-[10px] text-neutral-400">${car.specs || 'Automatic • Luxury'}</p>
+            </div>
+            <span class="text-sm font-bold text-cyan-300 font-brand">₹${Number(car.price).toLocaleString('en-IN')}/day</span>
+          </div>
+          <button onclick="handleBooking('${encodeURIComponent(car.name)}')" class="w-full brand-gradient py-2.5 rounded-xl text-black font-extrabold text-xs uppercase tracking-wider active:scale-95 transition">
+            Book Car
+          </button>
+        `;
+        feed.appendChild(card);
+      });
+      lucide.createIcons();
+    }
+
+    function handleBooking(carName) {
+      const location = selectedLocation || "Not specified";
+      const text = `Hello NeeD by GCR, I want to book ${decodeURIComponent(carName)} (${bookingType.toUpperCase()}).\nSelected Location: ${location}`;
+      window.open(`https://wa.me/919731055500?text=${encodeURIComponent(text)}`, '_blank');
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>NeeD | Self-Drive & Luxury Rentals</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #060709;
+      color: #f1f5f9;
+    }
+    .font-brand {
+      font-family: 'Orbitron', sans-serif;
+    }
+    .brand-gradient {
+      background: linear-gradient(135deg, #00e5ff 0%, #0077ff 100%);
+    }
+    .brand-glow {
+      box-shadow: 0 0 15px rgba(0, 229, 255, 0.35);
+    }
+    .cyan-border {
+      border: 1px solid rgba(0, 229, 255, 0.25);
+    }
+    .active-pill {
+      background: rgba(0, 229, 255, 0.15) !important;
+      border-color: #00e5ff !important;
+      color: #00e5ff !important;
+      font-weight: 700 !important;
+    }
     .no-scrollbar::-webkit-scrollbar {
       display: none;
     }
