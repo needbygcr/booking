@@ -288,16 +288,19 @@
               </button>
               
               <div class="flex items-center gap-3 text-[10px]">
-                <button onclick="updateRatingPrompt('${doc.id}', '${car.rating || '4.9'}', '${car.reviewsCount || '120+'}')" class="text-amber-400 hover:underline">
-                  Edit Rating
-                </button>
-                <button onclick="updatePricePrompt('${doc.id}', ${car.price})" class="text-cyan-400 hover:underline">
-                  Edit Price
-                </button>
-                <button onclick="deleteCar('${doc.id}')" class="text-rose-400 hover:underline">
-                  Delete
-                </button>
-              </div>
+                  <button onclick="updateRatingPrompt('${doc.id}', '${car.rating || '4.9'}', '${car.reviewsCount || '120+'}')" class="text-amber-400 hover:underline">
+                    Edit Rating
+                  </button>
+                  <button onclick="updatePricePrompt('${doc.id}', ${car.price})" class="text-cyan-400 hover:underline">
+                    Edit Price
+                  </button>
+                  <button onclick="updateBadgePrompt('${doc.id}', '${car.badge || 'Zero Deposit'}')" class="text-purple-400 hover:underline">
+                    Edit Badge
+                  </button>
+                  <button onclick="deleteCar('${doc.id}')" class="text-rose-400 hover:underline">
+                    Delete
+                  </button>
+                </div>
             </div>
           `;
           list.appendChild(card);
@@ -364,6 +367,7 @@
       loadCars();
     }
 
+   
     // --- 7. UPDATE PRICE ---
     async function updatePricePrompt(id, currentPrice) {
       const newPrice = prompt("Enter updated daily rental rate (₹):", currentPrice);
@@ -373,6 +377,16 @@
       }
     }
 
+    // --- UPDATE BADGE TAG ---
+    async function updateBadgePrompt(id, currentBadge) {
+      const newBadge = prompt("Enter updated badge tag (e.g. Zero Deposit, Newly Added, VIP Choice):", currentBadge);
+      if (newBadge !== null && newBadge.trim() !== "") {
+        await db.collection("fleet").doc(id).update({ badge: newBadge.trim() });
+        loadCars();
+      }
+    }
+
+    // --- 8. DELETE CAR ---
     // --- 8. DELETE CAR ---
     async function deleteCar(id) {
       if (confirm("Are you sure you want to remove this vehicle from inventory?")) {
