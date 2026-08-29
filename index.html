@@ -751,12 +751,12 @@
             </span>
           </div>
 
-          <div class="px-3 py-2">
-            <div class="h-40 rounded-xl bg-[#090b10] flex items-center justify-center overflow-hidden border border-neutral-850 relative">
+         <div class="px-3 py-2">
+            <div class="h-40 rounded-xl bg-[#090b10] flex items-center justify-center overflow-hidden border border-neutral-850 relative p-2">
               <img src="${car.image || defaultImg}" 
                    onerror="this.onerror=null; this.src='${defaultImg}';" 
                    alt="${car.name}" 
-                   class="w-full h-full object-cover transition duration-300 ${!isAvail ? 'grayscale opacity-40' : ''}">
+                   class="w-full h-full object-contain transition duration-300 ${!isAvail ? 'grayscale opacity-40' : ''}">
               ${!isAvail ? '<div class="absolute inset-0 bg-black/40 flex items-center justify-center font-bold text-xs uppercase tracking-widest text-neutral-300">Reserved</div>' : ''}
             </div>
           </div>
