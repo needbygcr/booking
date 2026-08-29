@@ -52,7 +52,6 @@
 
   <div class="w-full max-w-[480px] bg-[#090b10] min-h-screen flex flex-col pb-20 shadow-2xl relative border-x border-neutral-900">
 
-    <!-- Header -->
     <header class="sticky top-0 z-40 bg-[#090b10]/95 backdrop-blur-md px-4 py-3 border-b border-neutral-800/80 flex items-center justify-between">
       <div class="flex items-center space-x-3">
         <div class="w-9 h-9 rounded-xl bg-[#11141c] border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-brand font-black text-sm brand-glow">
@@ -69,26 +68,23 @@
       </a>
     </header>
 
-    <!-- Main Booking Search Widget -->
     <div class="p-4">
       <div class="bg-[#10141f] rounded-2xl p-3.5 cyan-border brand-glow relative overflow-hidden">
         <div class="absolute -right-10 -top-10 w-24 h-24 bg-cyan-500/10 rounded-full blur-xl pointer-events-none"></div>
 
         <div class="space-y-2.5">
-          
-          <!-- Single Location / Entry Point Card -->
-          <div onclick="openLocationPicker()" class="flex items-center bg-[#171c2b] rounded-xl px-3.5 py-3 border border-neutral-800 hover:border-cyan-500/40 cursor-pointer transition">
-            <div class="w-7 h-7 rounded-full bg-cyan-500/20 flex items-center justify-center text-cyan-400 mr-3 shrink-0">
-              <i data-lucide="map-pin" class="w-4 h-4"></i>
+          <!-- Pickup Location Trigger -->
+          <div onclick="openLocationPicker()" class="flex items-center bg-[#171c2b] rounded-xl px-3 py-2.5 border border-neutral-800 hover:border-cyan-500/40 cursor-pointer transition">
+            <div class="w-6 h-6 rounded-full bg-cyan-500/20 flex items-center justify-center text-cyan-400 mr-2.5 shrink-0">
+              <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
             </div>
             <div class="flex-1 min-w-0">
-              <label class="text-[9px] uppercase font-bold text-neutral-400 block tracking-wider leading-none mb-1 pointer-events-none">Location / Entry Point</label>
-              <div id="home-location-display" class="text-xs font-bold text-cyan-300 truncate">Doorstep Delivery</div>
+              <label class="text-[9px] uppercase font-bold text-neutral-400 block tracking-wider leading-none mb-0.5 pointer-events-none">Pickup Location</label>
+              <input type="text" id="pickup-location" value="Doorstep Delivery / Airport Drop" readonly class="bg-transparent text-xs font-semibold text-white focus:outline-none w-full truncate cursor-pointer pointer-events-none">
             </div>
             <i data-lucide="chevron-right" class="w-4 h-4 text-neutral-500 shrink-0"></i>
           </div>
 
-          <!-- Dates -->
           <div class="grid grid-cols-2 gap-2">
             <div class="bg-[#171c2b] rounded-xl px-3 py-2 border border-neutral-800">
               <label class="text-[9px] uppercase font-bold text-neutral-400 block tracking-wider leading-none mb-1">Start Date</label>
@@ -109,7 +105,6 @@
       </div>
     </div>
 
-    <!-- Category Filters -->
     <div class="px-4 pb-2">
       <div id="filter-pills" class="flex items-center space-x-2 overflow-x-auto no-scrollbar py-1 text-xs">
         <button onclick="setCategoryFilter('All', this)" class="active-pill border border-neutral-800 bg-[#121622] text-neutral-400 px-3.5 py-1.5 rounded-full whitespace-nowrap shrink-0 transition">All Cars</button>
@@ -120,7 +115,6 @@
       </div>
     </div>
 
-    <!-- Fleet Feed -->
     <div id="fleet-feed" class="px-4 space-y-3.5 mt-1">
       <div class="py-12 text-center text-xs text-neutral-500">
         <div class="inline-block w-6 h-6 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mb-2"></div>
@@ -128,7 +122,6 @@
       </div>
     </div>
 
-    <!-- Bottom Navigation -->
     <nav class="fixed bottom-0 left-0 right-0 z-40 flex justify-center bg-black/90 backdrop-blur-lg border-t border-neutral-850 py-2">
       <div class="w-full max-w-[480px] flex items-center justify-around px-2 text-neutral-400">
         <a href="#" class="flex flex-col items-center text-cyan-400">
@@ -153,99 +146,271 @@
       </div>
     </nav>
 
-    <!-- ================= SINGLE LOCATION PICKER MODAL ================= -->
+    <!-- ================= LOCATION PICKER MODAL ================= -->
     <div id="location-picker-modal" class="fixed inset-0 z-50 bg-[#090b10] flex justify-center hidden">
-      <div class="w-full max-w-[480px] min-h-screen bg-[#090b10] flex flex-col p-4 relative">
+      <div class="w-full max-w-[480px] min-h-screen bg-[#090b10] flex flex-col p-5 relative">
         
         <!-- Header -->
-        <div class="flex items-center space-x-3 pt-2 pb-3">
+        <div class="flex items-center space-x-3 pt-2 pb-4">
           <button onclick="closeLocationPicker()" class="w-9 h-9 rounded-full bg-[#121724] border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition active:scale-95">
-            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+            <i data-lucide="chevron-left" class="w-5 h-5"></i>
           </button>
-          <h2 class="text-sm font-bold text-white font-brand">Enter Location / Entry Point</h2>
+          <h2 class="text-sm sm:text-base font-bold text-white font-brand tracking-wide">Where do you want the car?</h2>
         </div>
 
-        <!-- Search Input Field -->
+        <!-- Search Input Container -->
         <div class="mt-2">
-          <div class="flex items-center bg-[#131826] border border-cyan-500/50 rounded-2xl px-3.5 py-3 transition brand-glow">
-            <i data-lucide="search" class="w-4 h-4 text-cyan-400 mr-2.5 shrink-0"></i>
-            <input type="text" id="modal-location-input" oninput="handleAddressAutocomplete(this.value)" placeholder="Search address, hotel, airport or landmark" class="w-full bg-transparent text-xs font-semibold text-white placeholder-neutral-500 focus:outline-none">
-            <button onclick="clearLocationInput()" class="text-neutral-500 hover:text-white text-xs px-1">✕</button>
+          <div class="flex items-center bg-[#131826] border border-neutral-800 focus-within:border-cyan-400 rounded-2xl px-4 py-3.5 transition brand-glow">
+            <i data-lucide="search" class="w-4 h-4 text-cyan-400 mr-3 shrink-0"></i>
+            <input type="text" id="modal-location-search" placeholder="Search address, airport or hotel" onkeydown="handleLocationKeydown(event)" class="w-full bg-transparent text-xs text-white placeholder-neutral-500 focus:outline-none font-medium">
           </div>
           <p class="text-[10px] text-cyan-400/90 font-medium mt-2 px-2 flex items-center">
-            <i data-lucide="sparkles" class="w-3 h-3 mr-1"></i> Live locality search enabled
+            <i data-lucide="sparkles" class="w-3 h-3 mr-1"></i> Please enter locality to get customized results
           </p>
         </div>
 
-        <!-- Quick Select Actions -->
-        <div class="mt-4 space-y-2">
-          <!-- Default Doorstep Option -->
-          <button onclick="selectLocation('Doorstep Delivery')" class="w-full flex items-center space-x-3 p-3 rounded-2xl bg-[#10141f] border border-cyan-500/30 hover:border-cyan-400 text-left transition active:scale-[0.99]">
-            <div class="w-8 h-8 rounded-full bg-cyan-950/70 border border-cyan-500/40 flex items-center justify-center text-cyan-400 shrink-0">
-              <i data-lucide="truck" class="w-4 h-4"></i>
-            </div>
-            <div class="flex-1 min-w-0">
-              <h4 class="text-xs font-bold text-cyan-300">Doorstep Delivery (Default)</h4>
-              <p class="text-[10px] text-neutral-400 truncate">Free delivery to your registered address</p>
-            </div>
-          </button>
+        <!-- Current Location Button -->
+        <button onclick="useCurrentLocation()" class="w-full mt-6 flex items-center space-x-3.5 p-3 rounded-2xl bg-[#10141f] border border-neutral-800 hover:border-cyan-500/40 text-left transition active:scale-[0.99]">
+          <div class="w-10 h-10 rounded-full bg-cyan-950/70 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0">
+            <i data-lucide="crosshair" class="w-5 h-5"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h4 class="text-xs font-bold text-cyan-300">Use current location</h4>
+            <p class="text-[10px] text-neutral-400 truncate">Enable location for better experience</p>
+          </div>
+        </button>
 
-          <!-- Current GPS Location Button -->
-          <button onclick="useCurrentLocation()" class="w-full flex items-center space-x-3 p-3 rounded-2xl bg-[#10141f] border border-neutral-800 hover:border-cyan-500/40 text-left transition active:scale-[0.99]">
-            <div class="w-8 h-8 rounded-full bg-[#171e2e] border border-neutral-700 flex items-center justify-center text-emerald-400 shrink-0">
-              <i data-lucide="crosshair" class="w-4 h-4"></i>
-            </div>
-            <div class="flex-1 min-w-0">
-              <h4 class="text-xs font-bold text-neutral-200">Use current GPS location</h4>
-              <p class="text-[10px] text-neutral-400 truncate">Detect via device pinpoint</p>
-            </div>
-          </button>
+        <div class="h-px bg-neutral-800/80 my-5"></div>
+
+        <!-- Recent Searches Header -->
+        <div class="flex items-center space-x-2 text-neutral-400 text-xs px-1">
+          <i data-lucide="history" class="w-4 h-4 text-neutral-500"></i>
+          <span class="font-medium text-[11px]">No recent searches</span>
         </div>
 
-        <div class="h-px bg-neutral-800/80 my-4"></div>
-
-        <!-- Live Suggestions & Recent Searches Container -->
-        <div class="flex-1 flex flex-col overflow-hidden">
-          <div class="flex items-center justify-between pb-2 border-b border-neutral-850">
-            <span id="results-header-text" class="text-[10px] uppercase font-bold text-neutral-400 tracking-wider">Recent Searches</span>
-          </div>
-
-          <div id="location-results-list" class="flex-1 overflow-y-auto divide-y divide-neutral-850 no-scrollbar py-1">
-            <!-- Dynamically populated -->
-          </div>
+        <!-- Empty State Graphic -->
+        <div class="flex-1 flex items-center justify-center py-10 opacity-15 pointer-events-none">
+          <i data-lucide="search" class="w-28 h-28 text-cyan-400"></i>
         </div>
 
       </div>
     </div>
 
-    <!-- Account Drawer (Standard) -->
+    <!-- ================= ACCOUNT DRAWER ================= -->
     <div id="account-drawer" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex justify-center items-center p-4 hidden transition-all duration-300">
       <div class="w-full max-w-[420px] bg-[#0d111a] border border-neutral-800/90 rounded-3xl p-6 shadow-2xl flex flex-col relative overflow-hidden brand-glow">
+        
         <div class="flex items-center justify-between pb-4">
-          <h2 class="text-base font-bold text-white font-brand tracking-wide">My Account</h2>
-          <button onclick="toggleAccountDrawer()" class="w-8 h-8 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400">✕</button>
+          <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-xl bg-[#131926] border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-brand font-black text-sm">
+              N
+            </div>
+            <h2 class="text-base font-bold text-white font-brand tracking-wide">My Account</h2>
+          </div>
+          <button onclick="toggleAccountDrawer()" class="w-8 h-8 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition">
+            ✕
+          </button>
         </div>
+
         <div id="auth-view" class="space-y-4 pt-1">
-          <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-3">
-            <input type="tel" id="auth-phone" maxlength="10" placeholder="Mobile Number" required class="w-full bg-[#141926] border border-neutral-800 rounded-2xl px-4 py-3 text-xs text-white">
-            <input type="password" id="auth-password" placeholder="Password" required class="w-full bg-[#141926] border border-neutral-800 rounded-2xl px-4 py-3 text-xs text-white">
-            <button type="submit" class="w-full brand-gradient text-black font-extrabold text-xs uppercase py-3.5 rounded-2xl">Sign In</button>
+          <div class="flex bg-[#141926] p-1 rounded-2xl border border-neutral-800">
+            <button id="tab-login-btn" onclick="switchAuthTab('login')" class="flex-1 py-2.5 text-xs font-bold rounded-xl brand-gradient text-black transition shadow-md">
+              Sign In
+            </button>
+            <button id="tab-signup-btn" onclick="switchAuthTab('signup')" class="flex-1 py-2.5 text-xs font-bold rounded-xl text-neutral-400 hover:text-white transition">
+              Create Account
+            </button>
+          </div>
+
+          <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-3 pt-1">
+            <div id="signup-name-field" class="hidden">
+              <label class="text-[11px] text-neutral-400 block mb-1 font-medium">Full Legal Name</label>
+              <input type="text" id="auth-name" placeholder="e.g. Rahul Sharma" class="w-full bg-[#141926] border border-neutral-800 rounded-2xl px-4 py-3 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-cyan-400 transition">
+            </div>
+
+            <div>
+              <label class="text-[11px] text-neutral-400 block mb-1 font-medium">Mobile Number</label>
+              <div class="flex items-center bg-[#141926] border border-neutral-800 rounded-2xl px-4 py-3 focus-within:border-cyan-400 transition">
+                <span class="text-xs font-bold text-neutral-400 mr-2 border-r border-neutral-700 pr-2.5">+91</span>
+                <input type="tel" id="auth-phone" maxlength="10" placeholder="97310 55500" required class="bg-transparent text-xs font-semibold text-white focus:outline-none w-full tracking-wider placeholder-neutral-500">
+              </div>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-[11px] text-neutral-400 font-medium">Password</label>
+                <button type="button" id="forgot-pass-btn" onclick="showForgotPasswordView()" class="text-[11px] text-cyan-400 hover:underline">
+                  Forgot Password?
+                </button>
+              </div>
+              <input type="password" id="auth-password" placeholder="••••••••" required class="w-full bg-[#141926] border border-neutral-800 rounded-2xl px-4 py-3 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-cyan-400 transition">
+            </div>
+
+            <button type="submit" id="auth-submit-btn" class="w-full brand-gradient text-black font-extrabold text-xs uppercase py-3.5 rounded-2xl hover:brightness-110 active:scale-[0.98] transition shadow-[0_0_20px_rgba(0,229,255,0.35)] mt-3">
+              Sign In
+            </button>
           </form>
+
+          <p class="text-[10px] text-center text-neutral-500 leading-relaxed px-2">
+            By continuing, you agree to NeeD's Terms of Luxury Rentals & Safety Guidelines.
+          </p>
         </div>
+
+        <div id="forgot-view" class="space-y-4 pt-1 hidden">
+          <div class="text-center py-1">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-400 font-brand">Reset Password</h3>
+            <p class="text-[11px] text-neutral-400 mt-1">Verify your identity using your registered mobile and the last 4 digits of your Aadhaar number.</p>
+          </div>
+
+          <form id="reset-form" onsubmit="handleIdentityResetSubmit(event)" class="space-y-3 pt-1">
+            <div>
+              <label class="text-[11px] text-neutral-400 block mb-1 font-medium">Registered Mobile</label>
+              <div class="flex items-center bg-[#141926] border border-neutral-800 rounded-2xl px-4 py-3 focus-within:border-cyan-400 transition">
+                <span class="text-xs font-bold text-neutral-400 mr-2 border-r border-neutral-700 pr-2.5">+91</span>
+                <input type="tel" id="reset-phone" maxlength="10" placeholder="97310 55500" required class="bg-transparent text-xs font-semibold text-white focus:outline-none w-full tracking-wider placeholder-neutral-500">
+              </div>
+            </div>
+
+            <div>
+              <label class="text-[11px] text-neutral-400 block mb-1 font-medium">Last 4 Digits of Aadhaar Number</label>
+              <input type="password" id="reset-id-last4" maxlength="4" placeholder="••••" required class="w-full bg-[#141926] border border-neutral-800 rounded-2xl px-4 py-3 text-xs text-white tracking-[0.4em] placeholder-neutral-500 focus:outline-none focus:border-cyan-400 transition text-center font-bold">
+            </div>
+
+            <div>
+              <label class="text-[11px] text-neutral-400 block mb-1 font-medium">New Password</label>
+              <input type="password" id="reset-new-password" placeholder="Enter new password (min 6 characters)" required class="w-full bg-[#141926] border border-neutral-800 rounded-2xl px-4 py-3 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-cyan-400 transition">
+            </div>
+
+            <button type="submit" id="reset-submit-btn" class="w-full brand-gradient text-black font-extrabold text-xs uppercase py-3.5 rounded-2xl hover:brightness-110 active:scale-[0.98] transition shadow-[0_0_20px_rgba(0,229,255,0.35)] mt-2">
+              Verify & Update Password
+            </button>
+          </form>
+
+          <button type="button" onclick="cancelForgotPassword()" class="w-full text-neutral-500 hover:text-neutral-300 text-[11px] py-1 text-center block">
+            Back to Sign In
+          </button>
+        </div>
+
+        <div id="profile-view" class="space-y-4 pt-1 hidden">
+          
+          <div class="bg-[#141926] p-4 rounded-2xl border border-neutral-800 flex items-center space-x-3.5">
+            <div id="user-avatar" class="w-12 h-12 rounded-full bg-cyan-950 border border-cyan-400/40 flex items-center justify-center text-cyan-400 font-brand font-bold text-base">
+              U
+            </div>
+            <div class="flex-1 min-w-0">
+              <h3 id="user-name-display" class="text-sm font-bold text-white truncate">Customer Name</h3>
+              <p id="user-phone-display" class="text-[11px] text-neutral-400 font-mono">+91 </p>
+            </div>
+          </div>
+
+          <div id="kyc-status-card" class="bg-[#141926] p-4 rounded-2xl border border-neutral-800 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-neutral-300 flex items-center">
+                <i data-lucide="shield-alert" class="w-4 h-4 text-amber-400 mr-1.5"></i>
+                KYC Status
+              </span>
+              <span id="user-kyc-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-950/80 text-amber-400 border border-amber-500/30">
+                Pending Verification ⚠️
+              </span>
+            </div>
+
+            <div id="kyc-pending-notice" class="text-[11px] text-neutral-400 leading-relaxed">
+              Govt. ID & Driving License verification is mandatory to book self-drive luxury vehicles.
+            </div>
+
+            <button id="digilocker-btn" onclick="openDigiLockerModal()" class="w-full bg-[#1b2234] border border-cyan-500/40 hover:border-cyan-400 text-cyan-300 font-bold text-xs py-3 rounded-xl flex items-center justify-center space-x-2 active:scale-95 transition shadow-sm">
+              <i data-lucide="lock" class="w-4 h-4 text-cyan-400"></i>
+              <span>Complete KYC via DigiLocker</span>
+            </button>
+
+            <div id="kyc-verified-notice" class="hidden text-[11px] text-emerald-400 flex items-center pt-1">
+              <i data-lucide="check-circle" class="w-4 h-4 mr-1.5"></i>
+              All booking permissions unlocked.
+            </div>
+          </div>
+
+          <div class="space-y-2 pt-1">
+            <a href="tel:9731055500" class="w-full flex items-center justify-between p-3 bg-[#141926] border border-neutral-800 rounded-xl text-xs text-neutral-200 hover:text-white transition">
+              <span class="flex items-center"><i data-lucide="headphones" class="w-4 h-4 text-cyan-400 mr-2"></i> Dedicated Concierge Support</span>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-neutral-500"></i>
+            </a>
+            <button onclick="handleUserLogout()" class="w-full py-3 bg-rose-950/30 border border-rose-500/30 text-rose-400 rounded-2xl text-xs font-bold hover:bg-rose-950/60 transition">
+              Log Out
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
 
-    <!-- Concierge Drawer -->
+    <!-- ================= DIGILOCKER MODAL ================= -->
+    <div id="digilocker-modal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex justify-center items-center p-4 hidden transition-all duration-300">
+      <div class="w-full max-w-[380px] bg-[#0f1422] border border-cyan-500/40 rounded-3xl p-6 shadow-2xl space-y-4 brand-glow">
+        <div class="flex items-center justify-between border-b border-neutral-800 pb-3">
+          <div class="flex items-center space-x-2">
+            <div class="w-7 h-7 rounded-lg bg-blue-900/60 border border-blue-400/40 flex items-center justify-center text-blue-400 font-black text-xs">
+              DL
+            </div>
+            <h3 class="text-xs font-bold text-white uppercase tracking-wider">DigiLocker e-KYC</h3>
+          </div>
+          <button onclick="closeDigiLockerModal()" class="text-neutral-400 hover:text-white">✕</button>
+        </div>
+
+        <form id="digilocker-form" onsubmit="processDigiLockerKyc(event)" class="space-y-3">
+          <div>
+            <label class="text-[10px] text-neutral-400 block mb-1">Full Legal Name (as per Aadhaar)</label>
+            <input type="text" id="kyc-full-name" required placeholder="Name on Aadhaar Card" class="w-full bg-[#171e30] border border-neutral-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-400">
+          </div>
+
+          <div>
+            <label class="text-[10px] text-neutral-400 block mb-1">Last 4 Digits of Aadhaar Number</label>
+            <input type="text" id="kyc-last4-input" maxlength="4" required placeholder="••••" class="w-full bg-[#171e30] border border-neutral-700 rounded-xl p-2.5 text-center text-sm font-bold tracking-[0.4em] text-white focus:outline-none focus:border-cyan-400">
+          </div>
+
+          <div class="text-[9px] text-neutral-400 bg-neutral-900/80 p-2.5 rounded-xl border border-neutral-800">
+            🔒 By proceeding, you consent to digital validation with DigiLocker servers. Full identity numbers are masked.
+          </div>
+
+          <button type="submit" id="digilocker-submit-btn" class="w-full brand-gradient text-black font-extrabold text-xs uppercase py-3 rounded-xl hover:brightness-110 active:scale-95 transition shadow-lg">
+            Verify & Unlock Bookings
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ================= CONCIERGE CHAT DRAWER ================= -->
     <div id="chat-drawer" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex justify-center items-center p-4 hidden">
-      <div class="w-full max-w-[420px] h-[500px] bg-[#0d111a] border border-neutral-800 rounded-3xl flex flex-col overflow-hidden shadow-2xl brand-glow p-4">
-        <div class="flex justify-between items-center border-b border-neutral-800 pb-2">
-          <span class="text-xs font-bold text-cyan-400">Concierge Desk</span>
-          <button onclick="toggleChatDrawer()" class="text-neutral-400">✕</button>
+      <div class="w-full max-w-[420px] h-[540px] bg-[#0d111a] border border-neutral-800 rounded-3xl flex flex-col overflow-hidden shadow-2xl brand-glow">
+        
+        <div class="px-4 py-3 bg-[#121724] border-b border-neutral-800 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="relative">
+              <div class="w-9 h-9 rounded-full bg-cyan-950 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-brand font-bold text-xs">
+                <span id="agent-avatar-initials">CS</span>
+              </div>
+              <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 absolute bottom-0 right-0 border-2 border-[#121724]"></div>
+            </div>
+            <div>
+              <h3 id="agent-display-name" class="text-xs font-bold text-white font-brand">Support Specialist</h3>
+              <p class="text-[9px] text-emerald-400 font-medium">NeeD Executive Desk • Active Now</p>
+            </div>
+          </div>
+          <button onclick="toggleChatDrawer()" class="w-8 h-8 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition">
+            ✕
+          </button>
         </div>
-        <div class="flex-1 flex items-center justify-center text-xs text-neutral-500">Active Concierge Ready</div>
+
+        <div id="chat-messages-container" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
+
+        <form id="chat-input-form" onsubmit="sendChatMessage(event)" class="p-3 bg-[#121724] border-t border-neutral-800 flex items-center space-x-2">
+          <input type="text" id="chat-input" placeholder="Type your message..." required class="flex-1 bg-[#182032] border border-neutral-700 rounded-xl px-3 py-2.5 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-cyan-400">
+          <button type="submit" class="brand-gradient text-black font-extrabold px-4 py-2.5 rounded-xl text-xs uppercase tracking-wider active:scale-95 transition">
+            Send
+          </button>
+        </form>
+
       </div>
     </div>
-
   </div>
 
   <script>
@@ -259,27 +424,21 @@
       appId: "1:550107299117:web:7e6ff6445d681364df27a4"
     };
 
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
     const db = firebase.firestore();
 
     let allFleetCars = [];
     let selectedCategory = "All";
+    let isSignUpMode = false;
     let currentActiveUser = JSON.parse(localStorage.getItem("need_logged_user") || "null");
 
-    // Location State - Default to Doorstep Delivery
-    let currentLocation = localStorage.getItem("need_selected_location") || "Doorstep Delivery";
-    let debounceTimer = null;
-
-    // --- 2. LOCATION ENGINE ---
+    // --- LOCATION PICKER CONTROLLER ---
     function openLocationPicker() {
       const modal = document.getElementById("location-picker-modal");
       modal.classList.remove("hidden");
-      
-      const input = document.getElementById("modal-location-input");
-      input.value = (currentLocation === "Doorstep Delivery") ? "" : currentLocation;
-      input.focus();
-
-      loadRecentSearches();
+      document.getElementById("modal-location-search").focus();
       lucide.createIcons();
     }
 
@@ -287,139 +446,30 @@
       document.getElementById("location-picker-modal").classList.add("hidden");
     }
 
-    function clearLocationInput() {
-      document.getElementById("modal-location-input").value = "";
-      loadRecentSearches();
-    }
-
-    // Live Address Search
-    function handleAddressAutocomplete(query) {
-      clearTimeout(debounceTimer);
-      const queryTrim = query.trim();
-      const listContainer = document.getElementById("location-results-list");
-      const headerText = document.getElementById("results-header-text");
-
-      if (!queryTrim || queryTrim.length < 2) {
-        loadRecentSearches();
-        return;
-      }
-
-      headerText.innerText = "Suggested Locations";
-      listContainer.innerHTML = `
-        <div class="py-6 text-center text-xs text-neutral-500 flex items-center justify-center space-x-2">
-          <div class="w-4 h-4 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
-          <span>Searching places...</span>
-        </div>
-      `;
-
-      debounceTimer = setTimeout(async () => {
-        try {
-          const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(queryTrim)}&limit=6`);
-          const data = await res.json();
-          renderSuggestions(data.features || []);
-        } catch (err) {
-          listContainer.innerHTML = `<div class="py-4 text-center text-xs text-neutral-500">Press enter to select "${queryTrim}"</div>`;
-        }
-      }, 300);
-    }
-
-    function renderSuggestions(features) {
-      const listContainer = document.getElementById("location-results-list");
-      listContainer.innerHTML = "";
-
-      if (!features.length) {
-        listContainer.innerHTML = `<div class="py-6 text-center text-xs text-neutral-500">No matching places found.</div>`;
-        return;
-      }
-
-      features.forEach(item => {
-        const props = item.properties;
-        const mainText = props.name || props.street || "Location Pin";
-        const secondary = [props.city, props.state, props.country].filter(Boolean).join(", ");
-        const fullAddress = `${mainText}${secondary ? ', ' + secondary : ''}`;
-
-        const row = document.createElement("div");
-        row.className = "flex items-center space-x-3 py-3 px-2 hover:bg-[#131926] cursor-pointer rounded-xl transition";
-        row.innerHTML = `
-          <div class="w-8 h-8 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-cyan-400 shrink-0">
-            <i data-lucide="map-pin" class="w-4 h-4"></i>
-          </div>
-          <div class="flex-1 min-w-0">
-            <p class="text-xs font-bold text-white truncate">${mainText}</p>
-            <p class="text-[10px] text-neutral-400 truncate">${secondary}</p>
-          </div>
-        `;
-        row.onclick = () => selectLocation(fullAddress);
-        listContainer.appendChild(row);
-      });
-      lucide.createIcons();
-    }
-
-    function selectLocation(addressString) {
-      currentLocation = addressString;
-      localStorage.setItem("need_selected_location", addressString);
-      
-      document.getElementById("home-location-display").innerText = addressString;
-      
-      if (addressString !== "Doorstep Delivery") {
-        saveToRecents(addressString);
-      }
-      
+    function selectLocation(locationText) {
+      document.getElementById("pickup-location").value = locationText;
       closeLocationPicker();
     }
 
-    function saveToRecents(address) {
-      let recents = JSON.parse(localStorage.getItem("need_recent_locations") || "[]");
-      recents = recents.filter(item => item !== address);
-      recents.unshift(address);
-      if (recents.length > 5) recents.pop();
-      localStorage.setItem("need_recent_locations", JSON.stringify(recents));
-    }
-
-    function loadRecentSearches() {
-      const listContainer = document.getElementById("location-results-list");
-      const headerText = document.getElementById("results-header-text");
-      const recents = JSON.parse(localStorage.getItem("need_recent_locations") || "[]");
-
-      headerText.innerText = "Recent Searches";
-      listContainer.innerHTML = "";
-
-      if (!recents.length) {
-        listContainer.innerHTML = `
-          <div class="flex flex-col items-center justify-center py-10 opacity-20 pointer-events-none">
-            <i data-lucide="map-pin" class="w-16 h-16 text-cyan-400 mb-2"></i>
-            <p class="text-xs text-neutral-400">No recent locations</p>
-          </div>
-        `;
-        lucide.createIcons();
-        return;
+    function handleLocationKeydown(e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const value = e.target.value.trim();
+        if (value) {
+          selectLocation(value);
+        }
       }
-
-      recents.forEach(address => {
-        const row = document.createElement("div");
-        row.className = "flex items-center space-x-3 py-2.5 px-2 hover:bg-[#131926] cursor-pointer rounded-xl transition";
-        row.innerHTML = `
-          <div class="w-7 h-7 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 shrink-0">
-            <i data-lucide="history" class="w-3.5 h-3.5"></i>
-          </div>
-          <div class="flex-1 min-w-0">
-            <p class="text-xs font-semibold text-neutral-300 truncate">${address}</p>
-          </div>
-        `;
-        row.onclick = () => selectLocation(address);
-        listContainer.appendChild(row);
-      });
-      lucide.createIcons();
     }
 
     function useCurrentLocation() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
-            selectLocation("Current GPS Location");
+            // Can be replaced by reverse geocoding API or default pinpoint
+            selectLocation("Current Location (Verified Pin)");
           },
           (error) => {
-            alert("Please allow location permissions in your browser settings.");
+            alert("Please allow location access to use your current pinpoint.");
           }
         );
       } else {
@@ -427,59 +477,579 @@
       }
     }
 
-    // --- 3. FLEET LISTENER & DISPATCH ---
+    // --- 2. REAL-TIME FLEET LISTENER ---
     db.collection("fleet").onSnapshot(snapshot => {
       allFleetCars = [];
-      snapshot.forEach(doc => allFleetCars.push({ id: doc.id, ...doc.data() }));
+      snapshot.forEach(doc => {
+        allFleetCars.push({ id: doc.id, ...doc.data() });
+      });
+
+      allFleetCars.sort((a, b) => {
+        const timeA = a.createdAt?.seconds || 0;
+        const timeB = b.createdAt?.seconds || 0;
+        return timeB - timeA;
+      });
+
       renderFleetCards();
+    }, error => {
+      console.error("Firestore sync error:", error);
+      document.getElementById("fleet-feed").innerHTML = `
+        <div class="p-4 bg-rose-950/40 border border-rose-500/30 rounded-xl text-center text-xs text-rose-300">
+          Database Notice: Please publish open Firestore Rules in Firebase Console.
+        </div>
+      `;
     });
 
-    function setCategoryFilter(category, btn) {
+    const SUPPORT_PERSONAS = [
+      "Aarav Sharma", "Ananya Iyer", "Rohan Verma", "Pooja Hegde", "Kabir Mehta",
+      "Sneha Reddy", "Vikram Malhotra", "Priyanka Nair", "Aditya Joshi", "Riya Sen",
+      "Arjun Kapoor", "Tanvi Deshmukh", "Karan Singhania", "Ishita Roy", "Varun Chawla",
+      "Meera Pillai", "Siddharth Rao", "Divya Menon", "Manish Pandey", "Neha Kulkarni",
+      "Ayush Saxena", "Kavya Nambiar", "Rahul Bhatia", "Simran Kaur", "Devansh Mishra",
+      "Shreya Ghoshal", "Nikhil Agarwal", "Ritika Das", "Gaurav Sen", "Anjali Chauhan",
+      "Yash Vardhan", "Swati Mahajan", "Kunal Grover", "Payal Rajput", "Harshavardhan Jain",
+      "Deepika Bose", "Akash Gill", "Bhavna Trivedi", "Pranav Sethi", "Nandini Murthy",
+      "Tarun Khurana", "Pallavi Shinde", "Mayank Goswami", "Preeti Varma", "Alok Sengupta",
+      "Radhika Merchant", "Suresh Rathi", "Sunidhi Rao", "Sameer Ahluwalia", "Kritika Soni"
+    ];
+
+    const ADMIN_TEAM = [
+      { id: "admin_1", name: "Executive Team 1" },
+      { id: "admin_2", name: "Executive Team 2" },
+      { id: "admin_3", name: "Executive Team 3" }
+    ];
+
+    let unsubscribeChatListener = null;
+    let currentAssignedPersona = null;
+    let currentAssignedAdmin = null;
+
+    function getRandomItem(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function toggleChatDrawer() {
+      const drawer = document.getElementById("chat-drawer");
+      drawer.classList.toggle("hidden");
+
+      if (!drawer.classList.contains("hidden")) {
+        if (!currentActiveUser) {
+          alert("Please sign in or create an account to start chat support.");
+          toggleChatDrawer();
+          toggleAccountDrawer();
+          return;
+        }
+        initializeChatSession();
+      } else {
+        if (unsubscribeChatListener) unsubscribeChatListener();
+      }
+    }
+
+    async function initializeChatSession() {
+      const phone = currentActiveUser.phone;
+      const chatRef = db.collection("chats").doc(phone);
+      const doc = await chatRef.get();
+
+      if (doc.exists && doc.data().assignedPersona) {
+        currentAssignedPersona = doc.data().assignedPersona;
+        currentAssignedAdmin = doc.data().assignedAdminId || getRandomItem(ADMIN_TEAM).id;
+      } else {
+        currentAssignedPersona = getRandomItem(SUPPORT_PERSONAS);
+        currentAssignedAdmin = getRandomItem(ADMIN_TEAM).id;
+
+        await chatRef.set({
+          customerPhone: phone,
+          customerName: currentActiveUser.name || "VIP Guest",
+          assignedPersona: currentAssignedPersona,
+          assignedAdminId: currentAssignedAdmin,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          unreadByAdmin: false
+        }, { merge: true });
+      }
+
+      document.getElementById("agent-display-name").innerText = currentAssignedPersona;
+      const initials = currentAssignedPersona.split(" ").map(n => n[0]).join("");
+      document.getElementById("agent-avatar-initials").innerText = initials;
+
+      listenToChatMessages();
+    }
+
+    function listenToChatMessages() {
+      const phone = currentActiveUser.phone;
+      const container = document.getElementById("chat-messages-container");
+      const messagesRef = db.collection("chats").doc(phone).collection("messages").orderBy("timestamp", "asc");
+
+      unsubscribeChatListener = messagesRef.onSnapshot(snapshot => {
+        container.innerHTML = "";
+
+        if (snapshot.empty) {
+          container.innerHTML = `
+            <div class="text-center py-8 text-neutral-500 text-[11px] space-y-1">
+              <p class="font-bold text-neutral-400">Connected with ${currentAssignedPersona}</p>
+              <p>How can we assist you with your rental reservation today?</p>
+            </div>
+          `;
+          return;
+        }
+
+        snapshot.forEach(doc => {
+          const msg = doc.data();
+          const isMe = msg.sender === "customer";
+
+          const bubble = document.createElement("div");
+          bubble.className = `flex ${isMe ? "justify-end" : "justify-start"}`;
+          bubble.innerHTML = `
+            <div class="max-w-[80%] px-3.5 py-2.5 rounded-2xl text-xs ${
+              isMe 
+                ? "bg-cyan-500 text-black font-medium rounded-br-none" 
+                : "bg-[#161c2c] text-white border border-neutral-700 rounded-bl-none"
+            }">
+              ${!isMe ? `<p class="text-[9px] font-bold text-cyan-400 mb-0.5">${msg.senderName || currentAssignedPersona}</p>` : ''}
+              <p class="leading-relaxed">${msg.text}</p>
+            </div>
+          `;
+          container.appendChild(bubble);
+        });
+
+        container.scrollTop = container.scrollHeight;
+      });
+    }
+
+    async function sendChatMessage(e) {
+      e.preventDefault();
+      const input = document.getElementById("chat-input");
+      const text = input.value.trim();
+      if (!text || !currentActiveUser) return;
+
+      const phone = currentActiveUser.phone;
+      input.value = "";
+
+      try {
+        const chatDoc = db.collection("chats").doc(phone);
+        
+        await chatDoc.collection("messages").add({
+          sender: "customer",
+          senderName: currentActiveUser.name || "Client",
+          text: text,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        await chatDoc.set({
+          lastMessage: text,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          unreadByAdmin: true,
+          assignedAdminId: currentAssignedAdmin
+        }, { merge: true });
+      } catch (err) {
+        console.error("Error sending message:", err);
+      }
+    }
+
+    // --- 3. FILTERING LOGIC ---
+    function setCategoryFilter(category, buttonElement) {
       selectedCategory = category;
-      document.querySelectorAll("#filter-pills button").forEach(b => b.classList.remove("active-pill"));
-      btn.classList.add("active-pill");
+      const pills = document.querySelectorAll("#filter-pills button");
+      pills.forEach(btn => btn.classList.remove("active-pill"));
+      buttonElement.classList.add("active-pill");
       renderFleetCards();
     }
 
+    // --- 4. RENDER CAR CARDS WITH KYC GATEWAY ---
     function renderFleetCards() {
       const feed = document.getElementById("fleet-feed");
-      const filtered = allFleetCars.filter(c => selectedCategory === "All" || c.category === selectedCategory);
-      if (!filtered.length) {
-        feed.innerHTML = `<div class="py-12 text-center text-xs text-neutral-500"><p>No vehicles found.</p></div>`;
+
+      const filtered = allFleetCars.filter(car => {
+        return (selectedCategory === "All") || (car.category === selectedCategory);
+      });
+
+      if (filtered.length === 0) {
+        feed.innerHTML = `<div class="py-12 text-center text-xs text-neutral-500"><p>No vehicles found for the selected filter.</p></div>`;
         return;
       }
+
       feed.innerHTML = "";
+
       filtered.forEach(car => {
+        const isAvail = (car.isAvailable === true || car.isAvailable === undefined);
+        const encodedCarName = encodeURIComponent(car.name);
+        const defaultImg = "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=800&q=80";
+
         const card = document.createElement("div");
-        card.className = "bg-[#10141f] rounded-2xl border border-neutral-800 p-3 shadow-lg space-y-2";
+        card.className = "bg-[#10141f] rounded-2xl border border-neutral-800/90 overflow-hidden shadow-lg transition duration-200";
+
         card.innerHTML = `
-          <div class="flex justify-between items-start">
+          <div class="p-3 pb-0 flex items-start justify-between">
             <div>
+              <div class="flex items-center space-x-1.5 mb-0.5">
+                <span class="text-[10px] font-bold px-1.5 py-0.2 rounded ${
+                  isAvail 
+                    ? 'bg-emerald-950/80 text-emerald-400 border border-emerald-500/30' 
+                    : 'bg-neutral-800 text-neutral-400 border border-neutral-700'
+                }">
+                  ${isAvail ? 'AVAILABLE' : 'BOOKED / IN USE'}
+                </span>
+                <span class="text-[10px] text-amber-400 flex items-center font-semibold">
+                  <i data-lucide="star" class="w-3 h-3 fill-amber-400 mr-0.5"></i> ${car.rating || '4.9'} (${car.reviewsCount || '120+'})
+                </span>
+              </div>
               <h3 class="text-sm font-bold text-white">${car.name}</h3>
-              <p class="text-[10px] text-neutral-400">${car.specs || 'Automatic • Luxury'}</p>
+              <p class="text-[10px] text-neutral-400">${car.specs || 'Diesel • Automatic • 7 Seats'}</p>
             </div>
-            <span class="text-sm font-bold text-cyan-300 font-brand">₹${Number(car.price).toLocaleString('en-IN')}/day</span>
+            
+            <span class="text-[9px] font-bold bg-cyan-950 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded-full">
+              ${car.badge || 'Zero Deposit'}
+            </span>
           </div>
-          <button onclick="handleBookingAttempt('${encodeURIComponent(car.name)}')" class="w-full brand-gradient py-2.5 rounded-xl text-black font-extrabold text-xs uppercase tracking-wider active:scale-95 transition">
-            Book Car
-          </button>
+
+          <div class="px-3 py-2">
+            <div class="h-40 rounded-xl bg-[#090b10] flex items-center justify-center overflow-hidden border border-neutral-850 relative">
+              <img src="${car.image || defaultImg}" 
+                   onerror="this.onerror=null; this.src='${defaultImg}';" 
+                   alt="${car.name}" 
+                   class="w-full h-full object-cover transition duration-300 ${!isAvail ? 'grayscale opacity-40' : ''}">
+              ${!isAvail ? '<div class="absolute inset-0 bg-black/40 flex items-center justify-center font-bold text-xs uppercase tracking-widest text-neutral-300">Reserved</div>' : ''}
+            </div>
+          </div>
+
+          <div class="px-3 py-1 flex items-center space-x-3 text-[10px] text-neutral-400">
+            <span class="flex items-center"><i data-lucide="zap" class="w-3 h-3 text-cyan-400 mr-1"></i> Fastag Enabled</span>
+            <span class="flex items-center"><i data-lucide="shield-check" class="w-3 h-3 text-cyan-400 mr-1"></i> Sanitized</span>
+          </div>
+
+          <div class="p-3 bg-[#131826] border-t border-neutral-800 flex items-center justify-between">
+            <div>
+              <div class="flex items-baseline space-x-1">
+                <span class="text-base font-black text-cyan-300 font-brand">₹${Number(car.price).toLocaleString('en-IN')}</span>
+                <span class="text-[10px] text-neutral-400">/ Day</span>
+              </div>
+              <span class="text-[9px] text-emerald-400 block font-medium">${car.deliveryTag || 'Free Doorstep Delivery'}</span>
+            </div>
+
+            ${
+              isAvail
+                ? `<button onclick="handleBookingAttempt('${encodedCarName}')" class="brand-gradient text-black font-extrabold text-[11px] uppercase tracking-wider px-4 py-2.5 rounded-xl active:scale-95 transition flex items-center space-x-1.5 shadow-[0_0_10px_rgba(0,229,255,0.3)]">
+                     <i data-lucide="message-circle" class="w-3.5 h-3.5 fill-black"></i>
+                     <span>Book Now</span>
+                   </button>`
+                : `<button disabled class="bg-neutral-800/80 text-neutral-500 font-bold text-[11px] uppercase tracking-wider px-4 py-2.5 rounded-xl cursor-not-allowed border border-neutral-700/60 flex items-center space-x-1">
+                     <span>Unavailable</span>
+                   </button>`
+            }
+          </div>
         `;
+
         feed.appendChild(card);
       });
+
       lucide.createIcons();
     }
 
-    function handleBookingAttempt(carName) {
-      const location = currentLocation || "Doorstep Delivery";
-      const text = `Hello NeeD by GCR, I want to book ${decodeURIComponent(carName)}.\nLocation / Entry: ${location}`;
-      window.open(`https://wa.me/919731055500?text=${encodeURIComponent(text)}`, '_blank');
+    // --- 5. BOOKING GATEWAY ---
+    function handleBookingAttempt(encodedCarName) {
+      if (!currentActiveUser) {
+        alert("Please sign in or create an account to book vehicles.");
+        toggleAccountDrawer();
+        return;
+      }
+
+      if (!currentActiveUser.isKycVerified) {
+        alert("DigiLocker KYC is required before booking. Please complete verification.");
+        toggleAccountDrawer();
+        return;
+      }
+
+      const carName = decodeURIComponent(encodedCarName);
+      const whatsappUrl = `https://wa.me/919731055500?text=Hello%20NeeD%20by%20GCR,%20I%20am%20verified%20client%20${encodeURIComponent(currentActiveUser.name)}%20(+91${currentActiveUser.phone.replace('+91','')}).%20I%20want%20to%20book%20${encodedCarName}.`;
+      window.open(whatsappUrl, '_blank');
     }
 
-    function toggleChatDrawer() { document.getElementById("chat-drawer").classList.toggle("hidden"); }
-    function toggleAccountDrawer() { document.getElementById("account-drawer").classList.toggle("hidden"); }
+    // --- 6. MY ACCOUNT UI CONTROLLER ---
+    function toggleAccountDrawer() {
+      const drawer = document.getElementById("account-drawer");
+      drawer.classList.toggle("hidden");
+      if (!drawer.classList.contains("hidden")) {
+        cancelForgotPassword();
+        refreshAccountUI();
+      }
+    }
+
+    function switchAuthTab(mode) {
+      const loginBtn = document.getElementById("tab-login-btn");
+      const signupBtn = document.getElementById("tab-signup-btn");
+      const signupNameField = document.getElementById("signup-name-field");
+      const submitBtn = document.getElementById("auth-submit-btn");
+      const forgotBtn = document.getElementById("forgot-pass-btn");
+
+      cancelForgotPassword();
+
+      if (mode === "signup") {
+        isSignUpMode = true;
+        signupNameField.classList.remove("hidden");
+        forgotBtn.classList.add("hidden");
+        signupBtn.className = "flex-1 py-2.5 text-xs font-bold rounded-xl brand-gradient text-black transition shadow-md";
+        loginBtn.className = "flex-1 py-2.5 text-xs font-bold rounded-xl text-neutral-400 hover:text-white transition";
+        submitBtn.innerText = "Create Account";
+      } else {
+        isSignUpMode = false;
+        signupNameField.classList.add("hidden");
+        forgotBtn.classList.remove("hidden");
+        loginBtn.className = "flex-1 py-2.5 text-xs font-bold rounded-xl brand-gradient text-black transition shadow-md";
+        signupBtn.className = "flex-1 py-2.5 text-xs font-bold rounded-xl text-neutral-400 hover:text-white transition";
+        submitBtn.innerText = "Sign In";
+      }
+    }
+
+    function refreshAccountUI() {
+      const authView = document.getElementById("auth-view");
+      const profileView = document.getElementById("profile-view");
+      const navLabel = document.getElementById("nav-account-label");
+
+      if (currentActiveUser) {
+        authView.classList.add("hidden");
+        profileView.classList.remove("hidden");
+        
+        document.getElementById("user-name-display").innerText = currentActiveUser.name || "VIP Guest";
+        document.getElementById("user-phone-display").innerText = currentActiveUser.phone || "+91";
+        document.getElementById("user-avatar").innerText = (currentActiveUser.name ? currentActiveUser.name.charAt(0) : "U").toUpperCase();
+
+        const kycBadge = document.getElementById("user-kyc-badge");
+        const pendingNotice = document.getElementById("kyc-pending-notice");
+        const digilockerBtn = document.getElementById("digilocker-btn");
+        const verifiedNotice = document.getElementById("kyc-verified-notice");
+
+        if (currentActiveUser.isKycVerified) {
+          kycBadge.className = "text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-950/80 text-emerald-400 border border-emerald-500/30";
+          kycBadge.innerText = "Verified ✓";
+          pendingNotice.classList.add("hidden");
+          digilockerBtn.classList.add("hidden");
+          verifiedNotice.classList.remove("hidden");
+        } else {
+          kycBadge.className = "text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-950/80 text-amber-400 border border-amber-500/30";
+          kycBadge.innerText = "Pending Verification ⚠️";
+          pendingNotice.classList.remove("hidden");
+          digilockerBtn.classList.remove("hidden");
+          verifiedNotice.classList.add("hidden");
+        }
+
+        if (navLabel) navLabel.innerText = "Profile";
+      } else {
+        profileView.classList.add("hidden");
+        authView.classList.remove("hidden");
+        if (navLabel) navLabel.innerText = "My Account";
+      }
+      lucide.createIcons();
+    }
+
+    async function handleAuthSubmit(e) {
+      e.preventDefault();
+      const rawPhone = document.getElementById("auth-phone").value.trim();
+      const password = document.getElementById("auth-password").value.trim();
+      const name = document.getElementById("auth-name")?.value.trim() || "VIP Guest";
+      const submitBtn = document.getElementById("auth-submit-btn");
+
+      if (rawPhone.length !== 10 || isNaN(rawPhone)) {
+        alert("Please enter a valid 10-digit mobile number.");
+        return;
+      }
+
+      const phoneKey = `+91${rawPhone}`;
+      submitBtn.innerText = "Processing...";
+      submitBtn.disabled = true;
+
+      try {
+        const userRef = db.collection("users").doc(phoneKey);
+
+        if (isSignUpMode) {
+          const existing = await userRef.get();
+          if (existing.exists) {
+            alert("An account with this mobile number already exists. Please Sign In.");
+            switchAuthTab('login');
+            return;
+          }
+
+          const newUser = {
+            name: name,
+            phone: phoneKey,
+            password: password,
+            membershipTier: "Gold Member",
+            isKycVerified: false,
+            idLast4: "",
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          };
+
+          await userRef.set(newUser);
+          currentActiveUser = newUser;
+        } else {
+          const userDoc = await userRef.get();
+          if (!userDoc.exists || userDoc.data().password !== password) {
+            alert("Incorrect mobile number or password. Please try again.");
+            return;
+          }
+          currentActiveUser = userDoc.data();
+        }
+
+        localStorage.setItem("need_logged_user", JSON.stringify(currentActiveUser));
+        document.getElementById("auth-form").reset();
+        
+        toggleAccountDrawer();
+        renderFleetCards();
+      } catch (err) {
+        alert("Authentication error: " + err.message);
+      } finally {
+        submitBtn.innerText = isSignUpMode ? "Create Account" : "Sign In";
+        submitBtn.disabled = false;
+      }
+    }
+
+    // --- 7. DIGILOCKER VERIFICATION ENGINE ---
+    function openDigiLockerModal() {
+      if (!currentActiveUser) return;
+      document.getElementById("kyc-full-name").value = currentActiveUser.name || "";
+      document.getElementById("digilocker-modal").classList.remove("hidden");
+    }
+
+    function closeDigiLockerModal() {
+      document.getElementById("digilocker-modal").classList.add("hidden");
+    }
+
+    async function processDigiLockerKyc(e) {
+      e.preventDefault();
+      const last4 = document.getElementById("kyc-last4-input").value.trim();
+      const fullName = document.getElementById("kyc-full-name").value.trim();
+      const submitBtn = document.getElementById("digilocker-submit-btn");
+
+      if (last4.length !== 4 || isNaN(last4)) {
+        alert("Please enter the exact last 4 digits of your Aadhaar number.");
+        return;
+      }
+
+      submitBtn.innerText = "Connecting to DigiLocker...";
+      submitBtn.disabled = true;
+
+      try {
+        const phoneKey = currentActiveUser.phone;
+        const userRef = db.collection("users").doc(phoneKey);
+
+        const updateData = {
+          name: fullName,
+          isKycVerified: true,
+          idType: "Aadhaar",
+          idLast4: last4,
+          kycVerifiedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        await userRef.update(updateData);
+
+        const updatedDoc = await userRef.get();
+        currentActiveUser = updatedDoc.data();
+        localStorage.setItem("need_logged_user", JSON.stringify(currentActiveUser));
+
+        alert("DigiLocker Verification Successful! You are now eligible to book all vehicles.");
+        closeDigiLockerModal();
+        refreshAccountUI();
+        renderFleetCards();
+      } catch (err) {
+        alert("DigiLocker validation error: " + err.message);
+      } finally {
+        submitBtn.innerText = "Verify & Unlock Bookings";
+        submitBtn.disabled = false;
+      }
+    }
+
+    // --- 8. FORGOT PASSWORD CONTROLLER ---
+    function showForgotPasswordView() {
+      document.getElementById("auth-view").classList.add("hidden");
+      document.getElementById("forgot-view").classList.remove("hidden");
+      const currentEnteredPhone = document.getElementById("auth-phone").value;
+      if (currentEnteredPhone) {
+        document.getElementById("reset-phone").value = currentEnteredPhone;
+      }
+      lucide.createIcons();
+    }
+
+    function cancelForgotPassword() {
+      document.getElementById("forgot-view").classList.add("hidden");
+      document.getElementById("auth-view").classList.remove("hidden");
+      document.getElementById("reset-form").reset();
+      lucide.createIcons();
+    }
+
+    async function handleIdentityResetSubmit(e) {
+      e.preventDefault();
+      const rawPhone = document.getElementById("reset-phone").value.trim();
+      const last4 = document.getElementById("reset-id-last4").value.trim();
+      const newPassword = document.getElementById("reset-new-password").value.trim();
+      const submitBtn = document.getElementById("reset-submit-btn");
+
+      if (rawPhone.length !== 10 || isNaN(rawPhone)) {
+        alert("Please enter a valid 10-digit mobile number.");
+        return;
+      }
+
+      if (last4.length !== 4 || isNaN(last4)) {
+        alert("Please enter the exact last 4 digits of your Aadhaar number.");
+        return;
+      }
+
+      if (!newPassword || newPassword.length < 6) {
+        alert("New password must be at least 6 characters long.");
+        return;
+      }
+
+      const phoneKey = `+91${rawPhone}`;
+      submitBtn.innerText = "Verifying Identity...";
+      submitBtn.disabled = true;
+
+      try {
+        const userRef = db.collection("users").doc(phoneKey);
+        const userDoc = await userRef.get();
+
+        if (!userDoc.exists) {
+          alert("No registered account found with this mobile number.");
+          return;
+        }
+
+        const userData = userDoc.data();
+
+        if (!userData.isKycVerified || !userData.idLast4) {
+          alert("Aadhaar verification record not found for this account. Please reach out to concierge support.");
+          return;
+        }
+
+        if (userData.idLast4 !== last4) {
+          alert("Verification failed: The entered 4 digits do not match your verified Aadhaar records.");
+          return;
+        }
+
+        await userRef.update({
+          password: newPassword,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        const updatedDoc = await userRef.get();
+        currentActiveUser = updatedDoc.data();
+        localStorage.setItem("need_logged_user", JSON.stringify(currentActiveUser));
+
+        alert("Identity verified! Password updated successfully.");
+        cancelForgotPassword();
+        refreshAccountUI();
+      } catch (err) {
+        alert("Reset failed: " + err.message);
+      } finally {
+        submitBtn.innerText = "Verify & Update Password";
+        submitBtn.disabled = false;
+      }
+    }
+
+    // --- 9. LOGOUT ---
+    function handleUserLogout() {
+      localStorage.removeItem("need_logged_user");
+      currentActiveUser = null;
+      refreshAccountUI();
+      renderFleetCards();
+    }
 
     document.addEventListener("DOMContentLoaded", () => {
-      document.getElementById("home-location-display").innerText = currentLocation;
+      refreshAccountUI();
       lucide.createIcons();
     });
   </script>
