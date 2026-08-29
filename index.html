@@ -18,27 +18,27 @@
     }
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      background-color: #eaf3f6;
-      color: #1e293b;
+      background-color: #060709;
+      color: #f1f5f9;
     }
     .font-brand {
       font-family: 'Orbitron', sans-serif;
     }
-    
-    /* Speech bubble arrow on active tab */
-    .tab-arrow::after {
-      content: '';
-      position: absolute;
-      bottom: -7px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 0;
-      height: 0;
-      border-left: 8px solid transparent;
-      border-right: 8px solid transparent;
-      border-top: 8px solid #ffffff;
+    .brand-gradient {
+      background: linear-gradient(135deg, #00e5ff 0%, #0077ff 100%);
     }
-
+    .brand-glow {
+      box-shadow: 0 0 15px rgba(0, 229, 255, 0.35);
+    }
+    .cyan-border {
+      border: 1px solid rgba(0, 229, 255, 0.25);
+    }
+    .active-pill {
+      background: rgba(0, 229, 255, 0.15) !important;
+      border-color: #00e5ff !important;
+      color: #00e5ff !important;
+      font-weight: 700 !important;
+    }
     .no-scrollbar::-webkit-scrollbar {
       display: none;
     }
@@ -48,162 +48,208 @@
     }
   </style>
 </head>
-<body class="flex justify-center bg-[#dbe8ed] min-h-screen p-0 sm:p-4">
+<body class="flex justify-center bg-black min-h-screen">
 
-  <div class="w-full max-w-[480px] bg-white min-h-screen flex flex-col pb-20 shadow-xl relative sm:rounded-3xl overflow-hidden">
+  <div class="w-full max-w-[480px] bg-[#090b10] min-h-screen flex flex-col pb-20 shadow-2xl relative border-x border-neutral-900">
 
-    <!-- Top Header -->
-    <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md px-5 py-3.5 border-b border-neutral-150 flex items-center justify-between">
-      <div class="flex items-center space-x-2.5">
-        <div class="w-8 h-8 rounded-xl bg-[#3ba2b8] flex items-center justify-center text-white font-brand font-black text-sm shadow-md">
+    <!-- Header -->
+    <header class="sticky top-0 z-40 bg-[#090b10]/95 backdrop-blur-md px-4 py-3 border-b border-neutral-800/80 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-xl bg-[#11141c] border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-brand font-black text-sm brand-glow">
           N
         </div>
-        <span class="text-base font-black italic tracking-wider font-brand text-slate-800">NeeD</span>
+        <div class="flex items-center space-x-1.5">
+          <span class="text-base font-black italic tracking-wider font-brand text-white">NeeD</span>
+          <span class="text-[8px] bg-cyan-950 text-cyan-400 border border-cyan-500/30 px-1.5 py-0.2 rounded font-bold uppercase">GCR</span>
+        </div>
       </div>
 
-      <a href="tel:9731055500" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-[#3ba2b8] active:scale-95 transition">
+      <a href="tel:9731055500" class="w-9 h-9 rounded-full bg-[#121620] border border-cyan-500/30 flex items-center justify-center text-cyan-400 active:scale-95 transition">
         <i data-lucide="phone-call" class="w-4 h-4"></i>
       </a>
     </header>
 
-    <!-- ================= 1. REVV STYLE HERO SEARCH CARD (IMAGE 2 MATCH) ================= -->
+    <!-- Main Booking Search Widget -->
     <div class="p-4">
-      <div class="bg-white rounded-3xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-slate-100 flex flex-col items-center">
-        
-        <!-- Teal Segmented Header Bar -->
-        <div class="w-full bg-[#3ba2b8] p-1.5 rounded-2xl flex items-center relative">
-          
-          <!-- Tab 1: Rental (Active Speech Bubble) -->
-          <button id="tab-rental" onclick="switchBookingType('rental')" class="flex-1 py-3 px-2 rounded-xl bg-white text-center shadow-md relative tab-arrow transition duration-200">
-            <h4 class="text-xs sm:text-sm font-extrabold text-slate-800 leading-tight">Rental</h4>
-            <p class="text-[10px] text-slate-500 font-medium mt-0.5">For hours & days</p>
-          </button>
-          
-          <!-- Tab 2: Subscriptions -->
-          <button id="tab-sub" onclick="switchBookingType('subscription')" class="flex-1 py-3 px-2 rounded-xl text-center text-white transition duration-200 opacity-90 hover:opacity-100">
-            <h4 class="text-xs sm:text-sm font-extrabold leading-tight">Subscriptions</h4>
-            <p class="text-[10px] text-teal-100 font-medium mt-0.5">For more than 7 days</p>
-          </button>
-        </div>
+      <div class="bg-[#10141f] rounded-2xl p-3.5 cyan-border brand-glow relative overflow-hidden">
+        <div class="absolute -right-10 -top-10 w-24 h-24 bg-cyan-500/10 rounded-full blur-xl pointer-events-none"></div>
 
-        <!-- Center Brand Typography -->
-        <div class="text-center py-6">
-          <div class="flex items-center justify-center space-x-0.5">
-            <span class="text-2xl font-black text-slate-800 tracking-tight">R</span>
-            <span class="text-2xl font-black text-[#3ba2b8] tracking-tight">entals</span>
-          </div>
-          <p class="text-xs font-semibold text-slate-500 mt-1">Largest company-owned fleet in India</p>
-        </div>
-
-        <!-- Location Search Bar Trigger -->
-        <div onclick="openLocationPicker()" class="w-full flex items-center justify-between bg-white border border-slate-200/90 hover:border-[#3ba2b8] rounded-full px-4 py-3.5 shadow-[0_4px_20px_rgba(0,0,0,0.04)] cursor-pointer transition active:scale-[0.98]">
-          <div class="flex items-center space-x-3 min-w-0">
-            <div class="w-8 h-8 rounded-full bg-[#e8f5f7] flex items-center justify-center text-[#3ba2b8] shrink-0">
+        <div class="space-y-2.5">
+          
+          <!-- Single Location / Entry Point Card -->
+          <div onclick="openLocationPicker()" class="flex items-center bg-[#171c2b] rounded-xl px-3.5 py-3 border border-neutral-800 hover:border-cyan-500/40 cursor-pointer transition">
+            <div class="w-7 h-7 rounded-full bg-cyan-500/20 flex items-center justify-center text-cyan-400 mr-3 shrink-0">
               <i data-lucide="map-pin" class="w-4 h-4"></i>
             </div>
-            <span id="selected-location-label" class="text-xs font-bold text-slate-400 truncate">Select location to search</span>
+            <div class="flex-1 min-w-0">
+              <label class="text-[9px] uppercase font-bold text-neutral-400 block tracking-wider leading-none mb-1 pointer-events-none">Location / Entry Point</label>
+              <div id="home-location-display" class="text-xs font-bold text-cyan-300 truncate">Doorstep Delivery</div>
+            </div>
+            <i data-lucide="chevron-right" class="w-4 h-4 text-neutral-500 shrink-0"></i>
           </div>
-          <div class="text-rose-500 pl-2 shrink-0">
-            <i data-lucide="arrow-right" class="w-4 h-4"></i>
-          </div>
-        </div>
 
+          <!-- Dates -->
+          <div class="grid grid-cols-2 gap-2">
+            <div class="bg-[#171c2b] rounded-xl px-3 py-2 border border-neutral-800">
+              <label class="text-[9px] uppercase font-bold text-neutral-400 block tracking-wider leading-none mb-1">Start Date</label>
+              <input type="datetime-local" id="start-date" class="bg-transparent text-[11px] font-medium text-white focus:outline-none w-full [color-scheme:dark]">
+            </div>
+
+            <div class="bg-[#171c2b] rounded-xl px-3 py-2 border border-neutral-800">
+              <label class="text-[9px] uppercase font-bold text-neutral-400 block tracking-wider leading-none mb-1">End Date</label>
+              <input type="datetime-local" id="end-date" class="bg-transparent text-[11px] font-medium text-white focus:outline-none w-full [color-scheme:dark]">
+            </div>
+          </div>
+
+          <button onclick="document.getElementById('fleet-feed').scrollIntoView({behavior: 'smooth'})" class="w-full brand-gradient py-3 rounded-xl text-black font-extrabold text-xs uppercase tracking-wider flex items-center justify-center space-x-2 active:scale-[0.98] transition">
+            <i data-lucide="search" class="w-4 h-4"></i>
+            <span>Browse Live Fleet</span>
+          </button>
+        </div>
       </div>
     </div>
 
     <!-- Category Filters -->
     <div class="px-4 pb-2">
       <div id="filter-pills" class="flex items-center space-x-2 overflow-x-auto no-scrollbar py-1 text-xs">
-        <button onclick="setCategoryFilter('All', this)" class="bg-[#3ba2b8] text-white font-bold px-4 py-1.5 rounded-full whitespace-nowrap shrink-0 shadow-sm transition">All Cars</button>
-        <button onclick="setCategoryFilter('Luxury SUVs', this)" class="bg-slate-100 text-slate-600 font-medium px-4 py-1.5 rounded-full whitespace-nowrap shrink-0 hover:bg-slate-200 transition">Luxury SUVs</button>
-        <button onclick="setCategoryFilter('Sedans', this)" class="bg-slate-100 text-slate-600 font-medium px-4 py-1.5 rounded-full whitespace-nowrap shrink-0 hover:bg-slate-200 transition">Sedans</button>
-        <button onclick="setCategoryFilter('Automatic', this)" class="bg-slate-100 text-slate-600 font-medium px-4 py-1.5 rounded-full whitespace-nowrap shrink-0 hover:bg-slate-200 transition">Automatic</button>
+        <button onclick="setCategoryFilter('All', this)" class="active-pill border border-neutral-800 bg-[#121622] text-neutral-400 px-3.5 py-1.5 rounded-full whitespace-nowrap shrink-0 transition">All Cars</button>
+        <button onclick="setCategoryFilter('Luxury SUVs', this)" class="border border-neutral-800 bg-[#121622] text-neutral-400 px-3.5 py-1.5 rounded-full font-medium whitespace-nowrap shrink-0 transition">Luxury SUVs</button>
+        <button onclick="setCategoryFilter('Sedans', this)" class="border border-neutral-800 bg-[#121622] text-neutral-400 px-3.5 py-1.5 rounded-full font-medium whitespace-nowrap shrink-0 transition">Sedans</button>
+        <button onclick="setCategoryFilter('Automatic', this)" class="border border-neutral-800 bg-[#121622] text-neutral-400 px-3.5 py-1.5 rounded-full font-medium whitespace-nowrap shrink-0 transition">Automatic</button>
+        <button onclick="setCategoryFilter('7 Seater', this)" class="border border-neutral-800 bg-[#121622] text-neutral-400 px-3.5 py-1.5 rounded-full font-medium whitespace-nowrap shrink-0 transition">7 Seater</button>
       </div>
     </div>
 
     <!-- Fleet Feed -->
     <div id="fleet-feed" class="px-4 space-y-3.5 mt-1">
-      <div class="py-12 text-center text-xs text-slate-400">
-        <div class="inline-block w-6 h-6 border-2 border-[#3ba2b8] border-t-transparent rounded-full animate-spin mb-2"></div>
-        <p>Loading fleet inventory...</p>
+      <div class="py-12 text-center text-xs text-neutral-500">
+        <div class="inline-block w-6 h-6 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mb-2"></div>
+        <p>Loading live fleet inventory...</p>
       </div>
     </div>
 
-    <!-- ================= 2. POPUP MODAL (IMAGE 1 MATCH) ================= -->
-    <div id="location-picker-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex justify-center items-center p-4 hidden">
-      <div class="w-full max-w-[420px] bg-white rounded-3xl p-6 shadow-2xl flex flex-col h-[580px] relative">
-        
-        <!-- Header -->
-        <div class="flex items-center space-x-3 pb-3">
-          <button onclick="closeLocationPicker()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition active:scale-95">
-            <i data-lucide="chevron-left" class="w-5 h-5"></i>
-          </button>
-          <h3 class="text-sm sm:text-base font-bold text-slate-700">Where do you want the car?</h3>
-        </div>
-
-        <!-- Search Input Bar -->
-        <div class="mt-2">
-          <div class="flex items-center bg-[#f1f4f6] rounded-full px-4 py-3 border border-transparent focus-within:border-[#3ba2b8] transition">
-            <i data-lucide="search" class="w-4 h-4 text-slate-400 mr-2.5 shrink-0"></i>
-            <input type="text" id="modal-search-input" oninput="handleAddressAutocomplete(this.value)" placeholder="Search address, airport or hotel" class="w-full bg-transparent text-xs font-semibold text-slate-700 placeholder-slate-400 focus:outline-none">
-            <button onclick="clearSearchInput()" class="text-slate-400 hover:text-slate-600 text-xs px-1">✕</button>
-          </div>
-          <p class="text-[10px] text-[#3ba2b8] font-medium mt-1.5 px-3">Please enter locality to get customised results</p>
-        </div>
-
-        <!-- Use Current Location Action -->
-        <button onclick="useCurrentLocation()" class="w-full mt-4 flex items-center space-x-3.5 p-2 rounded-2xl hover:bg-slate-50 text-left transition active:scale-[0.99]">
-          <div class="w-10 h-10 rounded-full bg-[#e8f5f7] flex items-center justify-center text-[#3ba2b8] shrink-0">
-            <i data-lucide="crosshair" class="w-4 h-4"></i>
-          </div>
-          <div class="flex-1 min-w-0">
-            <h4 class="text-xs font-bold text-[#3ba2b8]">Use current location</h4>
-            <p class="text-[10px] text-slate-400 truncate">Enable location for better experience</p>
-          </div>
-        </button>
-
-        <div class="h-px bg-slate-100 my-3"></div>
-
-        <!-- Recent Searches Header & Result Container -->
-        <div class="flex-1 flex flex-col overflow-hidden">
-          <div class="flex items-center space-x-2 text-slate-400 text-xs px-1 pb-2">
-            <i data-lucide="history" class="w-3.5 h-3.5 text-slate-400"></i>
-            <span id="results-header-text" class="font-medium">No recent searches</span>
-          </div>
-
-          <div id="location-results-list" class="flex-1 overflow-y-auto divide-y divide-slate-100 no-scrollbar">
-            <!-- Empty State Centered Magnifier (Image 1) -->
-            <div id="empty-state-icon" class="h-full flex items-center justify-center opacity-15 pointer-events-none">
-              <i data-lucide="search" class="w-24 h-24 text-slate-500"></i>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- Bottom Nav -->
-    <nav class="fixed bottom-0 left-0 right-0 z-30 flex justify-center bg-white/95 backdrop-blur-lg border-t border-slate-200 py-2.5">
-      <div class="w-full max-w-[480px] flex items-center justify-around px-2 text-slate-400">
-        <a href="#" class="flex flex-col items-center text-[#3ba2b8]">
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 z-40 flex justify-center bg-black/90 backdrop-blur-lg border-t border-neutral-850 py-2">
+      <div class="w-full max-w-[480px] flex items-center justify-around px-2 text-neutral-400">
+        <a href="#" class="flex flex-col items-center text-cyan-400">
           <i data-lucide="compass" class="w-5 h-5 mb-0.5"></i>
           <span class="text-[10px] font-bold">Explore</span>
         </a>
-        <a href="tel:9731055500" class="flex flex-col items-center hover:text-slate-700 transition">
+
+        <a href="tel:9731055500" class="flex flex-col items-center hover:text-white transition">
           <i data-lucide="calendar" class="w-5 h-5 mb-0.5"></i>
           <span class="text-[10px] font-medium">My Trips</span>
         </a>
-        <a href="tel:9731055500" class="flex flex-col items-center hover:text-slate-700 transition">
-          <i data-lucide="phone-call" class="w-5 h-5 mb-0.5"></i>
-          <span class="text-[10px] font-medium">Contact</span>
-        </a>
+
+       <button type="button" onclick="toggleChatDrawer()" class="flex flex-col items-center hover:text-cyan-400 transition focus:outline-none">
+          <i data-lucide="message-square" class="w-5 h-5 mb-0.5"></i>
+          <span class="text-[10px] font-medium">Chat</span>
+        </button>
+
+        <button type="button" onclick="toggleAccountDrawer()" class="flex flex-col items-center hover:text-cyan-400 transition focus:outline-none">
+          <i data-lucide="user" class="w-5 h-5 mb-0.5"></i>
+          <span class="text-[10px] font-medium" id="nav-account-label">My Account</span>
+        </button>
       </div>
     </nav>
+
+    <!-- ================= SINGLE LOCATION PICKER MODAL ================= -->
+    <div id="location-picker-modal" class="fixed inset-0 z-50 bg-[#090b10] flex justify-center hidden">
+      <div class="w-full max-w-[480px] min-h-screen bg-[#090b10] flex flex-col p-4 relative">
+        
+        <!-- Header -->
+        <div class="flex items-center space-x-3 pt-2 pb-3">
+          <button onclick="closeLocationPicker()" class="w-9 h-9 rounded-full bg-[#121724] border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition active:scale-95">
+            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+          </button>
+          <h2 class="text-sm font-bold text-white font-brand">Enter Location / Entry Point</h2>
+        </div>
+
+        <!-- Search Input Field -->
+        <div class="mt-2">
+          <div class="flex items-center bg-[#131826] border border-cyan-500/50 rounded-2xl px-3.5 py-3 transition brand-glow">
+            <i data-lucide="search" class="w-4 h-4 text-cyan-400 mr-2.5 shrink-0"></i>
+            <input type="text" id="modal-location-input" oninput="handleAddressAutocomplete(this.value)" placeholder="Search address, hotel, airport or landmark" class="w-full bg-transparent text-xs font-semibold text-white placeholder-neutral-500 focus:outline-none">
+            <button onclick="clearLocationInput()" class="text-neutral-500 hover:text-white text-xs px-1">✕</button>
+          </div>
+          <p class="text-[10px] text-cyan-400/90 font-medium mt-2 px-2 flex items-center">
+            <i data-lucide="sparkles" class="w-3 h-3 mr-1"></i> Live locality search enabled
+          </p>
+        </div>
+
+        <!-- Quick Select Actions -->
+        <div class="mt-4 space-y-2">
+          <!-- Default Doorstep Option -->
+          <button onclick="selectLocation('Doorstep Delivery')" class="w-full flex items-center space-x-3 p-3 rounded-2xl bg-[#10141f] border border-cyan-500/30 hover:border-cyan-400 text-left transition active:scale-[0.99]">
+            <div class="w-8 h-8 rounded-full bg-cyan-950/70 border border-cyan-500/40 flex items-center justify-center text-cyan-400 shrink-0">
+              <i data-lucide="truck" class="w-4 h-4"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h4 class="text-xs font-bold text-cyan-300">Doorstep Delivery (Default)</h4>
+              <p class="text-[10px] text-neutral-400 truncate">Free delivery to your registered address</p>
+            </div>
+          </button>
+
+          <!-- Current GPS Location Button -->
+          <button onclick="useCurrentLocation()" class="w-full flex items-center space-x-3 p-3 rounded-2xl bg-[#10141f] border border-neutral-800 hover:border-cyan-500/40 text-left transition active:scale-[0.99]">
+            <div class="w-8 h-8 rounded-full bg-[#171e2e] border border-neutral-700 flex items-center justify-center text-emerald-400 shrink-0">
+              <i data-lucide="crosshair" class="w-4 h-4"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h4 class="text-xs font-bold text-neutral-200">Use current GPS location</h4>
+              <p class="text-[10px] text-neutral-400 truncate">Detect via device pinpoint</p>
+            </div>
+          </button>
+        </div>
+
+        <div class="h-px bg-neutral-800/80 my-4"></div>
+
+        <!-- Live Suggestions & Recent Searches Container -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+          <div class="flex items-center justify-between pb-2 border-b border-neutral-850">
+            <span id="results-header-text" class="text-[10px] uppercase font-bold text-neutral-400 tracking-wider">Recent Searches</span>
+          </div>
+
+          <div id="location-results-list" class="flex-1 overflow-y-auto divide-y divide-neutral-850 no-scrollbar py-1">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Account Drawer (Standard) -->
+    <div id="account-drawer" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex justify-center items-center p-4 hidden transition-all duration-300">
+      <div class="w-full max-w-[420px] bg-[#0d111a] border border-neutral-800/90 rounded-3xl p-6 shadow-2xl flex flex-col relative overflow-hidden brand-glow">
+        <div class="flex items-center justify-between pb-4">
+          <h2 class="text-base font-bold text-white font-brand tracking-wide">My Account</h2>
+          <button onclick="toggleAccountDrawer()" class="w-8 h-8 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400">✕</button>
+        </div>
+        <div id="auth-view" class="space-y-4 pt-1">
+          <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-3">
+            <input type="tel" id="auth-phone" maxlength="10" placeholder="Mobile Number" required class="w-full bg-[#141926] border border-neutral-800 rounded-2xl px-4 py-3 text-xs text-white">
+            <input type="password" id="auth-password" placeholder="Password" required class="w-full bg-[#141926] border border-neutral-800 rounded-2xl px-4 py-3 text-xs text-white">
+            <button type="submit" class="w-full brand-gradient text-black font-extrabold text-xs uppercase py-3.5 rounded-2xl">Sign In</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Concierge Drawer -->
+    <div id="chat-drawer" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex justify-center items-center p-4 hidden">
+      <div class="w-full max-w-[420px] h-[500px] bg-[#0d111a] border border-neutral-800 rounded-3xl flex flex-col overflow-hidden shadow-2xl brand-glow p-4">
+        <div class="flex justify-between items-center border-b border-neutral-800 pb-2">
+          <span class="text-xs font-bold text-cyan-400">Concierge Desk</span>
+          <button onclick="toggleChatDrawer()" class="text-neutral-400">✕</button>
+        </div>
+        <div class="flex-1 flex items-center justify-center text-xs text-neutral-500">Active Concierge Ready</div>
+      </div>
+    </div>
 
   </div>
 
   <script>
-    // --- 1. FIREBASE CONFIG ---
+    // --- 1. FIREBASE INITIALIZATION ---
     const firebaseConfig = {
       apiKey: "AIzaSyCuwgY2-XIq08K8BO7yGClEFjSvoUNJLtc",
       authDomain: "need-car.firebaseapp.com",
@@ -218,32 +264,21 @@
 
     let allFleetCars = [];
     let selectedCategory = "All";
-    let bookingType = "rental";
-    let selectedLocation = "";
+    let currentActiveUser = JSON.parse(localStorage.getItem("need_logged_user") || "null");
+
+    // Location State - Default to Doorstep Delivery
+    let currentLocation = localStorage.getItem("need_selected_location") || "Doorstep Delivery";
     let debounceTimer = null;
 
-    // --- 2. SWITCH TABS WITH SPEECH BUBBLE ARROW ---
-    function switchBookingType(type) {
-      bookingType = type;
-      const tabRental = document.getElementById("tab-rental");
-      const tabSub = document.getElementById("tab-sub");
-
-      if (type === "rental") {
-        tabRental.className = "flex-1 py-3 px-2 rounded-xl bg-white text-center shadow-md relative tab-arrow transition duration-200 text-slate-800";
-        tabSub.className = "flex-1 py-3 px-2 rounded-xl text-center text-white transition duration-200 opacity-90 hover:opacity-100";
-      } else {
-        tabSub.className = "flex-1 py-3 px-2 rounded-xl bg-white text-center shadow-md relative tab-arrow transition duration-200 text-slate-800";
-        tabRental.className = "flex-1 py-3 px-2 rounded-xl text-center text-white transition duration-200 opacity-90 hover:opacity-100";
-      }
-    }
-
-    // --- 3. MODAL CONTROLS & REALTIME AUTOCOMPLETE ---
+    // --- 2. LOCATION ENGINE ---
     function openLocationPicker() {
       const modal = document.getElementById("location-picker-modal");
       modal.classList.remove("hidden");
-      const input = document.getElementById("modal-search-input");
-      input.value = selectedLocation;
+      
+      const input = document.getElementById("modal-location-input");
+      input.value = (currentLocation === "Doorstep Delivery") ? "" : currentLocation;
       input.focus();
+
       loadRecentSearches();
       lucide.createIcons();
     }
@@ -252,11 +287,12 @@
       document.getElementById("location-picker-modal").classList.add("hidden");
     }
 
-    function clearSearchInput() {
-      document.getElementById("modal-search-input").value = "";
+    function clearLocationInput() {
+      document.getElementById("modal-location-input").value = "";
       loadRecentSearches();
     }
 
+    // Live Address Search
     function handleAddressAutocomplete(query) {
       clearTimeout(debounceTimer);
       const queryTrim = query.trim();
@@ -270,19 +306,19 @@
 
       headerText.innerText = "Suggested Locations";
       listContainer.innerHTML = `
-        <div class="py-8 text-center text-xs text-slate-400 flex items-center justify-center space-x-2">
-          <div class="w-4 h-4 border-2 border-[#3ba2b8] border-t-transparent rounded-full animate-spin"></div>
-          <span>Searching addresses...</span>
+        <div class="py-6 text-center text-xs text-neutral-500 flex items-center justify-center space-x-2">
+          <div class="w-4 h-4 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+          <span>Searching places...</span>
         </div>
       `;
 
       debounceTimer = setTimeout(async () => {
         try {
-          const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(queryTrim)}&limit=5`);
+          const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(queryTrim)}&limit=6`);
           const data = await res.json();
           renderSuggestions(data.features || []);
         } catch (err) {
-          listContainer.innerHTML = `<div class="py-6 text-center text-xs text-slate-400">Press enter to select "${queryTrim}"</div>`;
+          listContainer.innerHTML = `<div class="py-4 text-center text-xs text-neutral-500">Press enter to select "${queryTrim}"</div>`;
         }
       }, 300);
     }
@@ -292,7 +328,7 @@
       listContainer.innerHTML = "";
 
       if (!features.length) {
-        listContainer.innerHTML = `<div class="py-8 text-center text-xs text-slate-400">No matching locations found.</div>`;
+        listContainer.innerHTML = `<div class="py-6 text-center text-xs text-neutral-500">No matching places found.</div>`;
         return;
       }
 
@@ -303,14 +339,14 @@
         const fullAddress = `${mainText}${secondary ? ', ' + secondary : ''}`;
 
         const row = document.createElement("div");
-        row.className = "flex items-center space-x-3 py-3 px-2 hover:bg-slate-50 cursor-pointer rounded-xl transition";
+        row.className = "flex items-center space-x-3 py-3 px-2 hover:bg-[#131926] cursor-pointer rounded-xl transition";
         row.innerHTML = `
-          <div class="w-8 h-8 rounded-full bg-[#e8f5f7] flex items-center justify-center text-[#3ba2b8] shrink-0">
+          <div class="w-8 h-8 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-cyan-400 shrink-0">
             <i data-lucide="map-pin" class="w-4 h-4"></i>
           </div>
           <div class="flex-1 min-w-0">
-            <p class="text-xs font-bold text-slate-800 truncate">${mainText}</p>
-            <p class="text-[10px] text-slate-400 truncate">${secondary}</p>
+            <p class="text-xs font-bold text-white truncate">${mainText}</p>
+            <p class="text-[10px] text-neutral-400 truncate">${secondary}</p>
           </div>
         `;
         row.onclick = () => selectLocation(fullAddress);
@@ -320,50 +356,54 @@
     }
 
     function selectLocation(addressString) {
-      selectedLocation = addressString;
-      const label = document.getElementById("selected-location-label");
-      label.innerText = addressString;
-      label.className = "text-xs font-bold text-slate-800 truncate";
-
-      saveToRecents(addressString);
+      currentLocation = addressString;
+      localStorage.setItem("need_selected_location", addressString);
+      
+      document.getElementById("home-location-display").innerText = addressString;
+      
+      if (addressString !== "Doorstep Delivery") {
+        saveToRecents(addressString);
+      }
+      
       closeLocationPicker();
     }
 
     function saveToRecents(address) {
-      let recents = JSON.parse(localStorage.getItem("need_recents") || "[]");
+      let recents = JSON.parse(localStorage.getItem("need_recent_locations") || "[]");
       recents = recents.filter(item => item !== address);
       recents.unshift(address);
-      if (recents.length > 4) recents.pop();
-      localStorage.setItem("need_recents", JSON.stringify(recents));
+      if (recents.length > 5) recents.pop();
+      localStorage.setItem("need_recent_locations", JSON.stringify(recents));
     }
 
     function loadRecentSearches() {
       const listContainer = document.getElementById("location-results-list");
       const headerText = document.getElementById("results-header-text");
-      const recents = JSON.parse(localStorage.getItem("need_recents") || "[]");
+      const recents = JSON.parse(localStorage.getItem("need_recent_locations") || "[]");
+
+      headerText.innerText = "Recent Searches";
+      listContainer.innerHTML = "";
 
       if (!recents.length) {
-        headerText.innerText = "No recent searches";
         listContainer.innerHTML = `
-          <div class="h-full flex items-center justify-center py-12 opacity-15 pointer-events-none">
-            <i data-lucide="search" class="w-24 h-24 text-slate-500"></i>
+          <div class="flex flex-col items-center justify-center py-10 opacity-20 pointer-events-none">
+            <i data-lucide="map-pin" class="w-16 h-16 text-cyan-400 mb-2"></i>
+            <p class="text-xs text-neutral-400">No recent locations</p>
           </div>
         `;
         lucide.createIcons();
         return;
       }
 
-      headerText.innerText = "Recent Searches";
-      listContainer.innerHTML = "";
       recents.forEach(address => {
         const row = document.createElement("div");
-        row.className = "flex items-center space-x-3 py-2.5 px-2 hover:bg-slate-50 cursor-pointer rounded-xl transition";
+        row.className = "flex items-center space-x-3 py-2.5 px-2 hover:bg-[#131926] cursor-pointer rounded-xl transition";
         row.innerHTML = `
-          <div class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 shrink-0">
+          <div class="w-7 h-7 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 shrink-0">
             <i data-lucide="history" class="w-3.5 h-3.5"></i>
           </div>
           <div class="flex-1 min-w-0">
-            <p class="text-xs font-semibold text-slate-700 truncate">${address}</p>
+            <p class="text-xs font-semibold text-neutral-300 truncate">${address}</p>
           </div>
         `;
         row.onclick = () => selectLocation(address);
@@ -375,15 +415,19 @@
     function useCurrentLocation() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-          () => selectLocation("Current GPS Location"),
-          () => alert("Please allow location permissions.")
+          (position) => {
+            selectLocation("Current GPS Location");
+          },
+          (error) => {
+            alert("Please allow location permissions in your browser settings.");
+          }
         );
       } else {
-        alert("Geolocation not supported.");
+        alert("Geolocation is not supported by your browser.");
       }
     }
 
-    // --- 4. FLEET FEED ---
+    // --- 3. FLEET LISTENER & DISPATCH ---
     db.collection("fleet").onSnapshot(snapshot => {
       allFleetCars = [];
       snapshot.forEach(doc => allFleetCars.push({ id: doc.id, ...doc.data() }));
@@ -392,35 +436,31 @@
 
     function setCategoryFilter(category, btn) {
       selectedCategory = category;
-      document.querySelectorAll("#filter-pills button").forEach(b => {
-        b.className = "bg-slate-100 text-slate-600 font-medium px-4 py-1.5 rounded-full whitespace-nowrap shrink-0 hover:bg-slate-200 transition";
-      });
-      btn.className = "bg-[#3ba2b8] text-white font-bold px-4 py-1.5 rounded-full whitespace-nowrap shrink-0 shadow-sm transition";
+      document.querySelectorAll("#filter-pills button").forEach(b => b.classList.remove("active-pill"));
+      btn.classList.add("active-pill");
       renderFleetCards();
     }
 
     function renderFleetCards() {
       const feed = document.getElementById("fleet-feed");
       const filtered = allFleetCars.filter(c => selectedCategory === "All" || c.category === selectedCategory);
-
       if (!filtered.length) {
-        feed.innerHTML = `<div class="py-12 text-center text-xs text-slate-400"><p>No vehicles found.</p></div>`;
+        feed.innerHTML = `<div class="py-12 text-center text-xs text-neutral-500"><p>No vehicles found.</p></div>`;
         return;
       }
-
       feed.innerHTML = "";
       filtered.forEach(car => {
         const card = document.createElement("div");
-        card.className = "bg-white rounded-2xl border border-slate-100 p-3 shadow-md space-y-2";
+        card.className = "bg-[#10141f] rounded-2xl border border-neutral-800 p-3 shadow-lg space-y-2";
         card.innerHTML = `
           <div class="flex justify-between items-start">
             <div>
-              <h3 class="text-sm font-bold text-slate-800">${car.name}</h3>
-              <p class="text-[10px] text-slate-400">${car.specs || 'Automatic • Luxury'}</p>
+              <h3 class="text-sm font-bold text-white">${car.name}</h3>
+              <p class="text-[10px] text-neutral-400">${car.specs || 'Automatic • Luxury'}</p>
             </div>
-            <span class="text-sm font-bold text-[#3ba2b8]">₹${Number(car.price).toLocaleString('en-IN')}/day</span>
+            <span class="text-sm font-bold text-cyan-300 font-brand">₹${Number(car.price).toLocaleString('en-IN')}/day</span>
           </div>
-          <button onclick="handleBooking('${encodeURIComponent(car.name)}')" class="w-full bg-[#3ba2b8] hover:bg-[#328f9d] text-white font-bold text-xs uppercase tracking-wider py-2.5 rounded-xl transition active:scale-95 shadow-sm">
+          <button onclick="handleBookingAttempt('${encodeURIComponent(car.name)}')" class="w-full brand-gradient py-2.5 rounded-xl text-black font-extrabold text-xs uppercase tracking-wider active:scale-95 transition">
             Book Car
           </button>
         `;
@@ -429,13 +469,17 @@
       lucide.createIcons();
     }
 
-    function handleBooking(carName) {
-      const location = selectedLocation || "Not specified";
-      const text = `Hello NeeD, I want to book ${decodeURIComponent(carName)} (${bookingType.toUpperCase()}).\nSelected Location: ${location}`;
+    function handleBookingAttempt(carName) {
+      const location = currentLocation || "Doorstep Delivery";
+      const text = `Hello NeeD by GCR, I want to book ${decodeURIComponent(carName)}.\nLocation / Entry: ${location}`;
       window.open(`https://wa.me/919731055500?text=${encodeURIComponent(text)}`, '_blank');
     }
 
+    function toggleChatDrawer() { document.getElementById("chat-drawer").classList.toggle("hidden"); }
+    function toggleAccountDrawer() { document.getElementById("account-drawer").classList.toggle("hidden"); }
+
     document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("home-location-display").innerText = currentLocation;
       lucide.createIcons();
     });
   </script>
