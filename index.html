@@ -565,6 +565,28 @@
 
     async function initializeChatSession() {
       const phone = currentActiveUser.phone;
+      const nameEl = document.getElementById("agent-display-name");
+      const initialsEl = document.getElementById("agent-avatar-initials");
+      const messagesContainer = document.getElementById("chat-messages-container");
+
+      // 1. SHOW "CONNECTING TO EXECUTIVE" SIMULATION STATE
+      nameEl.innerText = "Assigning Specialist...";
+      initialsEl.innerHTML = `<span class="inline-block w-3.5 h-3.5 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></span>`;
+
+      messagesContainer.innerHTML = `
+        <div class="h-full flex flex-col items-center justify-center py-12 text-center text-neutral-400 space-y-2.5">
+          <div class="w-10 h-10 rounded-full bg-cyan-950/70 border border-cyan-500/30 flex items-center justify-center text-cyan-400 brand-glow">
+            <i data-lucide="headset" class="w-5 h-5 animate-pulse"></i>
+          </div>
+          <div>
+            <h4 class="text-xs font-bold text-white">Connecting to Executive Desk</h4>
+            <p class="text-[10px] text-cyan-400/90 mt-0.5">Please wait while we assign you a dedicated concierge agent...</p>
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+
+      // 2. FETCH / ASSIGN AGENT IN FIRESTORE
       const chatRef = db.collection("chats").doc(phone);
       const doc = await chatRef.get();
 
@@ -583,15 +605,25 @@
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
           unreadByAdmin: false
         }, { merge: true });
+
+        // Add personalized initial welcome bubble from assigned agent
+        await chatRef.collection("messages").add({
+          sender: "admin",
+          senderName: currentAssignedPersona,
+          text: `Hi, this is ${currentAssignedPersona}. Welcome to NeeD Cars, how may I help you?`,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
       }
 
-      document.getElementById("agent-display-name").innerText = currentAssignedPersona;
-      const initials = currentAssignedPersona.split(" ").map(n => n[0]).join("");
-      document.getElementById("agent-avatar-initials").innerText = initials;
+      // 3. WAIT 1.5 SECONDS FOR REALISTIC AGENT CONNECTION
+      setTimeout(() => {
+        nameEl.innerText = currentAssignedPersona;
+        const initials = currentAssignedPersona.split(" ").map(n => n[0]).join("");
+        initialsEl.innerText = initials;
 
-      listenToChatMessages();
+        listenToChatMessages();
+      }, 1500);
     }
-
     function listenToChatMessages() {
       const phone = currentActiveUser.phone;
       const container = document.getElementById("chat-messages-container");
