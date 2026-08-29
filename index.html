@@ -129,10 +129,10 @@
           <span class="text-[10px] font-bold">Explore</span>
         </a>
 
-        <a href="tel:9731055500" class="flex flex-col items-center hover:text-white transition">
-          <i data-lucide="calendar" class="w-5 h-5 mb-0.5"></i>
-          <span class="text-[10px] font-medium">My Trips</span>
-        </a>
+        <button type="button" onclick="toggleTripsDrawer()" class="flex flex-col items-center hover:text-cyan-400 transition focus:outline-none">
+  <i data-lucide="calendar" class="w-5 h-5 mb-0.5"></i>
+  <span class="text-[10px] font-medium">My Trips</span>
+</button>
 
        <button type="button" onclick="toggleChatDrawer()" class="flex flex-col items-center hover:text-cyan-400 transition focus:outline-none">
           <i data-lucide="message-square" class="w-5 h-5 mb-0.5"></i>
@@ -412,7 +412,26 @@
       </div>
     </div>
   </div>
+<div id="trips-drawer" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex justify-center items-center p-4 hidden transition-all duration-300">
+      <div class="w-full max-w-[420px] h-[580px] bg-[#0d111a] border border-neutral-800 rounded-3xl flex flex-col overflow-hidden shadow-2xl brand-glow">
+        
+        <div class="px-5 py-4 bg-[#121724] border-b border-neutral-800 flex items-center justify-between">
+          <div class="flex items-center space-x-2.5">
+            <div class="w-8 h-8 rounded-xl bg-cyan-950 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
+              <i data-lucide="calendar" class="w-4 h-4"></i>
+            </div>
+            <h2 class="text-sm font-bold text-white font-brand tracking-wide">My Reservations</h2>
+          </div>
+          <button onclick="toggleTripsDrawer()" class="w-8 h-8 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition">
+            ✕
+          </button>
+        </div>
 
+        <div id="trips-content-list" class="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar">
+          </div>
+
+      </div>
+    </div>
   <script>
     // --- 1. FIREBASE INITIALIZATION ---
     const firebaseConfig = {
@@ -1039,7 +1058,110 @@
         submitBtn.disabled = false;
       }
     }
+// --- MY TRIPS CONTROLLER ---
+    let unsubscribeTripsListener = null;
 
+    function toggleTripsDrawer() {
+      const drawer = document.getElementById("trips-drawer");
+      drawer.classList.toggle("hidden");
+
+      if (!drawer.classList.contains("hidden")) {
+        if (!currentActiveUser) {
+          alert("Please sign in to view your trips and reservations.");
+          toggleTripsDrawer();
+          toggleAccountDrawer();
+          return;
+        }
+        loadUserTrips();
+      } else {
+        if (unsubscribeTripsListener) unsubscribeTripsListener();
+      }
+      lucide.createIcons();
+    }
+
+    function loadUserTrips() {
+      const container = document.getElementById("trips-content-list");
+      const phone = currentActiveUser.phone;
+
+      container.innerHTML = `
+        <div class="py-20 text-center text-xs text-neutral-500">
+          <div class="inline-block w-5 h-5 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mb-2"></div>
+          <p>Fetching your reservations...</p>
+        </div>
+      `;
+
+      // Real-time listener for this user's bookings from Firestore
+      unsubscribeTripsListener = db.collection("bookings")
+        .where("customerPhone", "==", phone)
+        .onSnapshot(snapshot => {
+          if (snapshot.empty) {
+            container.innerHTML = `
+              <div class="h-full flex flex-col items-center justify-center py-16 text-center text-neutral-500 space-y-2">
+                <div class="w-12 h-12 rounded-full bg-[#141926] border border-neutral-800 flex items-center justify-center text-cyan-400 mb-1">
+                  <i data-lucide="calendar-x" class="w-6 h-6"></i>
+                </div>
+                <h4 class="text-xs font-bold text-neutral-300">No Reservations Found</h4>
+                <p class="text-[11px] text-neutral-500 max-w-[220px]">You have no active or past bookings. Explore the live fleet to reserve your luxury car!</p>
+                <button onclick="toggleTripsDrawer(); document.getElementById('fleet-feed').scrollIntoView({behavior: 'smooth'})" class="brand-gradient text-black font-extrabold text-[11px] uppercase tracking-wider px-4 py-2 rounded-xl mt-2 active:scale-95 transition shadow-md">
+                  Browse Fleet
+                </button>
+              </div>
+            `;
+            lucide.createIcons();
+            return;
+          }
+
+          container.innerHTML = "";
+          const trips = [];
+          snapshot.forEach(doc => trips.push({ id: doc.id, ...doc.data() }));
+
+          // Sort newest bookings first
+          trips.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+
+          trips.forEach(trip => {
+            const card = document.createElement("div");
+            card.className = "bg-[#141926] border border-neutral-800 rounded-2xl p-3.5 space-y-2.5 shadow-md";
+            
+            let badgeColor = "bg-amber-950/80 text-amber-400 border-amber-500/30";
+            if (trip.status === "Confirmed" || trip.status === "Active") {
+              badgeColor = "bg-emerald-950/80 text-emerald-400 border-emerald-500/30";
+            } else if (trip.status === "Completed") {
+              badgeColor = "bg-blue-950/80 text-blue-400 border-blue-500/30";
+            } else if (trip.status === "Cancelled") {
+              badgeColor = "bg-rose-950/80 text-rose-400 border-rose-500/30";
+            }
+
+            card.innerHTML = `
+              <div class="flex items-start justify-between">
+                <div>
+                  <span class="text-[9px] font-bold px-2 py-0.5 rounded border ${badgeColor}">
+                    ${trip.status || "Booking Requested"}
+                  </span>
+                  <h3 class="text-xs font-bold text-white mt-1.5">${trip.carName || "Luxury Vehicle"}</h3>
+                  <p class="text-[10px] text-neutral-400">Booking ID: #${trip.id.substring(0, 7).toUpperCase()}</p>
+                </div>
+                <span class="text-xs font-black text-cyan-300 font-brand">₹${Number(trip.totalAmount || trip.price || 0).toLocaleString('en-IN')}</span>
+              </div>
+
+              <div class="bg-[#0e121d] rounded-xl p-2.5 space-y-1.5 border border-neutral-850 text-[10px] text-neutral-300">
+                <div class="flex items-center space-x-1.5">
+                  <i data-lucide="map-pin" class="w-3.5 h-3.5 text-cyan-400 shrink-0"></i>
+                  <span class="truncate">${trip.location || "Doorstep Delivery"}</span>
+                </div>
+                <div class="flex items-center justify-between text-[9px] text-neutral-400 pt-1 border-t border-neutral-800">
+                  <span>Start: ${trip.startDate || "Scheduled"}</span>
+                  <span>End: ${trip.endDate || "Open Return"}</span>
+                </div>
+              </div>
+            `;
+            container.appendChild(card);
+          });
+          lucide.createIcons();
+        }, error => {
+          console.error("Error loading trips:", error);
+          container.innerHTML = `<div class="p-4 text-center text-xs text-rose-400">Unable to load trips. Please check connection.</div>`;
+        });
+    }
     // --- 9. LOGOUT ---
     function handleUserLogout() {
       localStorage.removeItem("need_logged_user");
