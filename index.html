@@ -717,12 +717,59 @@
         </div>
 
         <!-- Free UPI Button -->
-        <div class="mt-3.5 space-y-2">
-          <button onclick="executeFreeDirectUpiPayment()" class="w-full brand-gradient text-black font-extrabold text-xs uppercase py-3.5 rounded-2xl flex items-center justify-center space-x-2 active:scale-95 transition shadow-[0_0_15px_rgba(0,229,255,0.35)]">
-            <i data-lucide="smartphone" class="w-4 h-4 stroke-[2.5]"></i>
-            <span>Pay via UPI (GPay / PhonePe / Paytm)</span>
-          </button>
-          <p class="text-[9px] text-center text-neutral-500">Opens installed UPI app directly on your phone with zero deduction fee.</p>
+       <!-- Pay via UPI with App Selectors -->
+        <div class="mt-3.5 space-y-2.5">
+          <label class="text-[10px] uppercase font-bold text-neutral-400 block tracking-wider px-1">
+            Pay via UPI
+          </label>
+
+          <div class="grid grid-cols-2 gap-2">
+            <!-- Google Pay -->
+            <button type="button" onclick="executeSpecificUpiApp('gpay')" class="flex items-center space-x-2.5 p-3 rounded-2xl bg-[#141926] border border-neutral-800 hover:border-cyan-500/50 active:scale-[0.97] transition group text-left">
+              <div class="w-7 h-7 rounded-xl bg-[#1a2133] flex items-center justify-center text-xs font-bold text-white border border-neutral-700 shrink-0">
+                G
+              </div>
+              <div class="min-w-0">
+                <span class="text-xs font-bold text-white block truncate">Google Pay</span>
+                <span class="text-[9px] text-neutral-400 block">Instant App Pay</span>
+              </div>
+            </button>
+
+            <!-- PhonePe -->
+            <button type="button" onclick="executeSpecificUpiApp('phonepe')" class="flex items-center space-x-2.5 p-3 rounded-2xl bg-[#141926] border border-neutral-800 hover:border-purple-500/50 active:scale-[0.97] transition group text-left">
+              <div class="w-7 h-7 rounded-xl bg-purple-950/80 flex items-center justify-center text-xs font-bold text-purple-300 border border-purple-500/40 shrink-0">
+                Pe
+              </div>
+              <div class="min-w-0">
+                <span class="text-xs font-bold text-white block truncate">PhonePe</span>
+                <span class="text-[9px] text-neutral-400 block">Instant App Pay</span>
+              </div>
+            </button>
+
+            <!-- Paytm -->
+            <button type="button" onclick="executeSpecificUpiApp('paytm')" class="flex items-center space-x-2.5 p-3 rounded-2xl bg-[#141926] border border-neutral-800 hover:border-sky-500/50 active:scale-[0.97] transition group text-left">
+              <div class="w-7 h-7 rounded-xl bg-sky-950/80 flex items-center justify-center text-xs font-bold text-sky-300 border border-sky-500/40 shrink-0">
+                Py
+              </div>
+              <div class="min-w-0">
+                <span class="text-xs font-bold text-white block truncate">Paytm</span>
+                <span class="text-[9px] text-neutral-400 block">Instant App Pay</span>
+              </div>
+            </button>
+
+            <!-- BHIM UPI -->
+            <button type="button" onclick="executeSpecificUpiApp('bhim')" class="flex items-center space-x-2.5 p-3 rounded-2xl bg-[#141926] border border-neutral-800 hover:border-emerald-500/50 active:scale-[0.97] transition group text-left">
+              <div class="w-7 h-7 rounded-xl bg-emerald-950/80 flex items-center justify-center text-xs font-bold text-emerald-300 border border-emerald-500/40 shrink-0">
+                B
+              </div>
+              <div class="min-w-0">
+                <span class="text-xs font-bold text-white block truncate">BHIM UPI</span>
+                <span class="text-[9px] text-neutral-400 block">Instant App Pay</span>
+              </div>
+            </button>
+          </div>
+
+          <p class="text-[9px] text-center text-neutral-500">Zero transaction fees. Select your preferred app to open the payment screen directly.</p>
         </div>
 
         <!-- WhatsApp Pass -->
@@ -1479,7 +1526,7 @@ try {
       document.getElementById("pay-now-amount").innerText = `₹${payable.toLocaleString('en-IN')}`;
     }
 
-    async function executeFreeDirectUpiPayment() {
+    async function executeSpecificUpiApp(appKey) {
       const address = document.getElementById("checkout-delivery-address").value.trim();
       const flight = document.getElementById("checkout-flight-details").value.trim();
       const fuelPref = document.getElementById("checkout-fuel-pref").value;
@@ -1497,6 +1544,7 @@ try {
 
       currentBookingReferenceId = "NEED" + Math.floor(100000 + Math.random() * 900000);
 
+      // Save order record to Firestore
       try {
         await db.collection("bookings").doc(currentBookingReferenceId).set({
           bookingId: currentBookingReferenceId,
@@ -1513,6 +1561,7 @@ try {
           paymentSelected: modeName,
           amountPaidNow: payableNow,
           pendingDue: calculatedTotals.netTotal - payableNow,
+          initiatedViaApp: appKey.toUpperCase(),
           status: "UPI Initiated",
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
@@ -1521,9 +1570,28 @@ try {
       }
 
       const note = `NeeD Booking ${currentBookingReferenceId}`;
-      const upiUrl = `upi://pay?pa=${encodeURIComponent(MERCHANT_UPI_VPA)}&pn=${encodeURIComponent(MERCHANT_NAME)}&am=${payableNow}&cu=INR&tn=${encodeURIComponent(note)}`;
+      const baseParams = `pa=${encodeURIComponent(MERCHANT_UPI_VPA)}&pn=${encodeURIComponent(MERCHANT_NAME)}&am=${payableNow}&cu=INR&tn=${encodeURIComponent(note)}`;
 
-      window.location.href = upiUrl;
+      // App-specific intent deep links on Android/iOS
+      let targetUrl = `upi://pay?${baseParams}`;
+
+      if (appKey === 'gpay') {
+        targetUrl = `gpay://upi/pay?${baseParams}`;
+      } else if (appKey === 'phonepe') {
+        targetUrl = `phonepe://pay?${baseParams}`;
+      } else if (appKey === 'paytm') {
+        targetUrl = `paytmmp://pay?${baseParams}`;
+      } else if (appKey === 'bhim') {
+        targetUrl = `upi://pay?${baseParams}`;
+      }
+
+      // Trigger app launch, with fallback to standard upi:// if target custom scheme fails
+      window.location.href = targetUrl;
+
+      setTimeout(() => {
+        // Fallback for devices without standard custom schemes installed
+        window.location.href = `upi://pay?${baseParams}`;
+      }, 700);
     }
 
     function sendOrderConfirmationToWhatsApp() {
