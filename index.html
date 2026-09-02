@@ -632,7 +632,7 @@ Key Policies:
 - Complimentary doorstep and airport pickup/drop.
 - ID verification via DigiLocker is mandatory before trip start.
 ${fleetContext}
-If unable to solve completely, invite them to talk to an executive.`;
+Only invite them to talk to an executive if they have a complex booking question or a complaint.`;
 try {
         const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
           method: "POST",
@@ -800,14 +800,18 @@ try {
           timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        setTimeout(async () => {
-          await messagesRef.add({
-            sender: "system_prompt",
-            senderName: "System",
-            text: "Did this resolve your query?",
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-          });
-        }, 800);
+       const isGreeting = /^(hi|hello|hey|greetings|namaste)\b/i.test(text.trim());
+
+        if (!isGreeting) {
+          setTimeout(async () => {
+            await messagesRef.add({
+              sender: "system_prompt",
+              senderName: "System",
+              text: "Did this resolve your query?",
+              timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+          }, 800);
+        }
 
       } catch (err) {
         console.error("Chat flow error:", err);
