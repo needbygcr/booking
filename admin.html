@@ -69,7 +69,49 @@
         Logout
       </button>
     </div>
+<!-- ================= PROMO BANNER CONTROLLER ================= -->
+    <div class="bg-[#10141f] border border-neutral-800 rounded-2xl p-5 shadow-lg">
+      <div class="flex items-center justify-between pb-3 border-b border-neutral-800">
+        <div>
+          <h2 class="text-xs font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
+            <i data-lucide="megaphone" class="w-4 h-4"></i> Live Offer / Ad Banner
+          </h2>
+          <p class="text-[10px] text-neutral-400 mt-0.5">Toggle and customize the hero promo strip on the customer site.</p>
+        </div>
 
+        <!-- Real-Time Toggle Switch -->
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" id="admin-banner-toggle" class="sr-only peer" onchange="toggleBannerStatus(this.checked)">
+          <div class="w-10 h-5 bg-neutral-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-cyan-500"></div>
+        </label>
+      </div>
+
+      <!-- Banner Inputs -->
+      <form id="admin-banner-form" onsubmit="saveBannerContent(event)" class="mt-3 space-y-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[10px] uppercase font-bold text-neutral-400 mb-1">Headline / Title</label>
+            <input type="text" id="admin-banner-title" required placeholder="e.g. Introducing the all-new Fortuner 4x4" class="w-full bg-[#171c2b] border border-neutral-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-400">
+          </div>
+          <div>
+            <label class="block text-[10px] uppercase font-bold text-neutral-400 mb-1">Offer Tag</label>
+            <input type="text" id="admin-banner-tag" value="Special Offer" placeholder="e.g. Special Offer" class="w-full bg-[#171c2b] border border-neutral-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-400">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[10px] uppercase font-bold text-neutral-400 mb-1">Offer Description</label>
+          <textarea id="admin-banner-desc" rows="2" required placeholder="e.g. Zero deposit + doorstep delivery on all weekend bookings!" class="w-full bg-[#171c2b] border border-neutral-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-400 resize-none"></textarea>
+        </div>
+
+        <div class="flex items-center justify-between pt-1">
+          <span id="admin-banner-status-label" class="text-[11px] font-semibold text-neutral-500">Status: Inactive</span>
+          <button type="submit" id="save-banner-btn" class="brand-gradient text-black font-extrabold text-xs uppercase px-4 py-2 rounded-xl hover:brightness-110 active:scale-95 transition">
+            Update Banner
+          </button>
+        </div>
+      </form>
+    </div>
     <!-- Add New Car Form -->
     <div class="bg-[#10141f] p-5 rounded-2xl border border-neutral-800 shadow-lg">
       <h2 class="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-4 flex items-center">
@@ -230,11 +272,87 @@
         document.getElementById("admin-dashboard").classList.remove("hidden");
         loadCars();
         listenToCustomerChats();
+        listenToPromoBannerSettings();
       } else {
         document.getElementById("login-err").classList.remove("hidden");
       }
     }
+// --- PROMO BANNER SETTINGS CONTROLLER ---
+  const promoDocRef = db.collection("settings").doc("promoBanner");
 
+  function listenToPromoBannerSettings() {
+    promoDocRef.onSnapshot(doc => {
+      const toggle = document.getElementById("admin-banner-toggle");
+      const statusLabel = document.getElementById("admin-banner-status-label");
+      const titleInput = document.getElementById("admin-banner-title");
+      const descInput = document.getElementById("admin-banner-desc");
+      const tagInput = document.getElementById("admin-banner-tag");
+
+      if (!toggle) return;
+
+      if (doc.exists) {
+        const data = doc.data();
+        toggle.checked = !!data.isActive;
+
+        if (document.activeElement !== titleInput) titleInput.value = data.title || "";
+        if (document.activeElement !== descInput) descInput.value = data.description || "";
+        if (tagInput && document.activeElement !== tagInput) tagInput.value = data.tag || "Special Offer";
+
+        if (data.isActive) {
+          statusLabel.innerText = "Status: Live on Website";
+          statusLabel.className = "text-[11px] font-bold text-emerald-400";
+        } else {
+          statusLabel.innerText = "Status: Hidden / Disabled";
+          statusLabel.className = "text-[11px] font-bold text-neutral-500";
+        }
+      } else {
+        toggle.checked = false;
+        statusLabel.innerText = "Status: Not configured";
+      }
+    });
+  }
+
+  async function toggleBannerStatus(isChecked) {
+    try {
+      await promoDocRef.set({
+        isActive: isChecked,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+    } catch (err) {
+      console.error("Banner toggle error:", err);
+    }
+  }
+
+  async function saveBannerContent(e) {
+    e.preventDefault();
+    const title = document.getElementById("admin-banner-title").value.trim();
+    const desc = document.getElementById("admin-banner-desc").value.trim();
+    const tag = document.getElementById("admin-banner-tag").value.trim();
+    const toggle = document.getElementById("admin-banner-toggle");
+    const btn = document.getElementById("save-banner-btn");
+
+    btn.innerText = "Saving...";
+    btn.disabled = true;
+
+    try {
+      await promoDocRef.set({
+        title: title,
+        description: desc,
+        tag: tag || "Special Offer",
+        isActive: toggle.checked,
+        promoId: "promo_" + Date.now(),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+
+      alert("Offer banner updated successfully!");
+    } catch (err) {
+      console.error("Failed to update banner:", err);
+      alert("Error saving banner: " + err.message);
+    } finally {
+      btn.innerText = "Update Banner";
+      btn.disabled = false;
+    }
+  }
     // --- 3. FETCH & DISPLAY CARS ---
     async function loadCars() {
       const list = document.getElementById("cars-list");
