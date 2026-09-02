@@ -660,12 +660,15 @@ if (!response.ok) {
           return "I ran into an issue retrieving details. Please tap 'Talk to Executive' below to connect with our team.";
         }
 
-    const data = await response.json();
-    return data.choices?.[0]?.message?.content?.trim() || "How can I assist your luxury journey today?";
-  } catch (error) {
-    return "Connection timeout. Please tap 'Talk to Executive' below to speak directly with our desk.";
-  }
-}async function initializeChatSession() {
+        const data = await response.json();
+        return data.choices?.[0]?.message?.content?.trim() || "How can I assist your luxury journey today?";
+      } catch (error) {
+        console.error("Fetch Exception:", error);
+        return "Connection timeout. Please tap 'Talk to Executive' below to speak directly with our desk.";
+      }
+    }
+
+    async function initializeChatSession() {
       const phone = currentActiveUser.phone;
       const nameEl = document.getElementById("agent-display-name");
       const initialsEl = document.getElementById("agent-avatar-initials");
