@@ -596,7 +596,65 @@
         if (unsubscribeChatListener) unsubscribeChatListener();
       }
     }
+// --- GROQ AI CONCIERGE ENGINE ---
+    let cachedGroqKey = null;
 
+    async function getGroqApiKey() {
+      if (cachedGroqKey) return cachedGroqKey;
+      try {
+        const secretDoc = await db.collection("secrets").doc("aiConfig").get();
+        if (secretDoc.exists) {
+          cachedGroqKey = secretDoc.data().groqKey;
+          return cachedGroqKey;
+        }
+      } catch (err) {
+        console.error("Could not fetch AI key:", err);
+      }
+      return null;
+    }
+
+    async function fetchAiReply(userPrompt) {
+      const apiKey = await getGroqApiKey();
+      if (!apiKey) {
+        return "Welcome to NeeD! How can I assist you with your luxury rental today?";
+      }
+
+      const systemPrompt = `
+        You are NeeD Concierge AI, an executive assistant for 'NeeD by Gujral Car Rental'.
+        Answer questions accurately, politely, and concisely (strictly under 35 words).
+        Key policies:
+        - Self-drive luxury cars (Fortuner, etc.).
+        - Zero security deposit for verified users.
+        - Doorstep and airport delivery available.
+        - DigiLocker verification is mandatory before trip start.
+        Always maintain a premium, helpful tone.
+      `;
+
+      try {
+        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${apiKey}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            model: "llama-3.1-8b-instant",
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: userPrompt }
+            ],
+            temperature: 0.4,
+            max_tokens: 100
+          })
+        });
+
+        const data = await response.json();
+        return data.choices?.[0]?.message?.content?.trim() || "How can I assist your journey today?";
+      } catch (error) {
+        console.error("AI fetch failed:", error);
+        return "I am connecting you with our concierge desk. Would you like to speak to an executive?";
+      }
+    }
     async function initializeChatSession() {
       const phone = currentActiveUser.phone;
       const nameEl = document.getElementById("agent-display-name");
@@ -658,6 +716,7 @@
         listenToChatMessages();
       }, 1500);
     }
+    // --- HYBRID AI + HUMAN CONCIERGE CONTROLLER ---
     function listenToChatMessages() {
       const phone = currentActiveUser.phone;
       const container = document.getElementById("chat-messages-container");
@@ -669,8 +728,8 @@
         if (snapshot.empty) {
           container.innerHTML = `
             <div class="text-center py-8 text-neutral-500 text-[11px] space-y-1">
-              <p class="font-bold text-neutral-400">Connected with ${currentAssignedPersona}</p>
-              <p>How can we assist you with your rental reservation today?</p>
+              <p class="font-bold text-neutral-400">NeeD 24/7 Concierge Support</p>
+              <p>Ask anything about our fleet, rates, or delivery terms.</p>
             </div>
           `;
           return;
@@ -679,19 +738,39 @@
         snapshot.forEach(doc => {
           const msg = doc.data();
           const isMe = msg.sender === "customer";
+          const isPrompt = msg.sender === "system_prompt";
 
           const bubble = document.createElement("div");
-          bubble.className = `flex ${isMe ? "justify-end" : "justify-start"}`;
-          bubble.innerHTML = `
-            <div class="max-w-[80%] px-3.5 py-2.5 rounded-2xl text-xs ${
-              isMe 
-                ? "bg-cyan-500 text-black font-medium rounded-br-none" 
-                : "bg-[#161c2c] text-white border border-neutral-700 rounded-bl-none"
-            }">
-              ${!isMe ? `<p class="text-[9px] font-bold text-cyan-400 mb-0.5">${msg.senderName || currentAssignedPersona}</p>` : ''}
-              <p class="leading-relaxed">${msg.text}</p>
-            </div>
-          `;
+
+          if (isPrompt) {
+            bubble.className = "flex flex-col items-center my-2";
+            bubble.innerHTML = `
+              <div class="bg-[#141926] border border-neutral-700/80 rounded-2xl p-3 text-center w-full max-w-[280px]">
+                <p class="text-neutral-300 text-[10px] font-medium mb-2">${msg.text}</p>
+                <div class="flex gap-2">
+                  <button onclick="markQueryResolved(this)" class="flex-1 bg-emerald-950/80 text-emerald-400 border border-emerald-500/40 py-1.5 rounded-xl text-[9px] font-bold active:scale-95 transition">
+                    ✓ Resolved
+                  </button>
+                  <button onclick="escalateToHumanExecutive()" class="flex-1 brand-gradient text-black py-1.5 rounded-xl text-[9px] font-extrabold active:scale-95 transition">
+                    Talk to Executive →
+                  </button>
+                </div>
+              </div>
+            `;
+          } else {
+            bubble.className = `flex ${isMe ? "justify-end" : "justify-start"}`;
+            bubble.innerHTML = `
+              <div class="max-w-[80%] px-3.5 py-2.5 rounded-2xl text-xs ${
+                isMe 
+                  ? "bg-cyan-500 text-black font-medium rounded-br-none" 
+                  : "bg-[#161c2c] text-white border border-neutral-700 rounded-bl-none"
+              }">
+                ${!isMe ? `<p class="text-[9px] font-bold text-cyan-400 mb-0.5">${msg.senderName || 'NeeD Assistant'}</p>` : ''}
+                <p class="leading-relaxed">${msg.text}</p>
+              </div>
+            `;
+          }
+
           container.appendChild(bubble);
         });
 
@@ -708,25 +787,83 @@
       const phone = currentActiveUser.phone;
       input.value = "";
 
+      const chatDocRef = db.collection("chats").doc(phone);
+      const messagesRef = chatDocRef.collection("messages");
+
       try {
-        const chatDoc = db.collection("chats").doc(phone);
-        
-        await chatDoc.collection("messages").add({
+        await messagesRef.add({
           sender: "customer",
           senderName: currentActiveUser.name || "Client",
           text: text,
           timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        await chatDoc.set({
-          lastMessage: text,
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-          unreadByAdmin: true,
-          assignedAdminId: currentAssignedAdmin
-        }, { merge: true });
+        const chatSnap = await chatDocRef.get();
+        const chatData = chatSnap.data() || {};
+
+        if (chatData.chatMode === "HUMAN") {
+          await chatDocRef.set({
+            lastMessage: text,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            unreadByAdmin: true
+          }, { merge: true });
+          return;
+        }
+
+        const aiAnswer = await fetchAiReply(text);
+
+        await messagesRef.add({
+          sender: "bot",
+          senderName: "NeeD AI Concierge",
+          text: aiAnswer,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        setTimeout(async () => {
+          await messagesRef.add({
+            sender: "system_prompt",
+            senderName: "System",
+            text: "Did this resolve your query?",
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        }, 800);
+
       } catch (err) {
-        console.error("Error sending message:", err);
+        console.error("Chat flow error:", err);
       }
+    }
+
+    async function escalateToHumanExecutive() {
+      if (!currentActiveUser) return;
+      const phone = currentActiveUser.phone;
+      const chatDocRef = db.collection("chats").doc(phone);
+
+      const assignedAgent = getRandomItem(SUPPORT_PERSONAS);
+      const assignedAdmin = getRandomItem(ADMIN_TEAM).id;
+
+      document.getElementById("agent-display-name").innerText = assignedAgent;
+      document.getElementById("agent-avatar-initials").innerText = assignedAgent.split(" ").map(n => n[0]).join("");
+
+      await chatDocRef.set({
+        chatMode: "HUMAN",
+        assignedPersona: assignedAgent,
+        assignedAdminId: assignedAdmin,
+        unreadByAdmin: true,
+        lastMessage: `Connected to ${assignedAgent}`,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+
+      await chatDocRef.collection("messages").add({
+        sender: "admin",
+        senderName: assignedAgent,
+        text: `Namaste! I am ${assignedAgent}, Senior Concierge Specialist. I am taking over this conversation. How may I assist you?`,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+
+    function markQueryResolved(btn) {
+      const parent = btn.closest("div");
+      parent.innerHTML = `<span class="text-[10px] text-emerald-400 font-bold">Glad we could help! Enjoy your journey. ✨</span>`;
     }
 
     // --- 3. FILTERING LOGIC ---
