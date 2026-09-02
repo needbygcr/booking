@@ -604,8 +604,11 @@
       try {
         const secretDoc = await db.collection("secrets").doc("aiConfig").get();
         if (secretDoc.exists) {
-          cachedGroqKey = secretDoc.data().groqKey;
-          return cachedGroqKey;
+          const rawKey = secretDoc.data().groqKey;
+          if (rawKey) {
+            cachedGroqKey = rawKey.replace(/[^a-zA-Z0-9_\-]/g, "").trim();
+            return cachedGroqKey;
+          }
         }
       } catch (err) {
         console.error("Could not fetch AI key:", err);
@@ -651,10 +654,11 @@ If unable to solve completely, invite them to talk to an executive.`;
         max_tokens: 120
       })
     });
-
-    if (!response.ok) {
-      return "I ran into an issue retrieving details. Please tap 'Talk to Executive' below to connect with our team.";
-    }
+if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          console.error("Groq API Error Details:", response.status, errData);
+          return "I ran into an issue retrieving details. Please tap 'Talk to Executive' below to connect with our team.";
+        }
 
     const data = await response.json();
     return data.choices?.[0]?.message?.content?.trim() || "How can I assist your luxury journey today?";
