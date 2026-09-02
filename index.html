@@ -661,77 +661,43 @@ If unable to solve completely, invite them to talk to an executive.`;
   } catch (error) {
     return "Connection timeout. Please tap 'Talk to Executive' below to speak directly with our desk.";
   }
-}
-    async function initializeChatSession() {
-  const phone = currentActiveUser.phone;
-  const nameEl = document.getElementById("agent-display-name");
-  const initialsEl = document.getElementById("agent-avatar-initials");
-  const statusSubEl = nameEl.nextElementSibling;
+}async function initializeChatSession() {
+      const phone = currentActiveUser.phone;
+      const nameEl = document.getElementById("agent-display-name");
+      const initialsEl = document.getElementById("agent-avatar-initials");
+      const statusSubEl = nameEl ? nameEl.nextElementSibling : null;
 
-  const chatRef = db.collection("chats").doc(phone);
-  const doc = await chatRef.get();
-  const chatData = doc.exists ? doc.data() : {};
+      try {
+        const chatRef = db.collection("chats").doc(phone);
+        const doc = await chatRef.get();
+        const chatData = doc.exists ? doc.data() : {};
 
-  if (chatData.chatMode === "HUMAN" && chatData.assignedPersona) {
-    currentAssignedPersona = chatData.assignedPersona;
-    nameEl.innerText = currentAssignedPersona;
-    initialsEl.innerText = currentAssignedPersona.split(" ").map(n => n[0]).join("");
-    if (statusSubEl) statusSubEl.innerText = "NeeD Executive Desk • Active Now";
-  } else {
-    currentAssignedPersona = null;
-    nameEl.innerText = "NeeD AI Concierge";
-    initialsEl.innerText = "AI";
-    if (statusSubEl) statusSubEl.innerText = "Automated Support • Instant Reply";
-  }
-
-  listenToChatMessages();
-}
-
-      // 2. FETCH / ASSIGN AGENT IN FIRESTORE
-      const chatRef = db.collection("chats").doc(phone);
-      const doc = await chatRef.get();
-
-      if (doc.exists && doc.data().assignedPersona) {
-        currentAssignedPersona = doc.data().assignedPersona;
-        currentAssignedAdmin = doc.data().assignedAdminId || getRandomItem(ADMIN_TEAM).id;
-      } else {
-        currentAssignedPersona = getRandomItem(SUPPORT_PERSONAS);
-        currentAssignedAdmin = getRandomItem(ADMIN_TEAM).id;
-
-        await chatRef.set({
-          customerPhone: phone,
-          customerName: currentActiveUser.name || "VIP Guest",
-          assignedPersona: currentAssignedPersona,
-          assignedAdminId: currentAssignedAdmin,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          unreadByAdmin: false
-        }, { merge: true });
-
-        // Add personalized initial welcome bubble from assigned agent
-        await chatRef.collection("messages").add({
-          sender: "admin",
-          senderName: currentAssignedPersona,
-          text: `Hi, this is ${currentAssignedPersona}. Welcome to NeeD Cars, how may I help you?`,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
+        if (chatData.chatMode === "HUMAN" && chatData.assignedPersona) {
+          currentAssignedPersona = chatData.assignedPersona;
+          if (nameEl) nameEl.innerText = currentAssignedPersona;
+          if (initialsEl) initialsEl.innerText = currentAssignedPersona.split(" ").map(n => n[0]).join("");
+          if (statusSubEl) statusSubEl.innerText = "NeeD Executive Desk • Active Now";
+        } else {
+          currentAssignedPersona = null;
+          if (nameEl) nameEl.innerText = "NeeD AI Concierge";
+          if (initialsEl) initialsEl.innerText = "AI";
+          if (statusSubEl) statusSubEl.innerText = "Automated Support • Instant Reply";
+        }
+      } catch (e) {
+        console.error("Chat init error:", e);
       }
 
-      // 3. WAIT 1.5 SECONDS FOR REALISTIC AGENT CONNECTION
-      setTimeout(() => {
-        nameEl.innerText = currentAssignedPersona;
-        const initials = currentAssignedPersona.split(" ").map(n => n[0]).join("");
-        initialsEl.innerText = initials;
-
-        listenToChatMessages();
-      }, 1500);
+      listenToChatMessages();
     }
-    // --- HYBRID AI + HUMAN CONCIERGE CONTROLLER ---
+
     function listenToChatMessages() {
+      if (!currentActiveUser) return;
       const phone = currentActiveUser.phone;
       const container = document.getElementById("chat-messages-container");
       const messagesRef = db.collection("chats").doc(phone).collection("messages").orderBy("timestamp", "asc");
 
       unsubscribeChatListener = messagesRef.onSnapshot(snapshot => {
+        if (!container) return;
         container.innerHTML = "";
 
         if (snapshot.empty) {
@@ -850,8 +816,13 @@ If unable to solve completely, invite them to talk to an executive.`;
       const assignedAgent = getRandomItem(SUPPORT_PERSONAS);
       const assignedAdmin = getRandomItem(ADMIN_TEAM).id;
 
-      document.getElementById("agent-display-name").innerText = assignedAgent;
-      document.getElementById("agent-avatar-initials").innerText = assignedAgent.split(" ").map(n => n[0]).join("");
+      const nameEl = document.getElementById("agent-display-name");
+      const initialsEl = document.getElementById("agent-avatar-initials");
+      const statusSubEl = nameEl ? nameEl.nextElementSibling : null;
+
+      if (nameEl) nameEl.innerText = assignedAgent;
+      if (initialsEl) initialsEl.innerText = assignedAgent.split(" ").map(n => n[0]).join("");
+      if (statusSubEl) statusSubEl.innerText = "Senior Executive Desk • Active Now";
 
       await chatDocRef.set({
         chatMode: "HUMAN",
@@ -865,16 +836,15 @@ If unable to solve completely, invite them to talk to an executive.`;
       await chatDocRef.collection("messages").add({
         sender: "admin",
         senderName: assignedAgent,
-        text: `Namaste! I am ${assignedAgent}, Senior Concierge Specialist. I am taking over this conversation. How may I assist you?`,
+        text: `Namaste! I am ${assignedAgent}, Senior Concierge Specialist. I am reviewing your request now. How may I assist you?`,
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
       });
     }
 
     function markQueryResolved(btn) {
       const parent = btn.closest("div");
-      parent.innerHTML = `<span class="text-[10px] text-emerald-400 font-bold">Glad we could help! Enjoy your journey. ✨</span>`;
+      parent.innerHTML = `<span class="text-[10px] text-emerald-400 font-bold">Glad we could help! Enjoy your drive. ✨</span>`;
     }
-
     // --- 3. FILTERING LOGIC ---
     function setCategoryFilter(category, buttonElement) {
       selectedCategory = category;
