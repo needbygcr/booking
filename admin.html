@@ -244,6 +244,61 @@
         </div>
       </div>
     </div>
+    <!-- ================= PROMO CODE & VIP PRICING MANAGER ================= -->
+    <div class="bg-[#10141f] p-5 rounded-2xl border border-neutral-800 shadow-lg space-y-4">
+      <div class="flex items-center justify-between border-b border-neutral-800 pb-3">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-lg bg-cyan-950/80 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
+            <i data-lucide="tag" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="text-xs font-bold uppercase tracking-wider text-white">Promo Codes & VIP Pricing</h2>
+            <p class="text-[10px] text-neutral-400">Manage discounts & priority tokens for checkout</p>
+          </div>
+        </div>
+        <span id="promo-count" class="text-[10px] font-mono text-cyan-400">0 Promos</span>
+      </div>
+
+      <!-- Create Promo Form -->
+      <form onsubmit="handleSavePromo(event)" class="grid grid-cols-1 sm:grid-cols-4 gap-2.5 bg-[#171c2b] p-3 rounded-xl border border-neutral-800 text-xs">
+        <div>
+          <label class="text-[10px] text-neutral-400 block mb-1">Coupon Code</label>
+          <input type="text" id="admin-promo-code" placeholder="e.g. RAKHI" required class="w-full bg-[#10141f] border border-neutral-700 rounded-lg p-2 text-white uppercase font-bold focus:outline-none focus:border-cyan-400">
+        </div>
+        <div>
+          <label class="text-[10px] text-neutral-400 block mb-1">Discount (%)</label>
+          <input type="number" id="admin-promo-pct" min="1" max="90" placeholder="20" required class="w-full bg-[#10141f] border border-neutral-700 rounded-lg p-2 text-white font-bold focus:outline-none focus:border-cyan-400">
+        </div>
+        <div class="flex items-center space-x-2 pt-4 sm:pt-6">
+          <input type="checkbox" id="admin-promo-active" checked class="accent-cyan-400 w-4 h-4 rounded">
+          <label for="admin-promo-active" class="text-[11px] text-neutral-300 font-medium">Active</label>
+        </div>
+        <div class="pt-2 sm:pt-4">
+          <button type="submit" id="admin-promo-save-btn" class="w-full brand-gradient text-black font-extrabold text-xs uppercase py-2 rounded-lg active:scale-95 transition">
+            + Save Promo
+          </button>
+        </div>
+      </form>
+
+      <!-- Active Promos Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead>
+            <tr class="border-b border-neutral-800 text-neutral-400 text-[10px] uppercase">
+              <th class="py-2 px-2">Code</th>
+              <th class="py-2 px-2">Discount</th>
+              <th class="py-2 px-2">Status</th>
+              <th class="py-2 px-2 text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody id="admin-promo-table" class="divide-y divide-neutral-850">
+            <tr>
+              <td colspan="4" class="py-3 text-center text-neutral-500 text-[11px]">Loading promos...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -273,6 +328,7 @@
         loadCars();
         listenToCustomerChats();
         listenToPromoBannerSettings();
+        listenToAdminPromos();
       } else {
         document.getElementById("login-err").classList.remove("hidden");
       }
