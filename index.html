@@ -463,6 +463,278 @@
 
       </div>
     </div>
+  <!-- ================= STAGE 1: CHECKOUT & PREFERENCES DRAWER ================= -->
+    <div id="checkout-drawer" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex justify-center items-end sm:items-center hidden transition-all duration-300">
+      <div class="w-full max-w-[460px] bg-[#0d111a] border border-neutral-800 rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl flex flex-col relative brand-glow max-h-[92vh] overflow-y-auto no-scrollbar">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between pb-3 border-b border-neutral-800 shrink-0">
+          <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 rounded-xl bg-cyan-950 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-brand font-black text-xs">
+              N
+            </div>
+            <div>
+              <h2 class="text-sm font-bold text-white font-brand tracking-wide">Checkout & Preferences</h2>
+              <p class="text-[9px] text-neutral-400 leading-none mt-0.5">Stage 1: Details & Transparent Fare</p>
+            </div>
+          </div>
+          <button onclick="closeCheckoutDrawer()" class="w-8 h-8 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition">
+            ✕
+          </button>
+        </div>
+
+        <!-- Vehicle Preview -->
+        <div class="mt-3.5 bg-[#141926] p-3 rounded-2xl border border-neutral-800 flex items-center space-x-3 shrink-0">
+          <img id="checkout-car-img" src="" alt="Car" class="w-16 h-12 object-contain bg-black/40 rounded-xl p-1 border border-neutral-750">
+          <div class="flex-1 min-w-0">
+            <h3 id="checkout-car-name" class="text-xs font-bold text-white truncate">Vehicle Name</h3>
+            <p id="checkout-car-rate" class="text-[11px] text-cyan-400 font-bold font-brand">₹0 / Day</p>
+          </div>
+        </div>
+
+        <!-- Customer Identity -->
+        <div class="mt-3 bg-[#10141f] p-3 rounded-2xl border border-neutral-850 flex items-center justify-between">
+          <div class="flex items-center space-x-2.5">
+            <div class="w-7 h-7 rounded-full bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-xs">✓</div>
+            <div>
+              <h4 id="checkout-user-name" class="text-xs font-bold text-white leading-none">Customer Name</h4>
+              <p id="checkout-user-phone" class="text-[10px] text-neutral-400 font-mono mt-0.5">+91 </p>
+            </div>
+          </div>
+          <span class="text-[9px] font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+            DigiLocker Verified
+          </span>
+        </div>
+
+        <!-- Address & Flight Inputs -->
+        <div class="mt-3.5 space-y-3">
+          <div>
+            <label class="text-[10px] uppercase font-bold text-neutral-400 block tracking-wider mb-1 px-1">
+              Delivery / Pickup Address <span class="text-cyan-400">*</span>
+            </label>
+            <div class="flex items-start bg-[#141926] border border-neutral-800 focus-within:border-cyan-400 rounded-2xl p-2.5 transition">
+              <i data-lucide="map-pin" class="w-4 h-4 text-cyan-400 mr-2 mt-0.5 shrink-0"></i>
+              <textarea id="checkout-delivery-address" rows="2" placeholder="Enter full doorstep address, landmark, or location..." class="w-full bg-transparent text-xs text-white placeholder-neutral-500 focus:outline-none resize-none leading-relaxed"></textarea>
+            </div>
+          </div>
+
+          <div>
+            <label class="text-[10px] uppercase font-bold text-neutral-400 block tracking-wider mb-1 px-1">
+              Airport Flight Details (Optional)
+            </label>
+            <div class="flex items-center bg-[#141926] border border-neutral-800 focus-within:border-cyan-400 rounded-2xl px-3 py-2.5 transition">
+              <i data-lucide="plane" class="w-4 h-4 text-cyan-400 mr-2 shrink-0"></i>
+              <input type="text" id="checkout-flight-details" placeholder="Flight No. (e.g. 6E 421 / UK 812) & arrival terminal" class="w-full bg-transparent text-xs text-white placeholder-neutral-500 focus:outline-none font-medium">
+            </div>
+          </div>
+        </div>
+
+        <!-- Driving Mode (Strict 1 Choice) -->
+        <div class="mt-3.5 pt-3 border-t border-neutral-850 space-y-2">
+          <label class="text-[10px] uppercase font-bold text-neutral-400 block tracking-wider px-1">
+            Driving Experience <span class="text-cyan-400">*</span>
+          </label>
+          
+          <div class="grid grid-cols-2 gap-2">
+            <label onclick="selectDriveOption('SELF')" id="drive-opt-self" class="flex flex-col justify-between p-3 rounded-2xl bg-[#141926] border border-cyan-500/60 cursor-pointer transition active:scale-[0.98]">
+              <div class="flex items-center space-x-2">
+                <input type="radio" name="drive_mode" value="SELF" checked class="accent-cyan-400 w-3.5 h-3.5">
+                <span class="text-xs font-bold text-white">Self-Drive</span>
+              </div>
+              <p class="text-[9px] text-neutral-400 mt-1">Direct Cockpit Control</p>
+              <span class="text-[10px] font-bold text-emerald-400 font-brand mt-1.5">Included</span>
+            </label>
+
+            <label onclick="selectDriveOption('CHAUFFEUR')" id="drive-opt-chauffeur" class="flex flex-col justify-between p-3 rounded-2xl bg-[#10141f] border border-neutral-800 hover:border-neutral-700 cursor-pointer transition active:scale-[0.98]">
+              <div class="flex items-center space-x-2">
+                <input type="radio" name="drive_mode" value="CHAUFFEUR" class="accent-cyan-400 w-3.5 h-3.5">
+                <span class="text-xs font-bold text-white">Chauffeur</span>
+              </div>
+              <p class="text-[9px] text-neutral-400 mt-1">Professional Driver</p>
+              <span class="text-[10px] font-bold text-amber-300 font-brand mt-1.5">+₹1,499 / day</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Fuel Preference -->
+        <div class="mt-3.5 pt-3 border-t border-neutral-850">
+          <label class="text-[10px] uppercase font-bold text-neutral-400 block tracking-wider mb-1.5 px-1 flex items-center justify-between">
+            <span>Fuel Preference</span>
+            <span class="text-[9px] text-cyan-400 font-normal">Transparent Terms</span>
+          </label>
+          <div class="flex items-center bg-[#141926] border border-neutral-800 focus-within:border-cyan-500/50 rounded-2xl px-3 py-2.5 transition">
+            <i data-lucide="fuel" class="w-4 h-4 text-cyan-400 mr-2.5 shrink-0"></i>
+            <select id="checkout-fuel-pref" class="w-full bg-transparent text-xs text-white focus:outline-none font-medium">
+              <option value="same_to_same" class="bg-[#0d111a] text-white">Same-to-Same (Return with identical fuel level)</option>
+              <option value="full_tank" class="bg-[#0d111a] text-white">Full Tank Delivery (Fuel cost billed at actuals)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Promo Code -->
+        <div class="mt-3.5 pt-3 border-t border-neutral-850">
+          <label class="text-[10px] uppercase font-bold text-neutral-400 block tracking-wider mb-1 px-1">
+            Apply Promo Code
+          </label>
+          <div class="flex items-center space-x-2 bg-[#141926] border border-neutral-800 focus-within:border-cyan-500/50 rounded-2xl p-1.5 px-3">
+            <i data-lucide="tag" class="w-4 h-4 text-cyan-400 shrink-0"></i>
+            <input type="text" id="checkout-promo-input" placeholder="Enter coupon code" class="w-full bg-transparent text-xs text-white uppercase placeholder-neutral-500 focus:outline-none font-semibold">
+            <button type="button" id="promo-apply-btn" onclick="applyPromoCodeFromFirestore()" class="bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500 hover:text-black border border-cyan-500/40 text-[10px] font-extrabold uppercase px-3 py-1.5 rounded-xl transition active:scale-95">
+              Apply
+            </button>
+          </div>
+          <div id="promo-feedback" class="mt-1.5 px-2 text-[10px] font-semibold hidden flex items-center justify-between">
+            <span id="promo-feedback-text"></span>
+            <button type="button" onclick="removeAppliedPromo()" class="text-neutral-400 hover:text-white underline text-[9px]">Remove</button>
+          </div>
+        </div>
+
+        <!-- Itemized Fare Breakdown -->
+        <div class="mt-4 pt-3 border-t border-neutral-850 bg-[#10141f] p-3.5 rounded-2xl border border-neutral-800/80 space-y-1.5 text-xs">
+          <div class="flex justify-between text-neutral-400">
+            <span>Base Vehicle Fare (24h)</span>
+            <span id="fare-base" class="text-white font-medium">₹0</span>
+          </div>
+          <div id="fare-chauffeur-row" class="flex justify-between text-neutral-400 hidden">
+            <span>Chauffeur Add-on</span>
+            <span id="fare-chauffeur" class="text-amber-300 font-medium">+₹1,499</span>
+          </div>
+          <div class="flex justify-between text-neutral-400">
+            <span>Delivery Fee</span>
+            <span id="fare-delivery" class="text-white font-medium">₹350</span>
+          </div>
+          <div id="fare-discount-row" class="flex justify-between text-emerald-400 hidden">
+            <span id="fare-discount-label">Promo Discount</span>
+            <span id="fare-discount">-₹0</span>
+          </div>
+          <div class="flex justify-between text-neutral-400">
+            <span>GST (5%)</span>
+            <span id="fare-gst" class="text-white font-medium">₹0</span>
+          </div>
+          <div class="h-px bg-neutral-800 my-1"></div>
+          <div class="flex justify-between items-center text-white">
+            <span class="font-bold text-xs">Total Net Payable</span>
+            <span id="fare-net-total" class="text-base font-black text-cyan-300 font-brand">₹0</span>
+          </div>
+        </div>
+
+        <!-- Proceed Button -->
+        <div class="mt-4 shrink-0">
+          <button onclick="goToPaymentStage()" class="w-full brand-gradient text-black font-extrabold text-xs uppercase py-3.5 rounded-2xl flex items-center justify-center space-x-2 active:scale-95 transition shadow-[0_0_15px_rgba(0,229,255,0.35)]">
+            <span>Continue to Payment Stage</span>
+            <i data-lucide="arrow-right" class="w-4 h-4 stroke-[2.5]"></i>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ================= STAGE 2: PAYMENT STAGE DRAWER ================= -->
+    <div id="payment-stage-drawer" class="fixed inset-0 z-[60] bg-black/85 backdrop-blur-md flex justify-center items-end sm:items-center hidden transition-all duration-300">
+      <div class="w-full max-w-[440px] bg-[#0d111a] border border-neutral-800 rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl flex flex-col relative brand-glow max-h-[92vh] overflow-y-auto no-scrollbar">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between pb-3 border-b border-neutral-800 shrink-0">
+          <div class="flex items-center space-x-2">
+            <button onclick="backToCheckoutStage()" class="w-8 h-8 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition mr-1">
+              <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            </button>
+            <div>
+              <h2 class="text-sm font-bold text-white font-brand tracking-wide">Payment Stage</h2>
+              <p class="text-[9px] text-neutral-400 leading-none mt-0.5">Stage 2: Select Mode & Instant UPI Pay</p>
+            </div>
+          </div>
+          <button onclick="closePaymentStageDrawer()" class="w-8 h-8 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition">
+            ✕
+          </button>
+        </div>
+
+        <!-- Recap -->
+        <div class="mt-3.5 bg-[#141926] p-3 rounded-2xl border border-neutral-800 flex items-center justify-between text-xs">
+          <div>
+            <p id="pay-recap-car" class="font-bold text-white text-xs">Vehicle</p>
+            <p id="pay-recap-address" class="text-[10px] text-neutral-400 max-w-[200px] truncate">Address</p>
+          </div>
+          <div class="text-right">
+            <span class="text-[9px] text-neutral-400 block uppercase font-bold">Total Bill</span>
+            <span id="pay-recap-total" class="text-xs font-black text-white font-brand">₹0</span>
+          </div>
+        </div>
+
+        <!-- Payment Modes -->
+        <div class="mt-4 space-y-2.5">
+          <label class="text-[10px] uppercase font-bold text-neutral-400 block tracking-wider px-1">
+            Choose How You Wish To Pay
+          </label>
+
+          <!-- 100% -->
+          <label onclick="selectPaymentMode('FULL')" class="pay-mode-card flex items-center justify-between p-3.5 rounded-2xl bg-[#141926] border border-cyan-500/60 cursor-pointer transition">
+            <div class="flex items-center space-x-2.5">
+              <input type="radio" name="pay_mode_choice" value="FULL" checked class="accent-cyan-400 w-4 h-4">
+              <div>
+                <p class="text-xs font-bold text-white">100% Full Payment</p>
+                <p class="text-[9px] text-neutral-400">Complete settlement with zero pending dues</p>
+              </div>
+            </div>
+            <span id="pay-opt-full" class="text-xs font-black text-cyan-300 font-brand">₹0</span>
+          </label>
+
+          <!-- 50% -->
+          <label onclick="selectPaymentMode('HALF')" class="pay-mode-card flex items-center justify-between p-3.5 rounded-2xl bg-[#10141f] border border-neutral-800 hover:border-neutral-700 cursor-pointer transition">
+            <div class="flex items-center space-x-2.5">
+              <input type="radio" name="pay_mode_choice" value="HALF" class="accent-cyan-400 w-4 h-4">
+              <div>
+                <p class="text-xs font-bold text-white">50% Advance Payment Token</p>
+                <p class="text-[9px] text-neutral-400">Remaining 50% payable upon car delivery</p>
+              </div>
+            </div>
+            <span id="pay-opt-half" class="text-xs font-black text-amber-300 font-brand">₹0</span>
+          </label>
+
+          <!-- VIP Flat Token -->
+          <label onclick="selectPaymentMode('VIP')" class="pay-mode-card flex items-center justify-between p-3.5 rounded-2xl bg-[#10141f] border border-neutral-800 hover:border-neutral-700 cursor-pointer transition">
+            <div class="flex items-center space-x-2.5">
+              <input type="radio" name="pay_mode_choice" value="VIP" class="accent-cyan-400 w-4 h-4">
+              <div>
+                <div class="flex items-center space-x-1.5">
+                  <p class="text-xs font-bold text-white">VIP Flat Priority Token</p>
+                  <span class="bg-amber-500/20 text-amber-300 text-[8px] font-bold px-1.5 py-0.2 rounded border border-amber-500/30 uppercase tracking-widest">VIP Privilege</span>
+                </div>
+                <p class="text-[9px] text-neutral-400">Privileged slot confirmation for elite guests</p>
+              </div>
+            </div>
+            <span id="pay-opt-vip" class="text-xs font-black text-purple-300 font-brand">₹1,500</span>
+          </label>
+        </div>
+
+        <!-- Payable Callout -->
+        <div class="mt-4 p-3 rounded-2xl bg-[#131826] border border-neutral-800 flex items-center justify-between">
+          <div>
+            <span class="text-[9px] uppercase font-bold text-neutral-400 block tracking-wider leading-none">Payable Right Now</span>
+            <span id="pay-now-amount" class="text-base font-black text-cyan-300 font-brand mt-1 block">₹0</span>
+          </div>
+          <span class="text-[10px] text-emerald-400 font-medium">✓ 0% Gateway Fee</span>
+        </div>
+
+        <!-- Free UPI Button -->
+        <div class="mt-3.5 space-y-2">
+          <button onclick="executeFreeDirectUpiPayment()" class="w-full brand-gradient text-black font-extrabold text-xs uppercase py-3.5 rounded-2xl flex items-center justify-center space-x-2 active:scale-95 transition shadow-[0_0_15px_rgba(0,229,255,0.35)]">
+            <i data-lucide="smartphone" class="w-4 h-4 stroke-[2.5]"></i>
+            <span>Pay via UPI (GPay / PhonePe / Paytm)</span>
+          </button>
+          <p class="text-[9px] text-center text-neutral-500">Opens installed UPI app directly on your phone with zero deduction fee.</p>
+        </div>
+
+        <!-- WhatsApp Pass -->
+        <div class="mt-3 pt-2.5 border-t border-neutral-850">
+          <button onclick="sendOrderConfirmationToWhatsApp()" class="w-full bg-[#10141f] border border-neutral-700 hover:border-cyan-500/50 text-white font-bold text-xs py-2.5 rounded-xl flex items-center justify-center space-x-2 transition active:scale-95">
+            <i data-lucide="message-circle" class="w-4 h-4 text-emerald-400"></i>
+            <span>Share Booking Receipt on WhatsApp</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
   <script>
     // --- 1. FIREBASE INITIALIZATION ---
     const firebaseConfig = {
@@ -953,11 +1225,32 @@ try {
 
       lucide.createIcons();
     }
+// --- 5. CHECKOUT, FARE & PAYMENT CONTROLLER ---
+    const MERCHANT_UPI_VPA = "yourbusiness@okhdfcbank"; // Apna actual Merchant UPI VPA yahan dalein
+    const MERCHANT_NAME = "NeeD by GCR";
+    const CHAUFFEUR_DAILY_FEE = 1499;
+    const DELIVERY_FEE = 350;
+    const GST_RATE = 0.05;
+    let VIP_FLAT_FEE = 1500;
 
-   // --- 5. BOOKING GATEWAY (SAVES TO FIRESTORE + OPENS WHATSAPP) ---
-    async function handleBookingAttempt(encodedCarName) {
+    let currentCheckoutCar = null;
+    let selectedDriveMode = "SELF";
+    let appliedPromoData = null;
+    let calculatedTotals = {
+      basePrice: 0,
+      chauffeurCost: 0,
+      deliveryFee: DELIVERY_FEE,
+      discountAmount: 0,
+      subtotalBeforeGst: 0,
+      gstAmount: 0,
+      netTotal: 0
+    };
+    let activePaymentChoice = "FULL";
+    let currentBookingReferenceId = "";
+
+    function handleBookingAttempt(encodedCarName) {
       if (!currentActiveUser) {
-        alert("Please sign in or create an account to book vehicles.");
+        alert("Please sign in or create an account to reserve vehicles.");
         toggleAccountDrawer();
         return;
       }
@@ -969,38 +1262,302 @@ try {
       }
 
       const carName = decodeURIComponent(encodedCarName);
-      const location = selectedLocation || "Doorstep Delivery";
-      const startDate = document.getElementById("start-date")?.value || "Flexible / On Request";
-      const endDate = document.getElementById("end-date")?.value || "Flexible / On Request";
-      const phone = currentActiveUser.phone;
-
-      // Find car price from fleet list
       const carObj = allFleetCars.find(c => c.name === carName);
-      const price = carObj?.price || 0;
+      if (!carObj) return;
+
+      currentCheckoutCar = carObj;
+
+      document.getElementById("checkout-car-name").innerText = carObj.name;
+      document.getElementById("checkout-car-rate").innerText = `₹${Number(carObj.price).toLocaleString('en-IN')} / Day`;
+      
+      const defaultImg = "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=800&q=80";
+      document.getElementById("checkout-car-img").src = carObj.image || defaultImg;
+
+      document.getElementById("checkout-user-name").innerText = currentActiveUser.name || "VIP Guest";
+      document.getElementById("checkout-user-phone").innerText = currentActiveUser.phone || "+91";
+
+      const existingLoc = document.getElementById("pickup-location")?.value;
+      const addrInput = document.getElementById("checkout-delivery-address");
+      if (existingLoc && !existingLoc.includes("Doorstep Delivery / Airport Drop")) {
+        addrInput.value = existingLoc;
+      } else {
+        addrInput.value = "";
+      }
+
+      document.getElementById("checkout-flight-details").value = "";
+      selectDriveOption("SELF");
+      const fuelSelect = document.getElementById("checkout-fuel-pref");
+      if (fuelSelect) fuelSelect.value = "same_to_same";
+      removeAppliedPromo();
+
+      calculateFareBreakdown();
+
+      document.getElementById("checkout-drawer").classList.remove("hidden");
+      lucide.createIcons();
+    }
+
+    function closeCheckoutDrawer() {
+      document.getElementById("checkout-drawer").classList.add("hidden");
+      currentCheckoutCar = null;
+    }
+
+    function selectDriveOption(mode) {
+      selectedDriveMode = mode;
+      const radios = document.querySelectorAll("input[name='drive_mode']");
+      radios.forEach(r => r.checked = (r.value === mode));
+
+      const selfCard = document.getElementById("drive-opt-self");
+      const chauffeurCard = document.getElementById("drive-opt-chauffeur");
+
+      if (mode === "SELF") {
+        selfCard.className = "flex flex-col justify-between p-3 rounded-2xl bg-[#141926] border border-cyan-500/60 cursor-pointer transition active:scale-[0.98]";
+        chauffeurCard.className = "flex flex-col justify-between p-3 rounded-2xl bg-[#10141f] border border-neutral-800 hover:border-neutral-700 cursor-pointer transition active:scale-[0.98]";
+      } else {
+        chauffeurCard.className = "flex flex-col justify-between p-3 rounded-2xl bg-[#141926] border border-cyan-500/60 cursor-pointer transition active:scale-[0.98]";
+        selfCard.className = "flex flex-col justify-between p-3 rounded-2xl bg-[#10141f] border border-neutral-800 hover:border-neutral-700 cursor-pointer transition active:scale-[0.98]";
+      }
+
+      calculateFareBreakdown();
+    }
+
+    function calculateFareBreakdown() {
+      if (!currentCheckoutCar) return;
+
+      const basePrice = Number(currentCheckoutCar.price || 0);
+      const hasChauffeur = (selectedDriveMode === "CHAUFFEUR");
+      const chauffeurCost = hasChauffeur ? CHAUFFEUR_DAILY_FEE : 0;
+      const deliveryFee = DELIVERY_FEE;
+
+      const grossDaily = basePrice + chauffeurCost + deliveryFee;
+
+      let discount = 0;
+      if (appliedPromoData && appliedPromoData.discountPercent > 0) {
+        discount = Math.round((basePrice * appliedPromoData.discountPercent) / 100);
+      }
+
+      const taxableAmount = Math.max(0, grossDaily - discount);
+      const gstAmount = Math.round(taxableAmount * GST_RATE);
+      const netTotal = taxableAmount + gstAmount;
+
+      calculatedTotals = {
+        basePrice,
+        chauffeurCost,
+        deliveryFee,
+        discountAmount: discount,
+        subtotalBeforeGst: taxableAmount,
+        gstAmount,
+        netTotal
+      };
+
+      document.getElementById("fare-base").innerText = `₹${basePrice.toLocaleString('en-IN')}`;
+      document.getElementById("fare-delivery").innerText = `₹${deliveryFee.toLocaleString('en-IN')}`;
+      document.getElementById("fare-gst").innerText = `₹${gstAmount.toLocaleString('en-IN')}`;
+      document.getElementById("fare-net-total").innerText = `₹${netTotal.toLocaleString('en-IN')}`;
+
+      const chRow = document.getElementById("fare-chauffeur-row");
+      if (hasChauffeur) {
+        chRow.classList.remove("hidden");
+      } else {
+        chRow.classList.add("hidden");
+      }
+
+      const discRow = document.getElementById("fare-discount-row");
+      if (discount > 0) {
+        discRow.classList.remove("hidden");
+        document.getElementById("fare-discount-label").innerText = `Promo (${appliedPromoData.code} - ${appliedPromoData.discountPercent}%)`;
+        document.getElementById("fare-discount").innerText = `-₹${discount.toLocaleString('en-IN')}`;
+      } else {
+        discRow.classList.add("hidden");
+      }
+    }
+
+    async function applyPromoCodeFromFirestore() {
+      const codeInput = document.getElementById("checkout-promo-input");
+      const code = codeInput.value.trim().toUpperCase();
+      const feedback = document.getElementById("promo-feedback");
+      const feedbackText = document.getElementById("promo-feedback-text");
+
+      if (!code) return;
 
       try {
-        // Automatically creates document in 'bookings' collection
-        await db.collection("bookings").add({
-          customerPhone: phone,
-          customerName: currentActiveUser.name || "VIP Guest",
-          carName: carName,
-          location: location,
-          bookingType: (typeof bookingType !== 'undefined' ? bookingType : "rental"),
-          startDate: startDate,
-          endDate: endDate,
-          totalAmount: Number(price),
-          status: "Confirmed",
+        const promoSnap = await db.collection("promos").doc(code).get();
+
+        if (promoSnap.exists && promoSnap.data().active !== false) {
+          const pData = promoSnap.data();
+          appliedPromoData = {
+            code: code,
+            discountPercent: Number(pData.discountPercent || 20)
+          };
+          feedback.classList.remove("hidden", "text-rose-400");
+          feedback.classList.add("text-emerald-400");
+          feedbackText.innerText = `✓ Code ${code} applied: ${appliedPromoData.discountPercent}% OFF`;
+          calculateFareBreakdown();
+        } else if (code === "RAKHI") {
+          appliedPromoData = { code: "RAKHI", discountPercent: 20 };
+          feedback.classList.remove("hidden", "text-rose-400");
+          feedback.classList.add("text-emerald-400");
+          feedbackText.innerText = `✓ Code RAKHI applied: 20% OFF`;
+          calculateFareBreakdown();
+        } else {
+          appliedPromoData = null;
+          feedback.classList.remove("hidden", "text-emerald-400");
+          feedback.classList.add("text-rose-400");
+          feedbackText.innerText = `✕ Invalid or expired promo code`;
+          calculateFareBreakdown();
+        }
+      } catch (err) {
+        console.error("Promo error:", err);
+      }
+    }
+
+    function removeAppliedPromo() {
+      appliedPromoData = null;
+      const input = document.getElementById("checkout-promo-input");
+      if (input) input.value = "";
+      document.getElementById("promo-feedback")?.classList.add("hidden");
+      calculateFareBreakdown();
+    }
+
+    function goToPaymentStage() {
+      const address = document.getElementById("checkout-delivery-address").value.trim();
+      if (!address) {
+        alert("Please enter complete delivery/pickup address.");
+        document.getElementById("checkout-delivery-address").focus();
+        return;
+      }
+
+      document.getElementById("checkout-drawer").classList.add("hidden");
+
+      document.getElementById("pay-recap-car").innerText = currentCheckoutCar.name;
+      document.getElementById("pay-recap-address").innerText = address;
+      document.getElementById("pay-recap-total").innerText = `₹${calculatedTotals.netTotal.toLocaleString('en-IN')}`;
+
+      const netTotal = calculatedTotals.netTotal;
+      const halfTotal = Math.round(netTotal * 0.50);
+
+      document.getElementById("pay-opt-full").innerText = `₹${netTotal.toLocaleString('en-IN')}`;
+      document.getElementById("pay-opt-half").innerText = `₹${halfTotal.toLocaleString('en-IN')}`;
+      document.getElementById("pay-opt-vip").innerText = `₹${VIP_FLAT_FEE.toLocaleString('en-IN')}`;
+
+      selectPaymentMode("FULL");
+
+      document.getElementById("payment-stage-drawer").classList.remove("hidden");
+      lucide.createIcons();
+    }
+
+    function backToCheckoutStage() {
+      document.getElementById("payment-stage-drawer").classList.add("hidden");
+      document.getElementById("checkout-drawer").classList.remove("hidden");
+    }
+
+    function closePaymentStageDrawer() {
+      document.getElementById("payment-stage-drawer").classList.add("hidden");
+      currentCheckoutCar = null;
+    }
+
+    function selectPaymentMode(mode) {
+      activePaymentChoice = mode;
+      const radios = document.querySelectorAll("input[name='pay_mode_choice']");
+      radios.forEach(r => r.checked = (r.value === mode));
+
+      const cards = document.querySelectorAll(".pay-mode-card");
+      cards.forEach(card => {
+        const input = card.querySelector("input");
+        if (input && input.value === mode) {
+          card.classList.add("border-cyan-500/60", "bg-[#141926]");
+          card.classList.remove("border-neutral-800", "bg-[#10141f]");
+        } else {
+          card.classList.remove("border-cyan-500/60", "bg-[#141926]");
+          card.classList.add("border-neutral-800", "bg-[#10141f]");
+        }
+      });
+
+      let payable = calculatedTotals.netTotal;
+      if (mode === "HALF") payable = Math.round(calculatedTotals.netTotal * 0.50);
+      if (mode === "VIP") payable = VIP_FLAT_FEE;
+
+      document.getElementById("pay-now-amount").innerText = `₹${payable.toLocaleString('en-IN')}`;
+    }
+
+    async function executeFreeDirectUpiPayment() {
+      const address = document.getElementById("checkout-delivery-address").value.trim();
+      const flight = document.getElementById("checkout-flight-details").value.trim();
+      const fuelPref = document.getElementById("checkout-fuel-pref").value;
+      const hasChauffeur = (selectedDriveMode === "CHAUFFEUR");
+
+      let payableNow = calculatedTotals.netTotal;
+      let modeName = "100% Full Payment";
+      if (activePaymentChoice === "HALF") {
+        payableNow = Math.round(calculatedTotals.netTotal * 0.50);
+        modeName = "50% Advance Token";
+      } else if (activePaymentChoice === "VIP") {
+        payableNow = VIP_FLAT_FEE;
+        modeName = "VIP Flat Priority Token";
+      }
+
+      currentBookingReferenceId = "NEED" + Math.floor(100000 + Math.random() * 900000);
+
+      try {
+        await db.collection("bookings").doc(currentBookingReferenceId).set({
+          bookingId: currentBookingReferenceId,
+          customerName: currentActiveUser.name,
+          customerPhone: currentActiveUser.phone,
+          carName: currentCheckoutCar.name,
+          address: address,
+          flightDetails: flight || "None",
+          driveMode: selectedDriveMode,
+          fuelPreference: fuelPref,
+          promoCode: appliedPromoData ? appliedPromoData.code : "NONE",
+          discountAmount: calculatedTotals.discountAmount,
+          netTotalAmount: calculatedTotals.netTotal,
+          paymentSelected: modeName,
+          amountPaidNow: payableNow,
+          pendingDue: calculatedTotals.netTotal - payableNow,
+          status: "UPI Initiated",
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-
-        // Open WhatsApp confirmation
-        const text = `Hello NeeD by GCR, I am verified client ${encodeURIComponent(currentActiveUser.name)} (${phone}).\nI have booked ${carName}.\nLocation: ${location}\nStart: ${startDate}\nEnd: ${endDate}`;
-        window.open(`https://wa.me/919731055500?text=${encodeURIComponent(text)}`, '_blank');
-
-      } catch (err) {
-        console.error("Booking creation error:", err);
-        alert("Could not complete booking: " + err.message);
+      } catch (e) {
+        console.error("Firestore booking error:", e);
       }
+
+      const note = `NeeD Booking ${currentBookingReferenceId}`;
+      const upiUrl = `upi://pay?pa=${encodeURIComponent(MERCHANT_UPI_VPA)}&pn=${encodeURIComponent(MERCHANT_NAME)}&am=${payableNow}&cu=INR&tn=${encodeURIComponent(note)}`;
+
+      window.location.href = upiUrl;
+    }
+
+    function sendOrderConfirmationToWhatsApp() {
+      const address = document.getElementById("checkout-delivery-address").value.trim();
+      const flight = document.getElementById("checkout-flight-details").value.trim();
+      const fuelPref = document.getElementById("checkout-fuel-pref").value;
+      const hasChauffeur = (selectedDriveMode === "CHAUFFEUR");
+
+      let payableNow = calculatedTotals.netTotal;
+      let modeName = "100% Full Payment";
+      if (activePaymentChoice === "HALF") {
+        payableNow = Math.round(calculatedTotals.netTotal * 0.50);
+        modeName = "50% Advance Token";
+      } else if (activePaymentChoice === "VIP") {
+        payableNow = VIP_FLAT_FEE;
+        modeName = "VIP Flat Priority Token";
+      }
+
+      const bookingRef = currentBookingReferenceId || ("NEED" + Math.floor(100000 + Math.random() * 900000));
+
+      const message = `Namaste NeeD by GCR,\n` +
+        `Reservation Reference: #${bookingRef}\n\n` +
+        `👤 Client: ${currentActiveUser.name} (${currentActiveUser.phone})\n` +
+        `🚗 Car: ${currentCheckoutCar.name}\n` +
+        `📍 Delivery: ${address}\n` +
+        `${flight ? '✈️ Flight Details: ' + flight + '\n' : ''}` +
+        `🚘 Drive Mode: ${hasChauffeur ? 'Chauffeur Driven (+₹1,499)' : 'Self-Drive'}\n` +
+        `⛽ Fuel: ${fuelPref === 'full_tank' ? 'Full Tank Delivery' : 'Same-to-Same'}\n` +
+        `🏷️ Promo: ${appliedPromoData ? appliedPromoData.code + ' (-₹' + calculatedTotals.discountAmount + ')' : 'None'}\n` +
+        `💰 Net Bill (incl. 5% GST): ₹${calculatedTotals.netTotal.toLocaleString('en-IN')}\n` +
+        `💳 Selected Option: ${modeName} (₹${payableNow.toLocaleString('en-IN')})\n\n` +
+        `I have initiated the UPI transfer. Please share the confirmation pass.`;
+
+      window.open(`https://wa.me/919731055500?text=${encodeURIComponent(message)}`, '_blank');
     }
 
     // --- 6. MY ACCOUNT UI CONTROLLER ---
