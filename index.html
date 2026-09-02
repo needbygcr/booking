@@ -104,7 +104,41 @@
         </div>
       </div>
     </div>
+<!-- ================= DYNAMIC PROMOTIONAL BANNER ================= -->
+    <div id="promo-banner-container" class="px-4 pb-2 hidden">
+      <div class="relative bg-gradient-to-r from-emerald-950/80 via-[#121724] to-cyan-950/80 border border-cyan-500/30 rounded-2xl overflow-hidden shadow-2xl p-4 brand-glow">
+        
+        <!-- Close Button -->
+        <button onclick="closePromoBannerLocally()" class="absolute top-2.5 right-2.5 text-neutral-400 hover:text-white bg-black/50 w-6 h-6 rounded-full flex items-center justify-center text-[10px] transition z-10">
+          ✕
+        </button>
 
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-cyan-950 border border-cyan-500/30 flex items-center justify-center text-lg shrink-0">
+            📢
+          </div>
+          <div class="flex-1 min-w-0 pr-4">
+            <div class="flex items-center gap-1.5">
+              <span id="promo-tag" class="bg-cyan-500/20 text-cyan-400 text-[8px] font-bold px-1.5 py-0.2 rounded border border-cyan-500/30 uppercase tracking-widest">
+                Special Offer
+              </span>
+            </div>
+            <h3 id="promo-title" class="text-xs font-bold text-white mt-1 truncate">Special Fleet Offer</h3>
+            <p id="promo-desc" class="text-[10px] text-neutral-400 mt-0.5 leading-snug line-clamp-2">Exclusive pricing on select luxury rentals.</p>
+          </div>
+        </div>
+
+        <div class="mt-3 pt-2.5 border-t border-neutral-800/80 flex items-center justify-between">
+          <span class="text-[9px] text-cyan-400 font-semibold flex items-center">
+            <i data-lucide="sparkles" class="w-3 h-3 mr-1"></i> Limited Period
+          </span>
+          <button onclick="document.getElementById('fleet-feed').scrollIntoView({behavior: 'smooth'})" class="brand-gradient text-black font-extrabold text-[10px] uppercase px-3 py-1.5 rounded-lg active:scale-95 transition">
+            Explore Offer →
+          </button>
+        </div>
+
+      </div>
+    </div>
     <div class="px-4 pb-2">
       <div id="filter-pills" class="flex items-center space-x-2 overflow-x-auto no-scrollbar py-1 text-xs">
         <button onclick="setCategoryFilter('All', this)" class="active-pill border border-neutral-800 bg-[#121622] text-neutral-400 px-3.5 py-1.5 rounded-full whitespace-nowrap shrink-0 transition">All Cars</button>
@@ -1224,6 +1258,40 @@
           container.innerHTML = `<div class="p-4 text-center text-xs text-rose-400">Unable to load trips. Please check connection.</div>`;
         });
     }
+    // --- 10. DYNAMIC PROMO BANNER LISTENER ---
+    function listenToPromoBanner() {
+      db.collection("settings").doc("promoBanner").onSnapshot(doc => {
+        const banner = document.getElementById("promo-banner-container");
+        if (!banner) return;
+
+        if (doc.exists && doc.data().isActive === true) {
+          const data = doc.data();
+          const isDismissed = sessionStorage.getItem("dismissed_promo_id") === data.promoId;
+
+          if (!isDismissed) {
+            document.getElementById("promo-title").innerText = data.title || "Special Offer";
+            document.getElementById("promo-desc").innerText = data.description || "";
+            const tagElem = document.getElementById("promo-tag");
+            if (tagElem) tagElem.innerText = data.tag || "Special Offer";
+
+            banner.classList.remove("hidden");
+            lucide.createIcons();
+          } else {
+            banner.classList.add("hidden");
+          }
+        } else {
+          banner.classList.add("hidden");
+        }
+      }, error => {
+        console.warn("Promo banner sync idle:", error);
+      });
+    }
+
+    function closePromoBannerLocally() {
+      const banner = document.getElementById("promo-banner-container");
+      if (banner) banner.classList.add("hidden");
+      sessionStorage.setItem("dismissed_promo_id", "active_session");
+    }
     // --- 9. LOGOUT ---
     function handleUserLogout() {
       localStorage.removeItem("need_logged_user");
@@ -1234,6 +1302,7 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       refreshAccountUI();
+      listenToPromoBanner();
       lucide.createIcons();
     });
   </script>
