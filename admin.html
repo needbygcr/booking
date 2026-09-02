@@ -668,6 +668,101 @@
     }
   }
     lucide.createIcons();
+    // --- 10. ADMIN PROMO MANAGER CONTROLLER ---
+    function listenToAdminPromos() {
+      db.collection("promos").onSnapshot(snapshot => {
+        const tbody = document.getElementById("admin-promo-table");
+        const count = document.getElementById("promo-count");
+        if (!tbody) return;
+
+        tbody.innerHTML = "";
+        count.innerText = `${snapshot.size} Promos`;
+
+        if (snapshot.empty) {
+          tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-neutral-500 text-[11px]">No promo codes created yet.</td></tr>`;
+          return;
+        }
+
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const tr = document.createElement("tr");
+          tr.className = "hover:bg-[#141928] transition";
+
+          tr.innerHTML = `
+            <td class="py-2.5 px-2 font-bold font-mono text-cyan-300">${doc.id}</td>
+            <td class="py-2.5 px-2 font-bold text-white">${data.discountPercent}% OFF</td>
+            <td class="py-2.5 px-2">
+              <span class="text-[9px] font-bold px-1.5 py-0.2 rounded border ${
+                data.active !== false 
+                  ? 'bg-emerald-950 text-emerald-400 border-emerald-500/30' 
+                  : 'bg-rose-950 text-rose-400 border-rose-500/30'
+              }">
+                ${data.active !== false ? 'ACTIVE' : 'PAUSED'}
+              </span>
+            </td>
+            <td class="py-2.5 px-2 text-right space-x-2">
+              <button onclick="togglePromoStatus('${doc.id}', ${data.active !== false})" class="text-neutral-400 hover:text-white underline text-[10px]">
+                ${data.active !== false ? 'Pause' : 'Activate'}
+              </button>
+              <button onclick="deletePromo('${doc.id}')" class="text-rose-400 hover:text-rose-300 text-[10px] font-bold ml-2">
+                Delete
+              </button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }, err => {
+        console.error("Promo load error:", err);
+      });
+    }
+
+    async function handleSavePromo(e) {
+      e.preventDefault();
+      const code = document.getElementById("admin-promo-code").value.trim().toUpperCase();
+      const pct = Number(document.getElementById("admin-promo-pct").value);
+      const isActive = document.getElementById("admin-promo-active").checked;
+      const btn = document.getElementById("admin-promo-save-btn");
+
+      if (!code || isNaN(pct)) return;
+
+      btn.disabled = true;
+      btn.innerText = "Saving...";
+
+      try {
+        await db.collection("promos").doc(code).set({
+          discountPercent: pct,
+          active: isActive,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+
+        document.getElementById("admin-promo-code").value = "";
+        document.getElementById("admin-promo-pct").value = "";
+      } catch (err) {
+        alert("Failed to save promo: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "+ SAVE PROMO";
+      }
+    }
+
+    async function togglePromoStatus(code, currentStatus) {
+      try {
+        await db.collection("promos").doc(code).update({
+          active: !currentStatus
+        });
+      } catch (err) {
+        alert("Update failed: " + err.message);
+      }
+    }
+
+    async function deletePromo(code) {
+      if (!confirm(`Delete promo code ${code}?`)) return;
+      try {
+        await db.collection("promos").doc(code).delete();
+      } catch (err) {
+        alert("Delete failed: " + err.message);
+      }
+    }
   </script>
 </body>
 </html>
