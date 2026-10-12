@@ -568,7 +568,27 @@
         loadCars();
       }
     }
-
+// --- UPDATE CATEGORY PROMPT ---
+    async function updateCategoryPrompt(id, currentCategory) {
+      const allowedCategories = [
+        "Premium SUV", "Luxury", "Sedan", "Hatchback", 
+        "MUV / MPV", "SUV / MUV", "Compact SUV", 
+        "SUV", "Mid Size SUV", "Sports Convertible"
+      ];
+      
+      const promptText = `Select or type new category:\n\n${allowedCategories.join("\n")}`;
+      const newCategory = prompt(promptText, currentCategory);
+      
+      if (newCategory !== null && newCategory.trim() !== "") {
+        const trimmedCategory = newCategory.trim();
+        try {
+          await db.collection("fleet").doc(id).update({ category: trimmedCategory });
+          loadCars();
+        } catch (err) {
+          alert("Failed to update category: " + err.message);
+        }
+      }
+    }
     // --- 8. DELETE CAR ---
     // --- 8. DELETE CAR ---
     async function deleteCar(id) {
