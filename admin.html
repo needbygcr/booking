@@ -175,11 +175,15 @@
           </div>
         </div>
 
-        <!-- Row 4: Specs & Image -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <!-- Row 4: Specs, Delivery Tag & Image -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
             <label class="text-[10px] text-neutral-400 block mb-1">Key Specs</label>
             <input type="text" id="car-specs" placeholder="e.g. Diesel • Automatic • 7 Seats" class="w-full bg-[#171c2b] border border-neutral-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-400">
+          </div>
+          <div>
+            <label class="text-[10px] text-neutral-400 block mb-1">Delivery Tag Text</label>
+            <input type="text" id="car-delivery-tag" value="Free Doorstep Delivery" placeholder="e.g. Free Doorstep Delivery" required class="w-full bg-[#171c2b] border border-neutral-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-400">
           </div>
           <div>
             <label class="text-[10px] text-neutral-400 block mb-1">Car Image URL</label>
@@ -467,23 +471,26 @@
                 ${car.isAvailable ? 'Mark Booked' : 'Mark Available'}
               </button>
               
-              <div class="flex items-center gap-3 text-[10px]">
-                  <button onclick="updateRatingPrompt('${doc.id}', '${car.rating || '4.9'}', '${car.reviewsCount || '120+'}')" class="text-amber-400 hover:underline">
-                    Edit Rating
-                  </button>
-                  <button onclick="updatePricePrompt('${doc.id}', ${car.price})" class="text-cyan-400 hover:underline">
-                    Edit Price
-                  </button>
-                  <button onclick="updateBadgePrompt('${doc.id}', '${car.badge || 'Zero Deposit'}')" class="text-purple-400 hover:underline">
-                    Edit Badge
-                  </button>
-                  <button onclick="updateCategoryPrompt('${doc.id}', '${car.category || 'Luxury SUVs'}')" class="text-emerald-400 hover:underline">
-    Edit Category
-  </button>
-                  <button onclick="deleteCar('${doc.id}')" class="text-rose-400 hover:underline">
-                    Delete
-                  </button>
-                </div>
+              <div class="flex items-center gap-3 text-[10px] flex-wrap">
+                <button onclick="updateRatingPrompt('${doc.id}', '${car.rating || '4.9'}', '${car.reviewsCount || '120+'}' )" class="text-amber-400 hover:underline">
+                  Edit Rating
+                </button>
+                <button onclick="updatePricePrompt('${doc.id}', ${car.price})" class="text-cyan-400 hover:underline">
+                  Edit Price
+                </button>
+                <button onclick="updateBadgePrompt('${doc.id}', '${car.badge || 'Zero Deposit'}')" class="text-purple-400 hover:underline">
+                  Edit Badge
+                </button>
+                <button onclick="updateCategoryPrompt('${doc.id}', '${car.category || 'Premium SUV'}')" class="text-emerald-400 hover:underline">
+                  Edit Category
+                </button>
+                <button onclick="updateDeliveryTagPrompt('${doc.id}', '${car.deliveryTag || 'Free Doorstep Delivery'}')" class="text-sky-400 hover:underline">
+                  Edit Delivery Text
+                </button>
+                <button onclick="deleteCar('${doc.id}')" class="text-rose-400 hover:underline">
+                  Delete
+                </button>
+              </div>
             </div>
           `;
           list.appendChild(card);
@@ -510,6 +517,7 @@
           rating: document.getElementById("car-rating").value || "4.9",
           reviewsCount: document.getElementById("car-reviews").value || "120+",
           badge: document.getElementById("car-badge").value || "Zero Deposit",
+          deliveryTag: document.getElementById("car-delivery-tag").value || "Free Doorstep Delivery",
           specs: document.getElementById("car-specs").value,
           image: document.getElementById("car-image").value,
           isAvailable: true,
@@ -586,6 +594,18 @@
           loadCars();
         } catch (err) {
           alert("Failed to update category: " + err.message);
+        }
+      }
+    }
+    // --- UPDATE DELIVERY TAG TEXT PROMPT ---
+    async function updateDeliveryTagPrompt(id, currentTag) {
+      const newTag = prompt("Enter updated delivery tag text (e.g. Free Doorstep Delivery, Airport Drop Included, Self-Pickup Only):", currentTag);
+      if (newTag !== null && newTag.trim() !== "") {
+        try {
+          await db.collection("fleet").doc(id).update({ deliveryTag: newTag.trim() });
+          loadCars();
+        } catch (err) {
+          alert("Failed to update delivery text: " + err.message);
         }
       }
     }
