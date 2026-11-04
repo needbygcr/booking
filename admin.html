@@ -76,9 +76,9 @@
       <div class="flex items-center justify-between pb-3 border-b border-neutral-800">
         <div>
           <h2 class="text-xs font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
-            <i data-lucide="megaphone" class="w-4 h-4"></i> Live Offer / Ad Banner
+            <i data-lucide="megaphone" class="w-4 h-4"></i> Live Banner / Ad Banner & Sliders
           </h2>
-          <p class="text-[10px] text-neutral-400 mt-0.5">Toggle and customize the hero promo strip on the customer site.</p>
+          <p class="text-[10px] text-neutral-400 mt-0.5">Manage the main offer and all additional homepage slides in one place.</p>
         </div>
 
         <!-- Real-Time Toggle Switch -->
@@ -106,6 +106,10 @@
           <textarea id="admin-banner-desc" rows="2" required placeholder="e.g. Zero deposit + doorstep delivery on all weekend bookings!" class="w-full bg-[#171c2b] border border-neutral-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-400 resize-none"></textarea>
         </div>
 
+        <div>
+          <label class="block text-[10px] uppercase font-bold text-neutral-400 mb-1">Banner Image URL (Optional)</label>
+          <input type="url" id="admin-banner-image" placeholder="https://... image URL" class="w-full bg-[#171c2b] border border-neutral-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-400">
+        </div>
         <div class="flex items-center justify-between pt-1">
           <span id="admin-banner-status-label" class="text-[11px] font-semibold text-neutral-500">Status: Inactive</span>
           <button type="submit" id="save-banner-btn" class="brand-gradient text-black font-extrabold text-xs uppercase px-4 py-2 rounded-xl hover:brightness-110 active:scale-95 transition">
@@ -113,6 +117,18 @@
           </button>
         </div>
       </form>
+      <div class="border-t border-neutral-800 mt-5 pt-4 space-y-3">
+    <!-- Additional homepage slider announcements -->
+      <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-400">Additional Ad Banner Slides</h3>
+      <p class="text-[11px] text-neutral-400">Add image-based slides. Featured vehicles are managed in Live Inventory above.</p>
+      <form onsubmit="saveHeroAnnouncement(event)" class="space-y-2">
+        <input id="hero-title" required placeholder="Slide title" class="w-full bg-[#171c2b] border border-neutral-800 rounded-xl p-3 text-xs text-white">
+        <textarea id="hero-description" placeholder="Description" class="w-full bg-[#171c2b] border border-neutral-800 rounded-xl p-3 text-xs text-white"></textarea>
+        <input id="hero-image" type="url" placeholder="https://... image URL (optional)" class="w-full bg-[#171c2b] border border-neutral-800 rounded-xl p-3 text-xs text-white">
+        <button class="brand-gradient text-black font-bold text-xs px-4 py-2 rounded-xl" type="submit">Add Slider Announcement</button>
+      </form>
+      <div id="hero-admin-list" class="space-y-2 text-xs text-neutral-300">Loading slides...</div>
+      </div>
     </div>
     <!-- Add New Car Form -->
     <div class="bg-[#10141f] p-5 rounded-2xl border border-neutral-800 shadow-lg">
@@ -193,6 +209,7 @@
           </div>
         </div>
 
+        <label class="flex items-center gap-2 text-xs text-cyan-300 font-semibold"><input type="checkbox" id="car-featured" class="accent-cyan-400"> Feature this vehicle in homepage slider</label>
         <button type="submit" id="submit-btn" class="w-full brand-gradient text-black font-extrabold text-xs uppercase py-3 rounded-xl hover:brightness-110 active:scale-[0.99] transition shadow-[0_0_15px_rgba(0,229,255,0.3)] mt-2">
           + Add Vehicle to Live Website
         </button>
@@ -341,6 +358,7 @@
         listenToCustomerChats();
         listenToPromoBannerSettings();
         listenToAdminPromos();
+        listenToHeroAnnouncements();
       } else {
         document.getElementById("login-err").classList.remove("hidden");
       }
@@ -355,6 +373,7 @@
       const titleInput = document.getElementById("admin-banner-title");
       const descInput = document.getElementById("admin-banner-desc");
       const tagInput = document.getElementById("admin-banner-tag");
+      const imageInput = document.getElementById("admin-banner-image");
 
       if (!toggle) return;
 
@@ -365,6 +384,7 @@
         if (document.activeElement !== titleInput) titleInput.value = data.title || "";
         if (document.activeElement !== descInput) descInput.value = data.description || "";
         if (tagInput && document.activeElement !== tagInput) tagInput.value = data.tag || "Special Offer";
+        if (imageInput && document.activeElement !== imageInput) imageInput.value = data.image || "";
 
         if (data.isActive) {
           statusLabel.innerText = "Status: Live on Website";
@@ -396,6 +416,8 @@
     const title = document.getElementById("admin-banner-title").value.trim();
     const desc = document.getElementById("admin-banner-desc").value.trim();
     const tag = document.getElementById("admin-banner-tag").value.trim();
+    const image = document.getElementById("admin-banner-image").value.trim();
+    if (image && !/^https:\/\/\S+$/i.test(image)) { alert("Use an HTTPS image URL"); return; }
     const toggle = document.getElementById("admin-banner-toggle");
     const btn = document.getElementById("save-banner-btn");
 
@@ -407,6 +429,7 @@
         title: title,
         description: desc,
         tag: tag || "Special Offer",
+        image: image,
         isActive: toggle.checked,
         promoId: "promo_" + Date.now(),
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -421,6 +444,37 @@
       btn.disabled = false;
     }
   }
+
+    function listenToHeroAnnouncements() {
+      db.collection('heroSlides').onSnapshot(snapshot => {
+        const list = document.getElementById('hero-admin-list');
+        list.replaceChildren();
+        if (snapshot.empty) { list.textContent = 'No extra announcement slides yet.'; return; }
+        snapshot.forEach(doc => {
+          const d = doc.data();
+          const row = document.createElement('div');
+          row.className = 'flex flex-wrap gap-2 items-center justify-between bg-[#171c2b] rounded-xl p-3';
+          const name = document.createElement('span'); name.textContent = (d.title || 'Untitled') + (d.active === false ? ' (Hidden)' : ' (Live)');
+          const controls = document.createElement('div'); controls.className = 'flex gap-3';
+          const toggle = document.createElement('button'); toggle.className = 'text-cyan-300'; toggle.textContent = d.active === false ? 'Show' : 'Hide';
+          toggle.onclick = async () => { try { await doc.ref.update({active: d.active === false}); } catch(e) { alert(e.message); } };
+          const del = document.createElement('button'); del.className = 'text-rose-400'; del.textContent = 'Delete';
+          del.onclick = async () => { if (confirm('Delete this slide?')) { try { await doc.ref.delete(); } catch(e) { alert(e.message); } } };
+          controls.append(toggle, del); row.append(name, controls); list.appendChild(row);
+        });
+      }, e => { document.getElementById('hero-admin-list').textContent = 'Unable to load slides: ' + e.message; });
+    }
+    async function saveHeroAnnouncement(e) {
+      e.preventDefault();
+      const title = document.getElementById('hero-title').value.trim();
+      const description = document.getElementById('hero-description').value.trim();
+      const image = document.getElementById('hero-image').value.trim();
+      if (image && !/^https:\/\/\S+$/i.test(image)) { alert('Use an HTTPS image URL'); return; }
+      try {
+        await db.collection('heroSlides').add({title, description, image, active:true, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+        e.target.reset();
+      } catch(err) { alert('Unable to save slide: ' + err.message); }
+    }
     // --- 3. FETCH & DISPLAY CARS ---
     async function loadCars() {
       const list = document.getElementById("cars-list");
@@ -503,6 +557,21 @@
       lucide.createIcons();
     }
 
+    async function toggleFeatured(id, current) {
+      try { await db.collection('fleet').doc(id).update({featured: !current}); await loadCars(); }
+      catch(e) { alert('Could not update featured status: ' + e.message); }
+    }
+    async function editCarImage(id) {
+      try {
+        const ref = db.collection('fleet').doc(id);
+        const snap = await ref.get();
+        if (!snap.exists) return;
+        const url = prompt('Enter a clear HTTPS image URL:', snap.data().image || '');
+        if (url === null) return;
+        if (!/^https:\/\/\S+$/i.test(url.trim())) { alert('Please enter a valid HTTPS image URL.'); return; }
+        await ref.update({image: url.trim()}); await loadCars();
+      } catch(e) { alert('Could not update image: ' + e.message); }
+    }
     // --- 4. ADD NEW CAR ---
     async function addNewCar(e) {
       e.preventDefault();
