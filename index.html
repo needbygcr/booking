@@ -546,13 +546,13 @@
           <div class="flex items-center space-x-3">
             <div class="relative">
               <div class="w-9 h-9 rounded-full bg-cyan-950 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-brand font-bold text-xs">
-                <span id="agent-avatar-initials">CS</span>
+                <span id="agent-avatar-initials">AI</span>
               </div>
               <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 absolute bottom-0 right-0 border-2 border-[#121724]"></div>
             </div>
             <div>
-              <h3 id="agent-display-name" class="text-xs font-bold text-white font-brand">Support Specialist</h3>
-              <p class="text-[9px] text-emerald-400 font-medium">NeeD Executive Desk • Active Now</p>
+              <h3 id="agent-display-name" class="text-xs font-bold text-white font-brand">NeeD AI Concierge</h3>
+              <p class="text-[9px] text-emerald-400 font-medium">AI Assistant • Available 24/7</p>
             </div>
           </div>
           <button onclick="toggleChatDrawer()" class="w-8 h-8 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition">
@@ -1001,311 +1001,152 @@
       `;
     });
 
-    const SUPPORT_PERSONAS = [
-      "Aarav Sharma", "Ananya Iyer", "Rohan Verma", "Pooja Hegde", "Kabir Mehta",
-      "Sneha Reddy", "Vikram Malhotra", "Priyanka Nair", "Aditya Joshi", "Riya Sen",
-      "Arjun Kapoor", "Tanvi Deshmukh", "Karan Singhania", "Ishita Roy", "Varun Chawla",
-      "Meera Pillai", "Siddharth Rao", "Divya Menon", "Manish Pandey", "Neha Kulkarni",
-      "Ayush Saxena", "Kavya Nambiar", "Rahul Bhatia", "Simran Kaur", "Devansh Mishra",
-      "Shreya Ghoshal", "Nikhil Agarwal", "Ritika Das", "Gaurav Sen", "Anjali Chauhan",
-      "Yash Vardhan", "Swati Mahajan", "Kunal Grover", "Payal Rajput", "Harshavardhan Jain",
-      "Deepika Bose", "Akash Gill", "Bhavna Trivedi", "Pranav Sethi", "Nandini Murthy",
-      "Tarun Khurana", "Pallavi Shinde", "Mayank Goswami", "Preeti Varma", "Alok Sengupta",
-      "Radhika Merchant", "Suresh Rathi", "Sunidhi Rao", "Sameer Ahluwalia", "Kritika Soni"
-    ];
-
-    const ADMIN_TEAM = [
-      { id: "admin_1", name: "Executive Team 1" },
-      { id: "admin_2", name: "Executive Team 2" },
-      { id: "admin_3", name: "Executive Team 3" }
-    ];
-
-    let unsubscribeChatListener = null;
-    let currentAssignedPersona = null;
-    let currentAssignedAdmin = null;
-
+   
     function getRandomItem(arr) {
       return arr[Math.floor(Math.random() * arr.length)];
     }
 
     function toggleChatDrawer() {
-      const drawer = document.getElementById("chat-drawer");
-      drawer.classList.toggle("hidden");
+  const drawer = document.getElementById("chat-drawer");
+  drawer.classList.toggle("hidden");
 
-      if (!drawer.classList.contains("hidden")) {
-        if (!currentActiveUser) {
-          alert("Please sign in or create an account to start chat support.");
-          toggleChatDrawer();
-          toggleAccountDrawer();
-          return;
-        }
-        initializeChatSession();
-      } else {
-        if (unsubscribeChatListener) unsubscribeChatListener();
-      }
-    }
+  if (!drawer.classList.contains("hidden")) {
+    initializeChatSession();
+  }
+}
 // --- GROQ AI CONCIERGE ENGINE ---
-    let cachedGroqKey = null;
 
-    async function getGroqApiKey() {
-      if (cachedGroqKey) return cachedGroqKey;
-      try {
-        const secretDoc = await db.collection("secrets").doc("aiConfig").get();
-        if (secretDoc.exists) {
-          const rawKey = secretDoc.data().groqKey;
-          if (rawKey) {
-            cachedGroqKey = rawKey.replace(/[^a-zA-Z0-9_\-]/g, "").trim();
-            return cachedGroqKey;
-          }
-        }
-      } catch (err) {
-        console.error("Could not fetch AI key:", err);
-      }
-      return null;
-    }
+    // --- NeeD AI CONCIERGE ENGINE ---
+   // NeeD AI Concierge - Groq AI Connection
+
 async function fetchAiReply(userPrompt) {
-  const apiKey = await getGroqApiKey();
-  if (!apiKey) {
-    return "Our booking desk is available. Tap 'Talk to Executive' below to speak directly with our team.";
-  }
-
-  let fleetContext = "";
-  if (typeof allFleetCars !== "undefined" && allFleetCars.length > 0) {
-    fleetContext = "Available Fleet: " + allFleetCars.map(c => `${c.name} (₹${c.price}/day)`).join(", ");
-  }
-
-  const systemPrompt = `You are NeeD Concierge AI for 'NeeD by GCR'.
-Answer customer queries concisely and politely (under 35 words).
-Key Policies:
-- Premium self-drive fleet (Toyota Fortuner 4x4, luxury SUVs, sedans).
-- Pricing is calculated per 24 hours.
-- Zero security deposit for verified profiles.
-- Complimentary doorstep and airport pickup/drop.
-- ID verification via DigiLocker is mandatory before trip start.
-${fleetContext}
-Only invite them to talk to an executive if they have a complex booking question or a complaint.`;
-try {
-        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Authorization": "Bearer " + apiKey,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            model: "qwen/qwen3.6-27b",
-            messages: [
-              { role: "system", content: systemPrompt },
-              { role: "user", content: userPrompt }
-            ],
-            reasoning_effort: "none",
-            reasoning_format: "hidden",
-            temperature: 0.3,
-            max_tokens: 250
-          })
-        });
-
-        const data = await response.json().catch(() => ({}));
-
-        if (!response.ok) {
-          console.error("Groq API Error Details:", response.status, data);
-          return "I ran into an issue retrieving details. Please tap 'Talk to Executive' below to connect with our team.";
-        }
-
-        return data.choices?.[0]?.message?.content?.trim() || "How can I assist your luxury journey today?";
-      } catch (error) {
-        console.error("Fetch Exception:", error);
-        return "Connection timeout. Please tap 'Talk to Executive' below to speak directly with our desk.";
+  try {
+    const response = await fetch(
+      "https://need-ai-concierge.needbygcr.workers.dev/",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          message: userPrompt
+        })
       }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "AI connection failed");
     }
 
-    async function initializeChatSession() {
-      const phone = currentActiveUser.phone;
-      const nameEl = document.getElementById("agent-display-name");
-      const initialsEl = document.getElementById("agent-avatar-initials");
-      const statusSubEl = nameEl ? nameEl.nextElementSibling : null;
+    return data.reply ||
+      "How can I assist you today?";
 
-      try {
-        const chatRef = db.collection("chats").doc(phone);
-        const doc = await chatRef.get();
-        const chatData = doc.exists ? doc.data() : {};
+  } catch (error) {
+    console.error("NeeD AI Error:", error);
+    return "Our AI Concierge is temporarily unavailable. Please contact 9731055500.";
+  }
+}
 
-        if (chatData.chatMode === "HUMAN" && chatData.assignedPersona) {
-          currentAssignedPersona = chatData.assignedPersona;
-          if (nameEl) nameEl.innerText = currentAssignedPersona;
-          if (initialsEl) initialsEl.innerText = currentAssignedPersona.split(" ").map(n => n[0]).join("");
-          if (statusSubEl) statusSubEl.innerText = "NeeD Executive Desk • Active Now";
-        } else {
-          currentAssignedPersona = null;
-          if (nameEl) nameEl.innerText = "NeeD AI Concierge";
-          if (initialsEl) initialsEl.innerText = "AI";
-          if (statusSubEl) statusSubEl.innerText = "Automated Support • Instant Reply";
-        }
-      } catch (e) {
-        console.error("Chat init error:", e);
-      }
+   async function initializeChatSession() {
+    const nameEl = document.getElementById("agent-display-name");
+    const initialsEl = document.getElementById("agent-avatar-initials");
+    const statusSubEl = nameEl ? nameEl.nextElementSibling : null;
+    const container = document.getElementById("chat-messages-container");
 
-      listenToChatMessages();
+    if (nameEl) nameEl.innerText = "NeeD AI Concierge";
+    if (initialsEl) initialsEl.innerText = "AI";
+    if (statusSubEl) statusSubEl.innerText = "AI Assistant • Available 24/7";
+
+    if (container && !container.dataset.initialized) {
+        container.innerHTML = `
+            <div class="text-center p-4 text-xs text-neutral-300">
+                Welcome to NeeD Cars! 🚗
+                <br>
+                I'm your AI Concierge.
+                How can I help you today?
+            </div>
+        `;
+        container.dataset.initialized = "true";
     }
+}
 
     function listenToChatMessages() {
-      if (!currentActiveUser) return;
-      const phone = currentActiveUser.phone;
-      const container = document.getElementById("chat-messages-container");
-      const messagesRef = db.collection("chats").doc(phone).collection("messages").orderBy("timestamp", "asc");
+    // No Firestore listener required for guest AI chat.
+}
 
-      unsubscribeChatListener = messagesRef.onSnapshot(snapshot => {
-        if (!container) return;
-        container.innerHTML = "";
+function addChatBubble(message, sender) {
+    const container = document.getElementById("chat-messages-container");
+    if (!container) return;
 
-        if (snapshot.empty) {
-          container.innerHTML = `
-            <div class="text-center py-8 text-neutral-500 text-[11px] space-y-1">
-              <p class="font-bold text-neutral-400">NeeD 24/7 Concierge Support</p>
-              <p>Ask anything about our fleet, rates, or delivery terms.</p>
-            </div>
-          `;
-          return;
-        }
+    const row = document.createElement("div");
+    row.className = sender === "customer"
+        ? "flex justify-end"
+        : "flex justify-start";
 
-        snapshot.forEach(doc => {
-          const msg = doc.data();
-          const isMe = msg.sender === "customer";
-          const isPrompt = msg.sender === "system_prompt";
+    const bubble = document.createElement("div");
+    bubble.className = sender === "customer"
+        ? "max-w-[80%] px-3.5 py-2.5 rounded-2xl rounded-br-none bg-cyan-500 text-black text-xs"
+        : "max-w-[80%] px-3.5 py-2.5 rounded-2xl rounded-bl-none bg-[#161c2c] text-white border border-neutral-700 text-xs";
 
-          const bubble = document.createElement("div");
-
-          if (isPrompt) {
-            bubble.className = "flex flex-col items-center my-2";
-            bubble.innerHTML = `
-              <div class="bg-[#141926] border border-neutral-700/80 rounded-2xl p-3 text-center w-full max-w-[280px]">
-                <p class="text-neutral-300 text-[10px] font-medium mb-2">${msg.text}</p>
-                <div class="flex gap-2">
-                  <button onclick="markQueryResolved(this)" class="flex-1 bg-emerald-950/80 text-emerald-400 border border-emerald-500/40 py-1.5 rounded-xl text-[9px] font-bold active:scale-95 transition">
-                    ✓ Resolved
-                  </button>
-                  <button onclick="escalateToHumanExecutive()" class="flex-1 brand-gradient text-black py-1.5 rounded-xl text-[9px] font-extrabold active:scale-95 transition">
-                    Talk to Executive →
-                  </button>
-                </div>
-              </div>
-            `;
-          } else {
-            bubble.className = `flex ${isMe ? "justify-end" : "justify-start"}`;
-            bubble.innerHTML = `
-              <div class="max-w-[80%] px-3.5 py-2.5 rounded-2xl text-xs ${
-                isMe 
-                  ? "bg-cyan-500 text-black font-medium rounded-br-none" 
-                  : "bg-[#161c2c] text-white border border-neutral-700 rounded-bl-none"
-              }">
-                ${!isMe ? `<p class="text-[9px] font-bold text-cyan-400 mb-0.5">${msg.senderName || 'NeeD Assistant'}</p>` : ''}
-                <p class="leading-relaxed">${msg.text}</p>
-              </div>
-            `;
-          }
-
-          container.appendChild(bubble);
-        });
-
-        container.scrollTop = container.scrollHeight;
-      });
+    if (sender !== "customer") {
+        const heading = document.createElement("p");
+        heading.className = "text-[9px] font-bold text-cyan-400 mb-1";
+        heading.textContent = "NeeD AI Concierge";
+        bubble.appendChild(heading);
     }
 
-    async function sendChatMessage(e) {
-      e.preventDefault();
-      const input = document.getElementById("chat-input");
-      const text = input.value.trim();
-      if (!text || !currentActiveUser) return;
+    const content = document.createElement("p");
+    content.className = "leading-relaxed whitespace-pre-wrap";
+    content.textContent = message;
+    bubble.appendChild(content);
 
-      const phone = currentActiveUser.phone;
-      input.value = "";
+    row.appendChild(bubble);
+    container.appendChild(row);
+    container.scrollTop = container.scrollHeight;
 
-      const chatDocRef = db.collection("chats").doc(phone);
-      const messagesRef = chatDocRef.collection("messages");
+    return row;
+}
 
-      try {
-        await messagesRef.add({
-          sender: "customer",
-          senderName: currentActiveUser.name || "Client",
-          text: text,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
+let chatRequestInProgress = false;
 
-        const chatSnap = await chatDocRef.get();
-        const chatData = chatSnap.data() || {};
+async function sendChatMessage(e) {
+    e.preventDefault();
 
-        if (chatData.chatMode === "HUMAN") {
-          await chatDocRef.set({
-            lastMessage: text,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-            unreadByAdmin: true
-          }, { merge: true });
-          return;
-        }
+    const input = document.getElementById("chat-input");
+    const text = input.value.trim();
 
+    if (!text || chatRequestInProgress) return;
+
+    input.value = "";
+    addChatBubble(text, "customer");
+
+    chatRequestInProgress = true;
+    const loadingBubble = addChatBubble("Typing...", "bot");
+
+    try {
         const aiAnswer = await fetchAiReply(text);
 
-        await messagesRef.add({
-          sender: "bot",
-          senderName: "NeeD AI Concierge",
-          text: aiAnswer,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
+        loadingBubble.remove();
+        addChatBubble(
+            aiAnswer || "Sorry, I couldn't generate a response.",
+            "bot"
+        );
 
-       const isGreeting = /^(hi|hello|hey|greetings|namaste)\b/i.test(text.trim());
+    } catch (error) {
+        console.error("NeeD AI Chat Error:", error);
 
-        if (!isGreeting) {
-          setTimeout(async () => {
-            await messagesRef.add({
-              sender: "system_prompt",
-              senderName: "System",
-              text: "Did this resolve your query?",
-              timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-          }, 800);
-        }
+        loadingBubble.remove();
+        addChatBubble(
+            "Our AI assistant is temporarily unavailable. Please try again.",
+            "bot"
+        );
 
-      } catch (err) {
-        console.error("Chat flow error:", err);
-      }
+    } finally {
+        chatRequestInProgress = false;
     }
-
-    async function escalateToHumanExecutive() {
-      if (!currentActiveUser) return;
-      const phone = currentActiveUser.phone;
-      const chatDocRef = db.collection("chats").doc(phone);
-
-      const assignedAgent = getRandomItem(SUPPORT_PERSONAS);
-      const assignedAdmin = getRandomItem(ADMIN_TEAM).id;
-
-      const nameEl = document.getElementById("agent-display-name");
-      const initialsEl = document.getElementById("agent-avatar-initials");
-      const statusSubEl = nameEl ? nameEl.nextElementSibling : null;
-
-      if (nameEl) nameEl.innerText = assignedAgent;
-      if (initialsEl) initialsEl.innerText = assignedAgent.split(" ").map(n => n[0]).join("");
-      if (statusSubEl) statusSubEl.innerText = "Senior Executive Desk • Active Now";
-
-      await chatDocRef.set({
-        chatMode: "HUMAN",
-        assignedPersona: assignedAgent,
-        assignedAdminId: assignedAdmin,
-        unreadByAdmin: true,
-        lastMessage: `Connected to ${assignedAgent}`,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge: true });
-
-      await chatDocRef.collection("messages").add({
-        sender: "admin",
-        senderName: assignedAgent,
-        text: `Namaste! I am ${assignedAgent}, Senior Concierge Specialist. I am reviewing your request now. How may I assist you?`,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-      });
-    }
-
-    function markQueryResolved(btn) {
-      const parent = btn.closest("div");
-      parent.innerHTML = `<span class="text-[10px] text-emerald-400 font-bold">Glad we could help! Enjoy your drive. ✨</span>`;
-    }
+}
     // --- 3. FILTERING LOGIC ---
     function setCategoryFilter(category, buttonElement) {
       selectedCategory = category;
