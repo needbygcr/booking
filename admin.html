@@ -385,8 +385,6 @@ async function checkAdminPassword() {
     const user = result.user;
 
    if (user.uid !== ADMIN_UID) {
-     
-    ) {
       await auth.signOut();
       throw new Error("Unauthorized or unverified admin account.");
     }
@@ -949,8 +947,7 @@ async function verifyAdminSession(user) {
 
     if (
       user.uid !== ADMIN_UID ||
-      !email.endsWith("@need.ind.in") ||
-     
+      email !== "admin@need.ind.in"
     ) {
       await auth.signOut();
       return;
