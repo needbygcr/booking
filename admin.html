@@ -384,8 +384,7 @@ async function checkAdminPassword() {
     const result = await auth.signInWithEmailAndPassword(email, password);
     const user = result.user;
 
-    if (
-      user.uid !== ADMIN_UID ||
+   if (user.uid !== ADMIN_UID) {
      
     ) {
       await auth.signOut();
