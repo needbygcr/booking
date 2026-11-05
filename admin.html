@@ -16,6 +16,7 @@
   <!-- Firebase App & Firestore SDKs (Compat Version) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 
   <style>
     body {
@@ -50,11 +51,19 @@
     </div>
     
     <div class="space-y-3">
-      <input type="password" id="admin-pass" placeholder="Enter Security PIN" class="w-full bg-[#171c2b] border border-neutral-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-400 text-center tracking-widest text-lg">
+      <input
+  type="email"
+  id="admin-email"
+  placeholder="Admin Email (@need.ind.in)"
+  autocomplete="username"
+  required
+  class="w-full bg-[#171c2b] border border-neutral-700 rounded-xl px-4 py-3 text-xs text-white"
+>
+      <input type="password" id="admin-pass" placeholder="Enter Admin Password" class="w-full bg-[#171c2b] border border-neutral-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-400 text-center tracking-widest text-lg">
       <button onclick="checkAdminPassword()" class="w-full brand-gradient text-black font-extrabold text-xs uppercase py-3 rounded-xl hover:brightness-110 active:scale-95 transition shadow-lg">
         Unlock Dashboard
       </button>
-      <p id="login-err" class="text-rose-400 text-[11px] text-center hidden">Incorrect PIN! Please try again.</p>
+      <p id="login-err" class="text-rose-400 text-[11px] text-center hidden">Invalid email or password.</p>
     </div>
   </div>
 
@@ -67,7 +76,7 @@
         <h1 class="text-base font-bold text-white font-brand">Fleet Management</h1>
         <p class="text-[11px] text-neutral-400">Live Inventory, Ratings & Rates Control</p>
       </div>
-      <button onclick="location.reload()" class="text-xs text-neutral-400 hover:text-white border border-neutral-800 px-3 py-1.5 rounded-lg transition">
+      <button onclick="adminLogout()" class="text-xs text-neutral-400 hover:text-white border border-neutral-800 px-3 py-1.5 rounded-lg transition">
         Logout
       </button>
     </div>
@@ -345,24 +354,59 @@
       firebase.initializeApp(firebaseConfig);
     }
     const db = firebase.firestore();
+    const auth = firebase.auth();
 
-    // --- 2. ADMIN SECURITY PIN ---
-    const ADMIN_PIN = "1609"; 
+  
+auth.setPersistence(
+  firebase.auth.Auth.Persistence.SESSION
+).catch(error => {
+  console.error("Session setup failed:", error);
+});
 
-    function checkAdminPassword() {
-      const pass = document.getElementById("admin-pass").value;
-      if (pass === ADMIN_PIN) {
-        document.getElementById("login-modal").classList.add("hidden");
-        document.getElementById("admin-dashboard").classList.remove("hidden");
-        loadCars();
-        listenToCustomerChats();
-        listenToPromoBannerSettings();
-        listenToAdminPromos();
-        listenToHeroAnnouncements();
-      } else {
-        document.getElementById("login-err").classList.remove("hidden");
-      }
+
+    
+const ADMIN_UID = "guzdQUwJXPf5rqe8ff7Ww8YbxZq2";
+
+async function checkAdminPassword() {
+  const email = "admin@need.ind.in";
+  const password = document.getElementById("admin-pass").value;
+  const errorBox = document.getElementById("login-err");
+
+  errorBox.classList.add("hidden");
+
+  if (!email.toLowerCase().endsWith("@need.ind.in")) {
+    errorBox.textContent = "Only @need.ind.in admin emails are allowed.";
+    errorBox.classList.remove("hidden");
+    return;
+  }
+
+  try {
+    const result = await auth.signInWithEmailAndPassword(email, password);
+    const user = result.user;
+
+    if (
+      user.uid !== ADMIN_UID ||
+      !user.emailVerified
+    ) {
+      await auth.signOut();
+      throw new Error("Unauthorized or unverified admin account.");
     }
+
+    const doc = await db.collection("admins").doc(user.uid).get();
+
+    if (!doc.exists || doc.data().role !== "admin") {
+      await auth.signOut();
+      throw new Error("Admin permission not found.");
+    }
+
+   await verifyAdminSession(user);
+
+  } catch (error) {
+    errorBox.textContent = error.message;
+    errorBox.classList.remove("hidden");
+  }
+}
+
 // --- PROMO BANNER SETTINGS CONTROLLER ---
   const promoDocRef = db.collection("settings").doc("promoBanner");
 
@@ -883,6 +927,68 @@
         alert("Delete failed: " + err.message);
       }
     }
+    async function adminLogout() {
+  try {
+    await auth.signOut();
+    window.location.reload();
+  } catch (error) {
+    alert("Logout failed: " + error.message);
+  }
+}
+    
+async function verifyAdminSession(user) {
+  const dashboard = document.getElementById("admin-dashboard");
+  const loginModal = document.getElementById("login-modal");
+
+  dashboard.classList.add("hidden");
+  loginModal.classList.remove("hidden");
+
+  if (!user) return;
+
+  try {
+    const email = (user.email || "").toLowerCase();
+
+    if (
+      user.uid !== ADMIN_UID ||
+      !email.endsWith("@need.ind.in") ||
+      !user.emailVerified
+    ) {
+      await auth.signOut();
+      return;
+    }
+
+    const adminDoc = await db.collection("admins")
+      .doc(user.uid)
+      .get();
+
+    if (!adminDoc.exists || adminDoc.data().role !== "admin") {
+      await auth.signOut();
+      return;
+    }
+
+    loginModal.classList.add("hidden");
+    dashboard.classList.remove("hidden");
+
+    if (!window.adminDashboardLoaded) {
+      window.adminDashboardLoaded = true;
+      loadCars();
+      listenToCustomerChats();
+      listenToPromoBannerSettings();
+      listenToAdminPromos();
+      listenToHeroAnnouncements();
+    }
+
+  } catch (error) {
+    console.error("Admin verification failed:", error);
+    await auth.signOut();
+  }
+}
+
+auth.onAuthStateChanged(async user => {
+  if (!user) window.adminDashboardLoaded = false;
+  await verifyAdminSession(user);
+});
+
   </script>
 </body>
 </html>
