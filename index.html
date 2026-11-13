@@ -172,9 +172,13 @@
 
     <header class="sticky top-0 z-40 bg-[#090b10]/95 backdrop-blur-md px-4 md:px-8 lg:px-12 py-3 md:py-5 border-b border-neutral-800/80 flex items-center justify-between">
       <div class="flex items-center space-x-3">
-        <div class="w-9 h-9 rounded-xl bg-[#11141c] border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-brand font-black text-sm brand-glow">
-          N
-        </div>
+       
+<button type="button" onclick="toggleMenu()"
+  aria-label="Open menu"
+  class="w-9 h-9 rounded-xl bg-[#11141c] border border-cyan-500/40 flex items-center justify-center text-cyan-400 brand-glow">
+  <i data-lucide="menu" class="w-5 h-5"></i>
+</button>
+
         <div class="flex items-center space-x-1.5">
           <span class="text-base font-black italic tracking-wider font-brand text-white">NeeD</span>
           <span class="text-[8px] bg-cyan-950 text-cyan-400 border border-cyan-500/30 px-1.5 py-0.2 rounded font-bold uppercase">GCR</span>
@@ -191,6 +195,28 @@
         <i data-lucide="phone-call" class="w-4 h-4"></i>
       </a>
     </header>
+    
+<!-- NeeD Cars Side Menu -->
+<div id="sideMenu"
+     class="hidden fixed top-16 left-4 z-[100] w-56 bg-[#10141f] border border-cyan-500/40 rounded-2xl shadow-2xl p-3">
+
+  <a href="about-us.html"
+     class="block px-4 py-3 text-white hover:text-cyan-400 border-b border-neutral-800">
+    About Us
+  </a>
+
+  <a href="contact-us.html"
+     class="block px-4 py-3 text-white hover:text-cyan-400 border-b border-neutral-800">
+    Contact Us
+  </a>
+
+  <a href="careers.html"
+     class="block px-4 py-3 text-white hover:text-cyan-400">
+    Careers
+  </a>
+
+</div>
+
 
     <div class="px-4 pt-4 pb-3 md:px-8 lg:px-12 md:pt-5 md:pb-3">
       <div class="bg-[#10141f] rounded-2xl p-2.5 md:p-3 cyan-border brand-glow relative overflow-hidden">
@@ -2136,5 +2162,28 @@ async function sendChatMessage(e) {
   
     listenToAdminHeroSlides();
 </script>
+  
+<script>
+function toggleMenu() {
+  const menu = document.getElementById("sideMenu");
+
+  menu.classList.toggle("hidden");
+}
+
+// Close menu when clicking outside
+document.addEventListener("click", function(event) {
+  const menu = document.getElementById("sideMenu");
+  const button = document.querySelector(
+    'button[onclick="toggleMenu()"]'
+  );
+
+  if (menu && button &&
+      !menu.contains(event.target) &&
+      !button.contains(event.target)) {
+    menu.classList.add("hidden");
+  }
+});
+</script>
+
 </body>
 </html>
