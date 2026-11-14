@@ -1311,6 +1311,11 @@ async function sendChatMessage(e) {
     let currentBookingReferenceId = "";
 
     function handleBookingAttempt(encodedCarName) {
+      
+const googleFormURL = "https://docs.google.com/forms/d/e/1FAIpQLSdQL95uN6xnna1LKl9-F_Vw0Rh0s-gYNgN0MT45wYFfH8Skgw/viewform";
+window.location.href = googleFormURL;
+return;
+
       if (!currentActiveUser) {
         alert("Please sign in or create an account to reserve vehicles.");
         toggleAccountDrawer();
