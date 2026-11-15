@@ -2207,5 +2207,199 @@ document.addEventListener("click", function(event) {
 });
 </script>
 
+<!-- NEED CARS SPECIAL OFFER POPUP -->
+<style>
+#needOfferPopup {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(0,0,0,.82);
+  backdrop-filter: blur(6px);
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+#needOfferPopup.open { display: flex; }
+.need-offer-box {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  padding: 28px;
+  border-radius: 20px;
+  background: #101827;
+  border: 1px solid #28546a;
+  color: white;
+  box-shadow: 0 20px 70px #0009;
+  font-family: inherit;
+}
+.need-offer-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 28px;
+  cursor: pointer;
+}
+.need-offer-box input {
+  width: 100%;
+  padding: 14px;
+  margin: 8px 0 17px;
+  border: 1px solid #405067;
+  border-radius: 10px;
+  background: #202c40;
+  color: white;
+  box-sizing: border-box;
+}
+.need-offer-submit {
+  width: 100%;
+  padding: 15px;
+  background: #22d3ee;
+  border: none;
+  border-radius: 10px;
+  color: #07121b;
+  font-weight: 800;
+  cursor: pointer;
+}
+.need-offer-submit:disabled {
+  opacity: .6;
+  cursor: wait;
+}
+</style>
+
+<div id="needOfferPopup" role="dialog"
+     aria-modal="true" aria-label="Special rental offer">
+  <div class="need-offer-box">
+    <button class="need-offer-close"
+      onclick="closeNeedOfferPopup()"
+      aria-label="Close popup">&times;</button>
+
+    <p style="color:#22d3ee;font-size:12px;font-weight:700">
+      NEED CARS • EXCLUSIVE OFFER
+    </p>
+
+    <h2 style="font-size:25px;font-weight:800;margin:12px 0">
+      Your Next Drive Starts Here! 🚗
+    </h2>
+
+    <p style="color:#aab7c8;font-size:14px;margin-bottom:22px">
+      Get our best rental price in just 10 seconds.
+    </p>
+
+    <form id="needOfferForm">
+      <label for="needOfferName">Your Name</label>
+      <input id="needOfferName" name="name" type="text"
+        placeholder="Enter your name"
+        maxlength="100" autocomplete="name" required>
+
+      <label for="needOfferPhone">Mobile Number</label>
+      <input id="needOfferPhone" name="phone" type="tel"
+        placeholder="10-digit mobile number"
+        inputmode="numeric" maxlength="10"
+        pattern="[6-9][0-9]{9}" required>
+
+      <button class="need-offer-submit"
+        id="needOfferSubmit" type="submit">
+        GET MY BEST PRICE
+      </button>
+
+      <p id="needOfferStatus" role="status"
+        style="font-size:13px;text-align:center;margin-top:12px">
+      </p>
+    </form>
+
+    <p style="color:#8793a6;font-size:11px;text-align:center;margin-top:18px">
+      No advance payment required • Our team will contact you
+    </p>
+  </div>
+</div>
+
+<script>
+(function () {
+  const API =
+    "https://script.google.com/macros/s/AKfycbxoePVWu-X1748aeSM-l_3g5-99Q6MFg9mTvrcB5Sj46wNKU_fKo_4kQOh9j9UajKfh/exec";
+
+  let popupShown = false;
+  let popupClosed = false;
+
+  function showPopup() {
+    if (popupShown || popupClosed) return;
+    const popup = document.getElementById("needOfferPopup");
+    if (!popup) return;
+    popup.classList.add("open");
+    popupShown = true;
+    sessionStorage.setItem("needOfferShown", "yes");
+  }
+
+  window.closeNeedOfferPopup = function () {
+    document.getElementById("needOfferPopup")
+      .classList.remove("open");
+    popupClosed = true;
+  };
+
+  document.addEventListener("DOMContentLoaded", function () {
+    if (sessionStorage.getItem("needOfferShown") !== "yes") {
+      setTimeout(showPopup, 15000);
+
+      // Desktop exit intent
+      document.addEventListener("mouseout", function (e) {
+        if (e.clientY <= 0 && !e.relatedTarget) {
+          showPopup();
+        }
+      });
+    }
+
+    document.getElementById("needOfferForm")
+      .addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const name = document.getElementById("needOfferName")
+          .value.trim();
+        const phone = document.getElementById("needOfferPhone")
+          .value.trim();
+        const button = document.getElementById("needOfferSubmit");
+        const status = document.getElementById("needOfferStatus");
+
+        if (!name || !/^[6-9][0-9]{9}$/.test(phone)) {
+          status.textContent = "Enter a valid name and mobile number.";
+          return;
+        }
+
+        button.disabled = true;
+        button.textContent = "SUBMITTING...";
+        status.textContent = "";
+
+        try {
+          await fetch(API, {
+            method: "POST",
+            mode: "no-cors",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: new URLSearchParams({ name, phone })
+          });
+
+          // Delivery cannot be verified in no-cors mode.
+          status.textContent =
+            "Request sent. Our team will contact you if received.";
+          status.style.color = "#22d3ee";
+
+          document.getElementById("needOfferForm").reset();
+        } catch (error) {
+          status.textContent =
+            "Unable to send. Please try again.";
+          status.style.color = "#ff7777";
+        } finally {
+          button.disabled = false;
+          button.textContent = "GET MY BEST PRICE";
+        }
+      });
+  });
+})();
+</script>
+<!-- END NEED CARS SPECIAL OFFER POPUP -->
+
 </body>
 </html>
