@@ -2316,89 +2316,101 @@ document.addEventListener("click", function(event) {
   </div>
 </div>
 
+
 <script>
 (function () {
-  const API =
-    "https://script.google.com/macros/s/AKfycbxoePVWu-X1748aeSM-l_3g5-99Q6MFg9mTvrcB5Sj46wNKU_fKo_4kQOh9j9UajKfh/exec";
+  const API = "https://script.google.com/macros/s/AKfycbxoePVWu-X1748aeSM-l_3g5-99Q6MFg9mTvrcB5Sj46wNKU_fKo_4kQOh9j9UajKfh/exec";
 
-  let popupShown = false;
-  let popupClosed = false;
+  const popup = document.getElementById("needOfferPopup");
+  const form = document.getElementById("needOfferForm");
+
+  let popupCount = 0;
+  let lastClosedAt = 0;
+  let submitted = false;
+  let exitShown = false;
 
   function showPopup() {
-    if (popupShown || popupClosed) return;
-    const popup = document.getElementById("needOfferPopup");
-    if (!popup) return;
+    if (!popup || submitted || popupCount >= 3) return;
+    if (popup.classList.contains("open")) return;
+
     popup.classList.add("open");
-    popupShown = true;
-    sessionStorage.setItem("needOfferShown", "yes");
+    popupCount++;
   }
 
   window.closeNeedOfferPopup = function () {
-    document.getElementById("needOfferPopup")
-      .classList.remove("open");
-    popupClosed = true;
+    popup.classList.remove("open");
+    lastClosedAt = Date.now();
   };
 
-  document.addEventListener("DOMContentLoaded", function () {
-    if (sessionStorage.getItem("needOfferShown") !== "yes") {
-      setTimeout(showPopup, 15000);
+  // First popup after 15 seconds
+  setTimeout(showPopup, 15000);
 
-      // Desktop exit intent
-      document.addEventListener("mouseout", function (e) {
-        if (e.clientY <= 0 && !e.relatedTarget) {
-          showPopup();
-        }
-      });
+  // Show again 60 seconds after closing
+  setInterval(function () {
+    if (!lastClosedAt || submitted) return;
+
+    if (Date.now() - lastClosedAt >= 60000) {
+      lastClosedAt = 0;
+      showPopup();
+    }
+  }, 1000);
+
+  // Desktop exit intent
+  document.addEventListener("mouseout", function (e) {
+    if (submitted || exitShown) return;
+    if (e.relatedTarget || e.clientY > 0) return;
+    if (popup.classList.contains("open")) return;
+
+    exitShown = true;
+    showPopup();
+  });
+
+  // Submit customer enquiry
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const name = document.getElementById("needOfferName").value.trim();
+    const phone = document.getElementById("needOfferPhone").value.trim();
+    const button = document.getElementById("needOfferSubmit");
+    const status = document.getElementById("needOfferStatus");
+
+    if (!name || !/^[6-9][0-9]{9}$/.test(phone)) {
+      status.textContent = "Enter a valid name and mobile number.";
+      return;
     }
 
-    document.getElementById("needOfferForm")
-      .addEventListener("submit", async function (e) {
-        e.preventDefault();
+    button.disabled = true;
+    button.textContent = "SUBMITTING...";
+    status.textContent = "";
 
-        const name = document.getElementById("needOfferName")
-          .value.trim();
-        const phone = document.getElementById("needOfferPhone")
-          .value.trim();
-        const button = document.getElementById("needOfferSubmit");
-        const status = document.getElementById("needOfferStatus");
-
-        if (!name || !/^[6-9][0-9]{9}$/.test(phone)) {
-          status.textContent = "Enter a valid name and mobile number.";
-          return;
-        }
-
-        button.disabled = true;
-        button.textContent = "SUBMITTING...";
-        status.textContent = "";
-
-        try {
-          await fetch(API, {
-            method: "POST",
-            mode: "no-cors",
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded"
-            },
-            body: new URLSearchParams({ name, phone })
-          });
-
-          // Delivery cannot be verified in no-cors mode.
-          status.textContent =
-            "Request sent. Our team will contact you if received.";
-          status.style.color = "#22d3ee";
-
-          document.getElementById("needOfferForm").reset();
-        } catch (error) {
-          status.textContent =
-            "Unable to send. Please try again.";
-          status.style.color = "#ff7777";
-        } finally {
-          button.disabled = false;
-          button.textContent = "GET MY BEST PRICE";
-        }
+    try {
+      await fetch(API, {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: new URLSearchParams({ name, phone })
       });
+
+      status.textContent = "Request sent. Please wait for our team.";
+      status.style.color = "#22d3ee";
+
+      // no-cors cannot verify that Google saved the enquiry.
+      submitted = true;
+      form.reset();
+
+    } catch (error) {
+      status.textContent = "Unable to send. Please try again.";
+      status.style.color = "#ff7777";
+    } finally {
+      button.disabled = false;
+      button.textContent = "GET MY BEST PRICE";
+    }
   });
 })();
 </script>
+
 <!-- END NEED CARS SPECIAL OFFER POPUP -->
 
 </body>
